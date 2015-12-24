@@ -1,0 +1,183 @@
+Zad 1.
+
+Ciągły przydział pamięci fizycznej:
+- Wszystkie programy znajdują się w całości w pamięci na spójnym obszarze. Może występować podział na obszary o równej lub zmiennej długości. Program znajduje się cały w danym obszarze. Używane są rejestry bazowe i graniczne(?) do tłumaczenia adresu logicznego na fizyczny.
+
+Adres logiczny < rejestr graniczny. 
+Adres fizyczny = adres logiczny + rejestr bazowy 
+
+Ciągły przydział obszarów o zmiennej długości:
+- Dostępne obszary pamięci (dziury) są przechowywane w jakijś strukturze danych. Kiedy program deklaruje, ile pamięci będzie potrzebował, wyszukiwana jest dziura, która może pomieścić ten program. Reszta pamięci z wybranej dziury wraca do struktury danych. Kiedy program kończy działanie, zwraca dziurę do struktury danych, która następnie jest łącżona z sąsiednimi wolnymi dziurami.
+
+Pojawiają się problemy:
+- Którą dziurę wybrać? Możliwe podejścia: best-fit, worst-fit, first-fit. First-fit i best-fit najlepsze.
+- Który koniec dziury ma zająć program?
+- Zewnętrzna fragmentacja: w przypadku obszarów o zmiennej długości może się zdarzyć --------||----------||------- itd. Duży obszar pamięci jest podzielony małymi programami. Moglibyśmy zaalokować wiele dużych programów, ale nie możemy, bo małe programy przeszkadzają.
+- Wewnętrzna fragmentacja: Jeśli mamy partycje o stałym rozmiarze, to program, który się w niej znajduje może nie zajmować całego rozmiaru. W efekcie sumaryczny wolny obszar w zajętych partycjach może być duży, wystarczeć do alokacji innych programów.
+
+Segmentacja: Pamięć podzielona na segmenty (tematycznie) o zmiennej długości. Np. stos, biblioteka matematyczna, główny program, jakieś procedury nie muszą być razem w spójnym obszarze pamięci. Można więc je podzielić. Nie obchodzi nas w sumie, gdzie znajduje się dany segment. Wszystko, co potrzebujemy to wiedzieć, gdzie zaczyna się segment i jak długi on jest. Mamy zatem tablice segmentów - pary (base, limit). Adres logiczny to numer segmentu i offset w segmencie. Translacja adresu logicznego przez sprzęt to spojrzenie do tablicy segmentów, wzięcie base register + offset (pod warunkiem, że offset < limit register).
+
+Kompaktowanie - sposób na zewnętrzną fragmentację: przetasowanie od czasu do czasu programów w pamięci tak, żeby ustawić je jeden obok drugiego zaczynając od jednego z końców pamięci głównej. Widać, że jest to kosztowna operacja.
+||--||---|||||----||||||---||--
+|||||||||||||||||--------------
+
+Problemy rozw:
+Segmentacja: program nie musi być cały w jednym kawałku, można go pociąć na mniejsze i łatwiej rozprzestrzenić po dziurach. Problem zewnętrznej fragmentacji dalej pozostaje.
+
+Stronicowanie: program podzielony na małe kawałki o takich samych rozmiarach (strony). Program nie musi być w jednym miejscu, nie ma zewnętrznej fragmentacji. Przez to, że strony nie mają dużego rozmiaru, ograniczona jest wewnętrzna fragmentacja. Łatwiej przydzielać stronom miejsce w pamięci. W szczególności, kiedy wymieniamy programy w pamięci, na dysku należy zapisać obraz programu (o zmiennej długości), co dalej cierpi przez zewnętrzną fragmentację, a kompaktowania tam nie wciśniemy, bo czas działania na pamięci drugorzędnej jest astronomiczny.
+
+Problemy rozwiązywane przy ciągłym przydziale (uwzgledniam pam. wirt):
+a) program nie musi być cały w pamięci! Duża zaleta, której tłumaczyć nie trzeba. Można zmieścić o wiele więcej programów.
+b) rozwiązuje problem zewnętrznej fragmentacji (i w sumie wewnętrznej trochę też)
+- nie ograniczamy liczby działających procesów jak w fixed partitioning
+- w przypadku stronicowania nie potrzebujemy super kosztownych algorytmów decydujących, gdzie umieścić stronę.
+c) można zużywać więcej pamięci niż jest pamięć fizyczna.
+d) Można nadać wirtualnym segmentom/stronom uprawnienia
+
+Segmentacja lepsza niż ciągły przydział obszarów o zmiennej długości: segmenty łatwiej mieścić w dziurach w pamięci głównej. Rzadziej trzeba robić kompaktowanie, bo zewnętrzna fragmentacja jest mniejsza (proces jest podzielony na mniejsze segmenty). Jeśli mamy pamięć wirt, to nie wszystkie segmenty muszą być w pamięci głównej.
+Ułatwienie dla programisty: programista operuje na adresie, który jest numerem segmentu + offsetem, a nie po prostu jednym adresem. 
+
+Zad. 2
+
+Program break - szczyt sterty.
+
+int sbrk(x) przesuwa o x bajtów program break i zwraca stary
+
+int mmap(pod jakim addr, długość, protection(read/write/exec), flags(MAP_PRIVATE, MAP_SHARED etc), fileDescriptor, offset)
+przydziela pamięć w memory mapping segmencie - musi wypełnić ją zerami oraz przydzielona pamięć jest wielokrotnością strony.
+
+mmap częściej używany bo pozwala mapować w dowolnym miejscu, sbrk nie.
+
+mmap lepszy, bo jak ||--------------------------------
+to mamy dużo stron do nie oddania, bo nie są na górze sterty, więc nie zostaną usunięte z listy wolnych bloków.
+
+malloc trzyma w sobie dwukierunkową listę wolnych bloków postaci |Length|Prev|Next|---pamięć---|. Kiedy może to wg jakiejś polityki zwraca blok z free listy i obcina go do potrzebnego rozmiaru jeśli jest on za duży. Kiedy nie ma odpowiedniego wolnego bloku w liście, malloc używa sbrk(), by przesunąć program break o kilka stron i dodaje duży blok do free listy, z którego zostanie wydzielona żądana pamięć. Jeśli rozmiar żądanej pamięci przekracza MMAP_THRESHOLD (128kB), to tworzone jest anonimowe mapowanie w memory mapping segmencie, do czego używany jest mmap. Zwalniane z mmapa bloki są od razu un-mmapowane
+
+Blok nie jest zainicjalizowany.
+Wyrównywane do słowa maszynowego. v------v-------------------v 
+Tak naprawdę malloc daje najpierw |Length|Właściwa pamięć|.
+Wyrównanie 32 - 8, 64 - 16.
+
+free oddaje blok do free listy oraz łączy stykające się z oddanym blokiem bloki w całość. Jeśli na stercie jest szczytowy blok (kończący się program breakiem), to nie jest on oddawany natychmiast (nie przesuwamy program breaka, by pochłonąć ten wolny blok), dopóki szczytowy blok nie przekroczy jakiegoś progu. Wszystko to, by ograniczyć wywołania system calla sbrk().
+
+Możnaby kompaktować, gdyby nie przydzielać wskaźnika na blok pamięci, ale wskaźnik na wskaźnik. We wewnętrzne wskaźniki mogłyby się kompaktować. W C raczej takich bajerów nie ma :d
+
+Przydzielona pamięć oczywiście (raczej xd) nie ulega kompaktowaniu - to by było upośledzone. Odwołuję się do adresu 1, a tam nie ma tego, co chce Oo. Albo co gorsza, nowa alokacja pamięci mogła zająć po kompaktowaniu adres 1. W efekcie odwołuję się do śmieci. Nie można też sprawdzić, czy odwołanie do adresu 1 jest tym "starym", czyli sprzed kompaktowania, czy też tym nowym.
+
+Błędy przy korzystaniu ze sterty:
+a) wycieki pamięci - nie zwalniamy zaalokowanej pamięci, a program traci możliwość dostępu do niej. W efekcie zostaje ona do końca działania programu.
+b) dwukrotne zwolnienie zaalokowanej pamięci - nie wiadomo, co może się stać
+c) zwalnianie pamięci ze wskaźnika, którego nie dostaliśmy od malloca
+d) dangling pointery - wskaźniki do obiektów, które już zwolniliśmy
+e) null pointer accessy
+
+Zad. 3
+
+Bitmapa: Dzielimy pamięć na jednostki alokacji pamięci (od kilku bajtów po kilka kilobajtów). Teraz przechowujemy w pamięci głównej ciągły obszar, gdzie n-ty bit odpowiada n-tej jednostce pamięci. Jeśli bit jest zerem, to jednostka jest wolna.
+alloc - program deklaruje zużycie k jednostek alokacji - szukamy w bitmapie k zer.
+free - zaznaczamy wszystkie z k zwolnionych jednostek jako 0 w odpowiadających im bitach.
+
+Oczekiwana złożoność czasowa to pewnie O(Pamięć / jednostka alokacji).
+
+Narzut pamięciowy: (Pamięć / jednostka alokacji) / 8bitów
+--------------------------
+
+Lista: Przechowujemy dwukierunkową listę, której węzły reprezentują bloki pamięci. Węzeł przechowuje informacje takie jak: czy blok jest procesem czy dziurą (P/H), początek oraz koniec, wskaźnik na poprzednika i następnika. Te kontrolne bloki muszą być umieszczone przed alokowanym blokiem, bo inaczej skąd wziąć pamięć na węzły listy?
+
+
+alloc - przechodzimy po liście w poszukiwaniu dziur, dodajemy nowy węzeł, modyfikujemy dziure
+free - zamieniamy węzeł programu na węzeł dziury, łączymy sasiadów.
+
+Złożoność czasowa alokacji - O(liczba procesów), zwalniania - O(1).
+
+Narzut pamięciowy: rozmiar węzła * (liczba procesów * jakas stała), trzeba zawczasu zarezerwować miejsce na węzły.
+-------------------------
+Argumenty za bitmapą: prosty sposób. Jeśli dobierzemy odpowiedni rozmiar jednostki pamięci, to będzie efektywnie.
+Im większa jednostka alokacji, tym mniejsza bitmapa i szybsze przeszukiwanie.
+
+Przeciw bitmapie: kiedy przydzielamy procesowi k jednostek pamięci, część z tej pamięci nie będzie używana. Im większa jednostka, tym więcej tej nieużywanej pamięci. Im mniejsza, tym wolniej się ją przeszukuje.
+
+Argumenty za listą: brak marnowanej pamięci (jak w bitmapie) Jeśli jest mało procesów, to przeglądanie listy jest szybkie.
+
+Przeciw liście: wolna, gdy jest dużo procesów lub bardzo małych dziur, które nikomu na nic się nie przydadzą.
+
+
+POLITYKI:
+
+First-fit skanuję pamięć od początku w poszukiwaniu pierwszego bloku, w którym może się zmieścić obraz procesu.
+
+Next-fit skanuje pamięć od miejsca ostatniej alokacji i przydziela pierwszy blok, w którym może się zmieścić obraz procesu.
+
+Best-fit szuka najmniejszego bloku w pamięci, w którym może się zmieścić proces. Przeszukuje wszystkie bloki.
+
+Worst-fit szuka największego bloku w pamięci, w którym proces sie zmieści. Przeszukuje wszystkie bloki. Wg. silberschatza słaby.
+
+First-fit zalety:
+- szybki
+- prosty
+- często najlepszy
+First-fit wady:
+- może śmiecić na początku pamięci zostawiając malutkie bloki, które powodują narzut podczas przeszukiwania listy od początku.
+
+Next-fit zalety:
+- też prosty
+- nie musi przeszukiwać małych bloków, które by zostawiał first-fit
+Next-fit wady:
+- największy blok wolnej pamięci, który z reguły znajduje się na końcu, szybko zostaje podzielony na małe fragmenty. Przez to możliwe, że trzeba będzie częściej wykonywać kompaktowanie.
+
+Best-fit przeszukuje całą pamięć i zostawia bardzo małe wolne bloczki - przez to szybko cała pamięć jest przedziurawiona nieużywalnymi bloczkami - trzeba uruchamiać kompaktowanie, częściej niż w przypadku innych algorytmów.
+
+Złączanie nieużytków - łączenie sasiednich dziur w jedną - zmniejsza zewnętrzną fragmentację.
+
+Złączanie nieużytków (garbage collection): automatyczne zarządzanie pamięcią - z poziomu języka programowania. Istnieje procedura garbage collector, która wyszukuje części pamięci, które już nigdy nie będą potrzebne i zwraca je.
+Zalety są takie, że nie trzeba martwić się o błędy na stercie (double free, wskaźniki do pamięci, która została już zwolniona i być może ponownie zalokowana, wycieki pamięci)
+Wady takie, że produkuje duży narzut.
+
+Zad. 4
+
+System bliźniaków (buddy system): Pamięć jest dzielona na potęgi dwójki. Zaczyna od jednego wielkiego bloku. Każde żądanie przydziału pamięci x bajtów jest zaokrąglane do najbliższej potęgi dwójki - K. Teraz szukamy wolnego bloku o rozmiarze K. Jeśli takiego nie ma, to najmniejszy większy blok rozspajamy na dwie części aż nie uzyskamy bloku o rozmiarze K. 
+
+adresy sąsiadów różnią się dokładnie jednym bitem.
+
+Utrzymujemy tablicę głów list wolnych bloków rozmiaru K. TAB[K] to glowa listy bloków rozmiaru K.
+
+Kiedy proces zwalnia zajęty blok oraz jego sąsiad też jest wolny, bloki te łączą się.
+
+Wadą buddy systemu jest wewnętrzna fragmentacja - jeśli chcemy zająć 65 stron, to zajmiemy tak naprawdę 128 :/ Alokacja jest szybka i zwalnianie też, ale dzielenie bloków i złączanie wymaga przeglądania listy bloków.
+
+- Lazy buddy system: bloki zwolnione nie są zawsze łączone. Utrzymuje się jakąś liczbę "lokalnie wolnych" bloków, których nie łączy się, jeśli zwolni się jego sąsiad. Jeśli liczba lokalnie wolnych bloków przekroczy próg, łączy się nadmiarowe bloki.
+
+Służy do zarządzania stronami.
+
+Używa się do szybkiej alokacji małych obiektów (dynamiczna fragmentacja metodami best-fit, first-fit zbyt wolne dla jądra, które często musi tworzyć małe struktury danych)
+
+alloc K: przechodzimy po liście bloków póki nie napotkamy najmniejszego wolnego bloku o rozmiarze większym niz K. Potem blok ten dzielimy na połowy, póki nie osiągniemy bloku rozmiaru 2^sufit(log K)
+free: po prostu zwalniamy blok i łączymy sąsiadów jeśli się da.
+
+Złożoność czasowa free O(log K), alloc: O(log K) albo O(n) - dunno
+
+Narzut pamięciowy: na każdy węzeł drzewa. W najgorszym przypadku jest to 2*liczba najmniejszych bloków (2n), pewnie na ogół to będzie jakiś log^2
+
+Algorytm płytowy (slab allocator): Każdy rodzaj obiektu który przechowuje jądro (np. pcb) ma własny cache na obiekty właśnie tego rodzaju. Płyta (slab) składa się z iluś ciągłych stron. Każda płyta wypełniana jest obiektami danego rodzaju, wpisy w cache'u do nich wskazują z zaznaczeniem, czy obiekt jest wolny, czy zajęty.
+
+Zarządza strukturami o starym rozmiarze
+
+struct msg{
+	int len;
+	char data[0];
+} ---- msg nie ma stałego rozmiaru!
+
+Płyty mogą być:
+a) Wolne - żaden z obiektów nie jest używany
+b) Częściowo zapełnione - ofc
+c) Pełne - ofc
+
+alloc: najpierw próbuje się wziąć wolny obiekt z częściowo zapełnionej płyty. Jeśli takiego nie ma, to bierze się obiekt z wolnej płyty. Jeśli znowu takiego nie ma, to bierze się nową płytę z puli, dodaje się nowe wpisy do cache'a. W cachu, we wpisie wybranego obiektu zaznacza się obiekt jako zajęty.
+
+free: zaznacza się obiekt w cache'u jako wolny
+
+Złożoność czasowa free O(1), alloc O(liczba płyt w cache'u + rozmiar płyty / rozmiar obiektu) - trzeba przejść się po płytach, a potem po wpisach w cache'u dla znalezionej płyty. 
+
+Narzut pamięciowy: Tyle, co na wpisy w cache'u - liczba płyt / rozmiar obiektu
+
+Zalety algorytmu płytowego - nie ma fragmentacji wewnętrznej ani zewnętrznej, dobre, gdy obiekty często są tworzone i niszczone.
