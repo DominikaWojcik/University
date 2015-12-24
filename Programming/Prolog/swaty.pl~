@@ -1,0 +1,158 @@
+%Autor: Jaros³aw Dzikowski 273233
+
+
+
+
+correct([],[]).
+correct([((A,B),X,Y)|T],[[(A,B),(X,Y)]|S] ):-
+	correct(T,S).
+
+adjacent((X1,Y1),(X2,Y2)):-
+	((  X2 is X1 -1, Y2 is Y1);
+	(   X2 is X1 + 1, Y2 is Y1);
+	(   X2 is X1, Y2 is Y1-1);
+	(   X2 is X1, Y2 is Y1 +1)).
+
+neighbour((MapN,MapM),P,(X2,Y2)):-
+	adjacent(P,(X2,Y2)),
+	X2 > 0,
+	Y2 > 0,
+	X2 =< MapN,
+	Y2 =< MapM.
+
+visited(X,[H|_]):-
+	member(X,H),!.
+visited(X,[_|T]):-
+	visited(X,T).
+
+numbers(X,[H|_]):-
+	member(X,H),!.
+numbers(X,[_|T]):-
+	numbers(X,T).
+
+scan(Start,End,SolSoFar,[Start|Vis],TheRest,Size):-
+	emptyS(S),
+	put(Start,S,S1),
+	connected(End,Vis,S1,SolSoFar,TheRest,Size).
+
+dfs(Current,EndPoint,_,Acc,[EndPoint|Acc],_,Size,_):-
+	neighbour(Size,Current,EndPoint),!.
+dfs(Current,EndPoint,SolSoFar,Acc,Path,TheRest,Size,Num):-
+	(   Num mod 6 is 0 ->
+	    scan(Current,EndPoint,SolSoFar,Acc,TheRest,Size);true),
+	neighbour(Size,Current,X),
+	not(member(X,Acc)),
+	not(visited(X,SolSoFar)),
+	not(numbers(X,TheRest)),
+	Num1 is Num + 1,
+	dfs(X,EndPoint,SolSoFar,[X|Acc],Path,TheRest,Size,Num1).
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%5
+emptyS([]).
+putS(E,A,[E|A]).
+getS([H|T],H,T).
+addallS(X,G,S,R):-
+	findall(X,G,R,S).
+
+isConnected(_,[],_).
+isConnected(Vis,[[StartPoint,EndPoint]|Rest],Size):-
+	emptyS(Stack),
+	putS(StartPoint,Stack,Stack1),
+	connected(EndPoint,[],Stack1,Vis,Rest,Size),
+	isConnected(Vis,Rest,Size).
+
+connected(EndPoint,_,S,_,_,_):-
+	\+ emptyS(S),
+	getS(S,EndPoint,_),
+	%write('Dotarlem do'),nl,write(EndPoint),nl,
+	!.
+connected(EndPoint,A,S,Vis,Rest,Size):-
+	\+ emptyS(S),
+	getS(S,C,S1),
+	%write('wyciagam ze stosu '),write(C),nl,
+	((\+ member(C,A),
+	 \+ visited(C,Vis),
+	 \+ numbers(C,Rest)) ->
+	%write(C),nl,write('EndPoint = '),write(EndPoint),nl,
+	 addallS(X,neighbour(Size,C,X),S1,S2),
+	 %write('Stos: '),write(S2),nl,
+	 connected(EndPoint,[C|A],S2,Vis,Rest,Size);
+	%write(C),write(' juz bylo odw'),nl,
+	connected(EndPoint,A,S1,Vis,Rest,Size)).
+%%%%%%%%%%%%%%%
+
+solve([],Solution,Solution,_).
+solve([[StartPoint,EndPoint]|TheRest],Acc,Solution,Size):-
+	dfs(StartPoint,EndPoint,Acc,[StartPoint],Path,TheRest,Size,0),
+	%write('sciezka z '),write(StartPoint),write(' do '),write(EndPoint),write(':'),nl,write(Path),nl,
+	isConnected([Path|Acc],TheRest,Size),
+	solve(TheRest,[Path|Acc],Solution,Size).
+
+write_sol([]).
+write_sol([H|T]):-
+	write_sol(T),
+	reverse(X,H),
+	write(X),
+	write(','),nl.
+
+main(File):-
+	open(File, read, Params),
+	read(Params,MapN),
+	read(Params,MapM),
+	read(Params,PairsIn),
+	close(Params),
+	correct(PairsIn,Pairs),
+	solve(Pairs,[],Solution,(MapN,MapM)),
+	write('['),
+	write_sol(Solution),
+	write(']'),nl,
+	fail.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

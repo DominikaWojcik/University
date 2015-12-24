@@ -1,0 +1,11 @@
+% dlugosc([],[]).
+%dlugosc([_|T],[_|O]):-
+%	dlugosc(T,O).
+
+%reverse(X,Y):-
+%	dlugosc(X,Y),
+%	reverse(X,[],Y).
+
+%reverse([],A,A).
+%reverse([H|T],A,Y):-
+%	reverse(T,[H|A],Y).

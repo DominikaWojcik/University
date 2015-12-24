@@ -1,0 +1,15 @@
+append([],X,X).
+append([H|T],Y,[H|S]):-
+	append(T,Y,S).
+
+select(H,[H|T],T).
+select(X,[H|T],[H|S]):-
+	select(X,T,S).
+
+sublist(X,[]).
+sublist(L1,[H|T]):-
+	select(H,L1,S),
+	append(P,Q,S),
+	append(P,H,X),
+	append(X,Q,L1).
+	%sublist(Q,T).

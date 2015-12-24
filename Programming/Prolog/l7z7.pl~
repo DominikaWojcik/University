@@ -1,0 +1,23 @@
+:- arithmetic_function(!!/1).
+:- op(300, yf,!!).
+
+!!(0,0):- !.
+!!(1,1):-!.
+!!(N,Res):-
+	1 is N mod 2,!,
+	N1 is N - 2,
+	!!(N1,Res1),
+	Res is N * Res1.
+!!(N,Res):-
+	N1 is N - 1,
+	!!(N1,Res).
+
+:- arithmetic_function(!/1).
+:- op(199, yf, !).
+!(0,1):- !.
+
+!(N,Res):-
+	N1 is N-1,
+	!(N1,Res1),
+	Res is N * Res1.
+

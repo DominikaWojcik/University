@@ -1,0 +1,82 @@
+
+na_lewo(1,2).
+na_lewo(2,3).
+na_lewo(3,4).
+na_lewo(4,5).
+na_prawo(5,4).
+na_prawo(4,3).
+na_prawo(3,2).
+na_prawo(2,1).
+
+
+mieszka(anglik,Y):-
+	kolor(Y,czerwony).
+
+wlasciciel(hiszpan,pies).
+
+pije(X,kawa):-
+	mieszka(X,Y),
+	kolor(Y,zielony).
+
+pije(ukrainiec,herbata).
+
+sasiaduje(X,Y):-
+	kolor(X,zielony),
+	kolor(Y,bialy),
+	na_prawo(X,Y).
+sasiaduje(X,Y):-
+	kolor(X,zielony),
+	kolor(Y,bialy),
+	na_lewo(X,Y).
+
+wlasciciel(X,waz):-
+	pali(X,winstony).
+
+kolor(X,zolty):-
+	mieszka(Y,X),
+	pali(Y,koole).
+
+pije(X,mleko):-
+	mieszka(X,3).
+
+mieszka(norweg,1).
+
+sasiaduje(X,Y):-
+	mieszka(A,X),
+	pali(A,chesterfieldy),
+	mieszka(B,Y),
+	wlasciciel(B, lis),
+	na_prawo(X,Y).
+sasiaduje(X,Y):-
+	mieszka(A,X),
+	pali(A,chesterfieldy),
+	mieszka(B,Y),
+	wlasciciel(B, lis),
+	na_lewo(X,Y).
+
+pije(X,sok):-
+	pali(X,luckystrike).
+
+sasiaduje(X,Y):-
+	mieszka(norweg,X),
+	kolor(Y,niebieski),
+	na_prawo(X,Y).
+sasiaduje(X,Y):-
+	mieszka(norweg,X),
+	kolor(Y,niebieski),
+	na_lewo(X,Y).
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,3 @@
+suffix(L,L).
+suffix([_|T],S):-
+	suffix(T,S).

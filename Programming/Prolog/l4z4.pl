@@ -1,0 +1,12 @@
+flatten(T,F):-
+	flatten(T,F,[]).
+flatten(leaf,A,A).
+flatten(node(L,E,R),X,A):-
+	flatten(R,Y,A),
+	flatten(L,X,[E|Y]).
+
+mirror(leaf,leaf).
+mirror(node(L,E,R),node(RR,E,LL)):-
+	mirror(L,LL),
+	mirror(R,RR).
+

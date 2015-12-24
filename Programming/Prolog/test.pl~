@@ -1,0 +1,17 @@
+p(0,0).
+p(N+1,X):-
+	p(N,X1),
+	X is X1 +1.
+
+
+
+
+kot(adam).
+kot(marcin).
+kot(michal).
+
+lubi(kot(X),ryba(Y)).
+
+ryba(a).
+ryba(b).
+ryba(c).
