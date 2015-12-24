@@ -1,2 +1,2 @@
 # University
-What happens if I write this?
+Some university stuff: solutions, reports, projects etc.

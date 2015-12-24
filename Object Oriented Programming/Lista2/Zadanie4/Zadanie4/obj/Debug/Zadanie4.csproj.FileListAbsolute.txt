@@ -1,0 +1,6 @@
+c:\users\dziku\documents\visual studio 2013\Projects\Lista2\Zadanie4\Zadanie4\bin\Debug\Zadanie4.exe.config
+C:\Users\Dziku\Documents\Visual Studio 2013\Projects\Lista2\Zadanie4\Zadanie4\bin\Debug\Zadanie4.exe
+C:\Users\Dziku\Documents\Visual Studio 2013\Projects\Lista2\Zadanie4\Zadanie4\bin\Debug\Zadanie4.pdb
+C:\Users\Dziku\Documents\Visual Studio 2013\Projects\Lista2\Zadanie4\Zadanie4\obj\Debug\Zadanie4.exe
+C:\Users\Dziku\Documents\Visual Studio 2013\Projects\Lista2\Zadanie4\Zadanie4\obj\Debug\Zadanie4.pdb
+C:\Users\Dziku\documents\visual studio 2013\Projects\Lista2\Zadanie4\Zadanie4\obj\Debug\Zadanie4.csprojResolveAssemblyReference.cache

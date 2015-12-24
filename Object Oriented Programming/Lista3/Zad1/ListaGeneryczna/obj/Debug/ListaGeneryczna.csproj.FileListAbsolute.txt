@@ -1,0 +1,5 @@
+c:\Users\Dziku\documents\visual studio 2013\Projects\Lista3\Zad1\ListaGeneryczna\bin\Debug\ListaGeneryczna.dll
+c:\Users\Dziku\documents\visual studio 2013\Projects\Lista3\Zad1\ListaGeneryczna\bin\Debug\ListaGeneryczna.pdb
+c:\Users\Dziku\documents\visual studio 2013\Projects\Lista3\Zad1\ListaGeneryczna\obj\Debug\ListaGeneryczna.csprojResolveAssemblyReference.cache
+c:\Users\Dziku\documents\visual studio 2013\Projects\Lista3\Zad1\ListaGeneryczna\obj\Debug\ListaGeneryczna.dll
+c:\Users\Dziku\documents\visual studio 2013\Projects\Lista3\Zad1\ListaGeneryczna\obj\Debug\ListaGeneryczna.pdb

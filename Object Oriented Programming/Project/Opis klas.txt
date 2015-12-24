@@ -1,0 +1,29 @@
+Projekt z programowania obiektowego
+Autor: Jaros³aw Dzikowski
+
+Klasy:
+
+0. Main: Uruchamia aplikacjê.
+
+1. Application: singleton, jak nazwa wskazuje zarz¹dza stanem aplikacji, inicjalizacj¹, czyszczeniem po sobie (Jeœli jest to potrzebne).
+		Application dziedziczy z JFrame i zawiera stan aplikacji, który reprezentowany jest przez View - JPanel oraz Model.
+
+2. Model: Klasa odpowiadaj¹ca za logikê danego stanu. Inne modele dziedzicz¹ z tej klasy.
+
+3. View: Dziedziczy z JPanel, odpowiada za graficzn¹ reprezentacjê stanu oraz za wykrywanie wejœcia u¿ytkownika. Inne widoki dziedzicz¹ z tej klasy.
+
+4. MainMenuModel i MainMenuView: Odpowiadaj¹ za menu g³ówne gry pojawi¹j¹ce siê zaraz po uruchomieniu. Mo¿na z niego przejœæ do podmenu wyboru poziomu, creditsów, b¹dŸ te¿ wyjœæ z gry.
+
+5. ChooseLevelModel i ChooseLevelView: Odpowiada za podmenu wyboru poziomów. Pozwalaj¹ wybraæ poziom i rozpocz¹æ w³aœciw¹ grê z za³adowanym poziomem.
+
+6. GameModel i GameView: Jak w powy¿szych przypadkach, ale zdecydowanie bardziej rozbudowane. Tutaj model wczytuje z pliku planszê wybran¹ wczeœniej w podmenu wyboru poziomu.
+			Widok pozwala nam na umieszczanie odcinków na planszy poprzez klikanie myszk¹. Model wykonuje odpowiednie obliczenia np. sprawdzanie, czy odcinek przecina kropkê etc.
+
+7. Plane: Klasa reprezentuj¹ca planszê. Zawiera tablicê kropek do po³¹czenia ³aman¹ oraz tablicê odcinków ³amanej.
+
+8. Segment: Klasa reprezentuj¹ca odcinek na p³aszczyŸnie. Sk³ada siê ona z dwóch wektorów 2D reprezentuj¹cych koñce odcinka oraz floata odpowiadaj¹cego za gruboœæ odcinka.
+		Dodatkowo Segment zapewnia metodê "boolean crosses(Dot )" s³u¿¹c¹ do sprawdzenia, czy dany odcinek przecina podan¹ w argumencie metody kropkê.
+
+9. Dot: Klasa reprezentuj¹ca kropkê na p³aszczyŸnie. Sk³ada siê ona z wektora 2D reprezentuj¹cego wsp. œrodka kropki oraz z jej promienia.
+
+10. Vector2D: Klasa reprezentuj¹ca wektór w przestrzeni liniowej R^2. Klasa ta zapewnia operacje arytmetyczne na wektorach (+,-,*,/), iloczyny sklarne i wektorowe, rzuty wektora na prost¹, etc.

@@ -1,0 +1,6 @@
+c:\users\dziku\documents\visual studio 2013\Projects\Lista4\PrimeCollection\PrimeCollection\bin\Debug\PrimeCollection.exe.config
+c:\users\dziku\documents\visual studio 2013\Projects\Lista4\PrimeCollection\PrimeCollection\obj\Debug\PrimeCollection.csprojResolveAssemblyReference.cache
+c:\users\dziku\documents\visual studio 2013\Projects\Lista4\PrimeCollection\PrimeCollection\bin\Debug\PrimeCollection.exe
+c:\users\dziku\documents\visual studio 2013\Projects\Lista4\PrimeCollection\PrimeCollection\bin\Debug\PrimeCollection.pdb
+c:\users\dziku\documents\visual studio 2013\Projects\Lista4\PrimeCollection\PrimeCollection\obj\Debug\PrimeCollection.exe
+c:\users\dziku\documents\visual studio 2013\Projects\Lista4\PrimeCollection\PrimeCollection\obj\Debug\PrimeCollection.pdb

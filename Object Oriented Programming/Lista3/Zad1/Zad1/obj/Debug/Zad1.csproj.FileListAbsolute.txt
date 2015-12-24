@@ -1,0 +1,8 @@
+c:\users\dziku\documents\visual studio 2013\Projects\Lista3\Zad1\Zad1\bin\Debug\Zad1.exe.config
+c:\users\dziku\documents\visual studio 2013\Projects\Lista3\Zad1\Zad1\bin\Debug\Zad1.exe
+c:\users\dziku\documents\visual studio 2013\Projects\Lista3\Zad1\Zad1\bin\Debug\Zad1.pdb
+c:\users\dziku\documents\visual studio 2013\Projects\Lista3\Zad1\Zad1\bin\Debug\ListaGeneryczna.dll
+c:\users\dziku\documents\visual studio 2013\Projects\Lista3\Zad1\Zad1\bin\Debug\ListaGeneryczna.pdb
+c:\users\dziku\documents\visual studio 2013\Projects\Lista3\Zad1\Zad1\obj\Debug\Zad1.csprojResolveAssemblyReference.cache
+c:\users\dziku\documents\visual studio 2013\Projects\Lista3\Zad1\Zad1\obj\Debug\Zad1.exe
+c:\users\dziku\documents\visual studio 2013\Projects\Lista3\Zad1\Zad1\obj\Debug\Zad1.pdb
