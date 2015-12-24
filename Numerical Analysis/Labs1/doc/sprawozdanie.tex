@@ -1,0 +1,871 @@
+\documentclass{article}
+\usepackage[utf8]{inputenc}
+\usepackage{polski}
+\usepackage[polish]{babel}
+\usepackage{bbm}
+\usepackage{amsmath}
+\usepackage{amsthm}
+
+\newtheorem{defi}{Definicja}
+\newtheorem{twr}{Twierdzenie}
+\newtheorem*{dd}{Dowód}
+
+
+\author{Jarosław Dzikowski 273233}
+\date{Wrocław, \today}
+\title{\textbf{Pracownia z analizy numerycznej} \\ Sprawozdanie do zadania \textbf{P.1.11}}
+\begin{document}
+\maketitle
+\section{Uwagi techniczne}
+Program można uruchamiać normalnie z wiersza poleceń lub przeglądać w interaktywnym środowisku Juno. Ponieważ program wypisuje dużą ilość danych na standardowe wyjście zaleca się przekierowanie wyjścia do jakiegoś pliku, by umożliwić komfortowe przeglądanie danych.
+
+\section{Wstęp}
+W tym zadaniu zbadamy metodę $\Delta$ Aitkena przyspieszania zbieżności ciągów zbieżnych liniowo. Odświeżymy informacje z analizy matematycznej o zbieżności ciagów, przybliżymy zagadnienie wykładnika zbieżności, a następnie wyprowadzimy i udowodnimy metodę $\Delta$ Aitkena. Sprawdzimy, dla jakich ciągów metoda ta działa oraz jakie daje efekty w praktyce.
+
+\section{Podstawowe pojęcia}
+
+\subsection{Zbieżność ciągu}
+Na samym początku przypomnijmy, czym jest zbieżność ciągu. 
+
+\begin{defi}[Zbieżność ciągu]
+
+Powiemy, że ciąg $\{x_n\}$ jest zbieżny do granicy $g$, gdy 
+\begin{equation}
+\forall{\epsilon > 0} ; \exists{n_0 \in \mathbbm{N}} ; \forall{n > n_0} ; |x_n - g| < \epsilon
+\end{equation}
+
+\end{defi}
+
+Zbieżność ciągu $\{x_n\}$ do $g$ będziemy zapisywać $\lim_{n \to \infty} x_n = g $.
+
+\subsection{Wykładnik zbieżności}
+\begin{defi}[Wykładnik zbieżności]
+Niech $x_n \xrightarrow{n \to \infty} g$. Jeśli istnieją liczby $p, C \in \mathbbm{R}$, takie że $p,C \ge 0$ oraz
+\begin{equation}
+\lim_{n \to \infty} \frac{|x_{n+1} - g|}{|x_n - g|^p} = C
+\end{equation}
+to $p$ nazwiemy wykładnikiem zbieżności ciągu $x_n$.
+\end{defi}
+
+Jeśli $p=1$, $0<C<1$, to ciąg $\{x_n\}$ jest zbieżny liniowo (np. $x_n = \frac{1}{2^n}$), \\
+dla $p=1$ i $C=1$ mamy do czynienia ze zbieżnością podliniową (np. $x_n = \frac{1}{n}$),\\
+jeśli $p=1$ oraz $C=0$, to mówimy, że ciąg $\{x_n\}$ jest zbieżny nadliniowo, \\
+a dla $p = 2,3,...$ mamy zbieżności odpowiednio: kwadratowe, sześcienne, etc.
+
+\begin{defi}
+Niech $\{x_n\}$ i $\{y_n\}$ będą ciągami zbieżnymi do $g$. Powiemy, że ciąg $\{x_n\}$ zbiega szybciej od ciągu $\{y_n\}$ do granicy $g$ jeśli
+\begin{equation}
+\lim_{n \to \infty} \frac{x_n - g}{y_n - g} = 0
+\end{equation}
+\end{defi}
+
+Każda metoda przyspieszania zbieżności ciągu $\{x_n\}$ ma za cel wygenerowanie ciągu $\{\bar{x}_n\}$, który będzie zbiegał szybciej do granicy $g$.
+
+\section{Metoda $\Delta$ Aitkena}
+
+\subsection{Wyprowadzenie}
+Weźmy dowolny ciąg $\{x_n\}$ zbieżny liniowo do $g$, tj.
+\begin{equation*}
+\lim_{n \to \infty} \frac{|x_{n+1} - g|}{|x_n - g|} = C, 0<C<1
+\end{equation*}
+Co można przepisać w takiej postaci
+\begin{equation*}
+\lim_{n \to \infty} \frac{x_{n+1} - g}{n_n - g} = C, 0<|C|<1
+\end{equation*}
+Bez straty ogólności możemy napisać, że dla dużych $n$ mamy
+\begin{equation*}
+\frac{x_{n+1} - g}{x_n - g} \approx C
+\end{equation*}
+Zauważmy też, że ta sama zaleźność zachodzi dla następnych wyrazów ciagu $x_n$
+\begin{equation*}
+\frac{x_{n+2} - g}{x_{n+1} - g} \approx C
+\end{equation*}
+Co daje nam
+\begin{equation*}
+\frac{x_{n+1} - g}{x_n - g} \approx \frac{x_{n+2} - g}{x_{n+1} - g}
+\end{equation*}
+Wymnażając na krzyż otrzymujemy
+\begin{equation*}
+(x_{n+1} - g)^2 \approx (x_{n+2} - g)(x_n - g)
+\end{equation*}
+Wyliczając i upraszczając wyrażenie mamy
+\begin{equation*}
+x_{n+1}^2 -2gx_{n+1} \approx x_{n+2}x_n -gx_{n+2} -gx_n
+\end{equation*}
+Przenieśmy składniki z $g$ na lewą stronę
+\begin{equation*}
+g(x_{n+2} + x_n - 2x_{n+1}) \approx x_{n+2}x_n - x_{n+1}^2
+\end{equation*}
+Na sam koniec otrzymujemy
+\begin{equation*}
+g \approx \frac{x_{n+2}x_n - x_{n+1}^2}{x_{n+2} + x_n - 2x_{n+1}}
+\end{equation*}
+Przyspieszony ciąg $x_n$ zdefiniujemy jako
+\begin{equation}
+\bar{x}_n \approx \frac{x_{n+2}x_n - x_{n+1}^2}{x_{n+2} + x_n - 2x_{n+1}}
+\end{equation}
+
+\subsection{Dowód poprawności}
+\begin{twr}
+Niech $\{x_n\}$ będzie ciągiem liniowo zbieżnym do $g$, a $\{\bar{x}_n\}$ będzie ciągiem zadanym w następujący sposób
+\begin{equation*}
+\bar{x}_n = \frac{x_{n+2}x_n - x_{n+1}^2}{x_{n+2} + x_n - 2x_{n+1}}
+\end{equation*}
+Wtedy $\{\bar{x}_n\}$ jest szybciej zbieżny do g niż ciąg $\{x_n\}$
+\end{twr}
+
+\begin{dd}
+\normalfont Musimy pokazać, że
+\begin{equation*}
+\lim_{n \to \infty} \frac{\bar{x}_n - g}{x_n - g} = 0
+\end{equation*}
+Jest to równoważne z
+\begin{equation*}
+\lim_{n \to \infty} \frac{\bar{e}_n}{e_n} = 0
+\end{equation*}
+Zatem wystarczy nam operować na odchyleniach od granicy $g$. Przepiszmy definicję ${\bar{x}_n}$
+\begin{equation*}
+\bar{x}_n = \frac{x_{n+2}x_n - x_{n+1}^2}{x_{n+2} + x_n - 2x_{n+1}} = \frac{(e_{n+2} + g)(e_n + g) - (e_{n+1} + g)^2}{(e_{n+2} + g) + (e_n + g) - 2(e_{n+1} + g)} 
+\end{equation*}
+Wyliczmy dokładnie licznik i mianownik, a następnie uprośćmy wyrażenie. Otrzymujemy
+\begin{equation*}
+\bar{x}_n = \frac{e_{n+2}e_n - e_{n+1}^2 + ge_{n+2} + ge_n - 2ge_{n+1}}{e_{n+2} + e_n - 2e_{n+1}} = g + \frac{e_{n+2}e_n - e_{n+1}^2}{e_{n+2} + e_n - 2e_{n+1}} 
+\end{equation*}
+Stąd mamy
+\begin{equation*}
+\bar{e}_n = \bar{x}_n - g = \frac{e_{n+2}e_n - e_{n+1}^2}{e_{n+2} + e_n - 2e_{n+1}} 
+\end{equation*}
+Ponieważ ${x_n}$ jest zbieżny liniowo, wiemy że
+\begin{equation*}
+\lim_{n \to \infty} \frac{e_{n+1}}{e_n} = \lim_{n \to \infty} \frac{e_{n+2}}{e_n+1} = C , 0 < |C| < 1
+\end{equation*}
+Stąd wynika, że 
+\begin{equation*}
+\lim_{n \to \infty} \frac{e_{n+2}}{e_n} = C^2
+\end{equation*}
+Policzmy granicę z $\frac{\bar{e}_n}{e_n}$ w nieskończoności
+\begin{equation*}
+\lim_{n \to \infty} \frac{\bar{e}_n}{e_n} = \lim_{n \to \infty} \frac{\frac{e_{n+2}e_n - e_{n+1}^2}{e_{n+2} + e_n - 2e_{n+1}} }{e_n} = \frac{C^2 e_n^2 - C^2 e_n^2}{C^2 e_n^2 + e_n^2 - 2C e_n^2} = \frac{C^2 - C^2}{C^2 - 2C + 1} = 0
+\end{equation*}
+\qed
+\end{dd}
+
+\subsection{Alternatywna medoda $\Delta$ Aitkena}
+Przyspieszony ciąg $\{x_n\}$ jest zadany następujacym wzorem
+\begin{equation*}
+\bar{x}_n = \frac{x_{n+2}x_n - x_{n+1}^2}{x_{n+2} + x_n - 2x_{n+1}}
+\end{equation*}
+Zauważmy, że w liczniku oraz mianowniku powyższego ułamka odejmujemy od siebie wartości, które są coraz bliżej granicy $g$. 
+Zastanówmy się, co się dzieje, gdy ciąg $\{x_n\}$ bardzo szybko zbiega do $g$.
+Wtedy zachodzi zjawisko utraty cyfr znaczących, w efekcie iloraz licznika i mianownika może znacznie odbiegać od oczekiwanego wyniku.
+Spróbujmy zatem pozbyć się problemu. Zauważmy, że
+\begin{equation*}
+\bar{x}_n = \frac{x_{n+2}x_n - x_{n+1}^2}{x_{n+2} + x_n - 2x_{n+1}} = \frac{x_n^2 - x_n^2 + 2x_{n}x_{n+1} - 2x_{n}x_{n+1} + x_{n+2}x_n - x_{n+1}^2}{x_{n+2} + x_n - 2x_{n+1}} =
+\end{equation*}
+\begin{equation*}
+= \frac{x_n^2 - 2x_{n}x_{n+1} + x_{n+2}x_n - (x_n - x_{n+1})^2}{x_{n+2} + x_n - 2x_{n+1}} = \frac{x_n( x_{n+2} + x_n - 2x_{n+1}) - (x_n - x_{n+1})^2}{x_{n+2} + x_n - 2x_{n+1}} = 
+\end{equation*}
+\begin{equation*}
+= x_n - \frac{(x_n - x_{n+1})^2}{x_{n+2} + x_n - 2x_{n+1}}
+\end{equation*}
+W rezultacie otrzymujemy alternatywną definicję metody $\Delta$ Aitkena
+\begin{equation*}
+\bar{x}_n = x_n - \frac{(x_n - x_{n+1})^2}{x_{n+2} + x_n - 2x_{n+1}}
+\end{equation*}
+Widoczne jest, że gdy ciąg $\{x_n\}$ jest szybko zbieżny do $g$, 
+przyspieszony ciąg nie odbiega bardzo od oczekiwanego wyniku, 
+ponieważ wartość ułamka $\frac{(x_n - x_{n+1})^2}{x_{n+2} + x_n - 2x_{n+1}}$ jest mała i nieznaczna w porównaniu z $x_n$.\\
+Wyjaśnijmy skąd bierze się $\Delta$ w nazwie metody. Niech $\Delta$ będzie operatorem różnicy kolejnych wyrazów ciągu: $\Delta x_n = x_{n+1} - x_n$. Wtedy $(x_n - x_{n+1})^2 = (\Delta x_n)^2$. $\Delta^2 x_n = \Delta (x_{n+1} - x_n) = x_{n+2} - 2x_{x+1} + x_n$. Stąd bierze się wzór
+\begin{equation*}
+\bar{x}_n = x_n - \frac{(x_n - x_{n+1})^2}{x_{n+2} + x_n - 2x_{n+1}} = x_n - \frac{(\Delta x_n)^2}{\Delta^2 x_n}
+\end{equation*}
+\\
+\textbf{Uwaga:} Aby uniknąć zjawiska utraty cyfr znaczących, obliczanie kolejnych wyrazów ciągu $\{\bar{x}_n\}$ powinno się przerwać w momencie, gdy odchylenie od granicy $g$, $\bar{e}_n$, stabilizuje się.
+
+\section{Doświadczenia}
+W tym rozdziale poddamy próbie metodę $\Delta$ Aitkena. Sprawdzimy jej efekty na sześciu różnych ciągach oraz przedstawimy wyniki doświadczeń.\\
+Ciąg, na którym zastosujemy metodę $\Delta$ Aitkena będziemy nazywać \emph{przyspieszonym}. Wykładnik błędu względnego wyrazu ciągu nazwiemy \emph{rzędem} błędu.
+
+\subsection{Jednokrotne przyspieszenie zbieżności (Zadanie a)}
+W tej sekcji dla każdego ciągu zastosujemy metodę Aitkena oraz sprawdzimy jakie dało to efekty dla pierwszych dwudziestu wyrazów ciągu. 
+Następnie sprawdzimy skuteczność przyspieszenia dla dalekich wyrazów ciągu ($n = 2 \cdot 10^4$). W programie używam arytmetyki BigFloat. Ponieważ dane do setnego miejsca po przecinku nie byłyby czytelne, pozwoliłem sobie zaokrąglić dane w tabelach na potrzeby prezentacji.
+\begin{enumerate}
+
+\item $x_n = \sum\limits_{j=0}^n \frac{(-1)^j}{2j + 1}$, $g = \frac{\pi}{4} \approx 0.7853981634$ \\ \\
+W przypadku tego ciągu można zaobserwować znaczne przyspieszenie zbieżności. Już w przypadku pierwszych wyrazów widać, że błędy różnią się o dwa miejsca po przecinku. Następnie w przypadku dwudziestych wyrazów obeserwujemy, że błędy różnią się o cztery miejsca po przecinku. Dla dalekich wyrazów ciągu rząd błędu zwykłego ciągu wynosi $10^{-5}$, a ciągu przyspieszonego aż $10^{-12}$.
+\begin{table}[h]
+\centering
+\begin{tabular}[c]{|c|c|c|c|c|}
+\hline
+\textbf{Lp.} & $x_n$ & $e_n$ & $\bar{x}_n$ & $\bar{e}_n$ \\
+\hline
+1 &
+6.6666666667e-01 & 
+1.1873149673e-01 &
+7.8333333333e-01 &
+2.0648300667e-03 \\
+\hline
+2 &
+8.6666666667e-01 &
+8.1268503267e-02 &
+7.8630952381e-01 &
+9.1136040952e-04 \\
+\hline
+\dots & \ldots & \ldots & \ldots & \ldots \\
+\hline
+19 &
+7.7290595167e-01 &
+1.2492211733e-02 &
+7.8539143366e-01 &
+6.7297353631e-06 \\
+\hline
+20 &
+7.9729619557e-01 &
+1.1898032169e-02 &
+7.8540401798e-01 &
+5.8545795468e-06 \\
+\hline
+\dots & \ldots & \ldots & \ldots & \ldots \\
+\hline
+20000 &
+7.8541066277e-01 &
+1.2499372472e-05 &
+7.8539816340e-01 &
+2.5437990529e-12 \\
+\hline
+\end{tabular}
+\caption{Zastosowanie metody Aitkena na pierwszym ciągu.}
+\end{table}
+
+\item $x_n = \sum\limits_{k=0}^n \frac{1}{k^\frac{3}{2}}$, $g \approx 2.612375348685488$ \\ \\
+W przypadku tego ciągu okazuje się, że przyspieszenie jest nieznaczne. Dla dalekich wyrazów rząd błędu oryginalnego ciągu wynosi dwa miejsca po przecinku, natomiast dla ciągu przyspieszonego wynosi zaledwie trzy miejsca po przecinku. Różnica między błędami $(|0.009 - 0.01| = 0.001)$ jest niewielka. Można więc śmiało powiedzieć, że metoda Aitkena nie przyniosła żadnego efektu dla zadanego ciągu $\{x_n\}$.
+\begin{table}[h]
+\centering
+\begin{tabular}[c]{|c|c|c|c|c|}
+\hline
+\textbf{Lp.} & $x_n$ & $e_n$ & $\bar{x}_n$ & $\bar{e}_n$ \\
+\hline
+1 &
+1e+00 &
+1.6123753487e+00 &
+1.7758996826e+00 &
+8.3647566612e-01 \\
+\hline
+2 &
+1.3535533906e+00 &
+1.2588219581e+00 &
+1.9026562485e+00 &
+7.0971910018e-01 \\
+\hline
+\dots & \ldots & \ldots & \ldots & \ldots \\
+\hline
+19 &
+2.1595017316e+00 &
+4.5287361713e-01 &
+2.3179277564e+00 &
+2.9444759231e-01 \\
+\hline
+20 &
+2.1706820714e+00 &
+4.4169327724e-01 &
+2.3248536709e+00 &
+2.8752167782e-01 \\
+\hline
+\dots & \ldots & \ldots & \ldots & \ldots \\
+\hline
+20000 &
+2.5982333898e+00 &
+1.4141958849e-02 &
+2.6029475854e+00 &
+9.4277633061e-03 \\
+\hline
+\end{tabular}
+\caption{Zastosowanie metody Aitkena na drugim ciągu.}
+\end{table}
+
+\item $x_n = \frac{1}{2^{2^n}}$, $g = 0$ \\ \\
+Jest to najbardziej interesujący ze wszystkich ciągów. Ciąg ten bardzo szybko zbiega do zera, 
+już w przypadku ósmego wyrazu przyspieszonego ciągu błąd bezwzględny przekracza domyślną precyzję arytmetyki BigFloat (128 miejsc po przecinku).
+Dlatego przedstawimy dane tylko dla bardzo małych $n$. Oczywiście można zwiększać precyzję BigFloat'ów, lecz jak się okazuje efekty metody Aitkena można zaobserować już dla małych $n$. Można zauważyć, że zarówno dla oryginalnego ciągu jak i dla przyspieszonego, 
+rzędy błędów wzrastają dwukrotnie, a rząd błędu przyspieszonego ciągu jest około trzykrotnie większy.
+\begin{table}[h]
+\centering
+\begin{tabular}[c]{|c|c|c|c|c|}
+\hline
+\textbf{Lp.} & $x_n$ & $e_n$ & $\bar{x}_n$ & $\bar{e}_n$ \\
+\hline
+1 &
+2.5e-01 &
+2.5e-01 &
+-2.2727272727e-02 &
+2.2727272727e-02 \\
+\hline
+2 & 
+6.25e-02 &
+6.25e-02 &
+-2.6150627615e-04 &
+2.6150627615e-04 \\
+\hline
+3 & 
+3.90625e-03 &
+3.90625e-03 &
+-5.9839305136e-08 &
+5.9839305136e-08 \\
+\hline
+4 & 
+1.5258789063e-05 &
+1.5258789063e-05 &
+-3.5527678905e-15 &
+3.5527678905e-15 \\
+\hline
+5 & 
+2.3283064365e-10 &
+2.3283064365e-10 &
+-1.2621774486e-29 &
+1.2621774486e-29 \\
+\hline
+6 &
+5.4210108624e-20 &
+5.4210108624e-20 &
+-1.5930919111e-58 &
+1.5930919111e-58 \\
+\hline
+7 &
+2.9387358770e-39 &
+2.9387358770e-39 &
+-5.0758836746e-116 &
+5.0758836746e-116 \\
+\hline
+\end{tabular}
+\caption{Zastosowanie metody Aitkena na trzecim ciągu.}
+\end{table}
+
+\item $x_n = \sum\limits_{k=1}^n \frac{1}{k^4}$, $g = \frac{\pi^4}{90} \approx 1.0823232337111381$ \\ \\
+Podobnie jak w przypadku drugiego ciągu: przyspieszenie metodą $\Delta$ Aitkena nic nie daje.
+\begin{table}[h]
+\centering
+\begin{tabular}[c]{|c|c|c|c|c|}
+\hline
+\textbf{Lp.} & $x_n$ & $e_n$ & $\bar{x}_n$ & $\bar{e}_n$ \\
+\hline
+1 &
+1e+00 &
+8.2323233711e-02 &
+1.0778846153e+00 &
+4.4386183265e-03 \\
+\hline
+2 &
+1.0625e+00 &
+1.9823233711e-02 &
+1.0805599647e+00 &
+1.7632689845e-03 \\
+\hline
+\dots & \ldots & \ldots & \ldots & \ldots \\
+\hline
+19 &
+1.0822783380e+00 &
+4.4895703556e-05 &
+1.0823135894e+00 &
+9.6442244811e-06 \\
+\hline
+20 &
+1.0822845880e+00 &
+3.8645703556e-05 &
+1.0823148713e+00 &
+8.3623925988e-06 \\
+\hline
+\dots & \ldots & \ldots & \ldots & \ldots \\
+\hline
+20000 &
+1.08232323371e+00 &
+4.16166896514e-14 &
+1.08232323371e+00 &
+1.03674711162e-14 \\
+\hline
+\end{tabular}
+\caption{Zastosowanie metody Aitkena na czwartym ciągu.}
+\end{table}
+
+\item $x_n = \frac{(-1)^n}{n^4}$, $g = 0$ \\ \\
+W tym przypadku okazuje się, że przyspieszony ciąg faktycznie dużo szybciej zbiega do zera. 
+Już na samym początku rząd błędu przyspieszonego ciągu wynosi $10^{-2}$. 
+Dla dwudziestych wyrazów mamy rząd błędu oryginalnego ciągu $10^{-1}$ oraz rząd przyspieszonego ciągu $10^{-5}$. 
+Dla dużych $n$ mamy ogromną różnicę rzędów błędów: $10^{-2}$ dla oryginalnego ciągu oraz $10^{-11}$.
+\begin{table}[h]
+\centering
+\begin{tabular}[c]{|c|c|c|c|c|}
+\hline
+\textbf{Lp.} & $x_n$ & $e_n$ & $\bar{x}_n$ & $\bar{e}_n$ \\
+\hline
+1 & 
+-1e+00 &
+1e+00 &
+-1.5320916890e-02 &
+1.5320916890e-02 \\
+\hline
+2 &
+8.4089641525e-01 &
+8.4089641525e-01 &
+5.6242237991e-03 &
+5.6242237991e-03 \\
+\hline
+\dots & \ldots & \ldots & \ldots & \ldots \\
+\hline
+19 & 
+-4.7897362544e-01 &
+4.7897362544e-01 &
+-7.3987254389e-05 &
+7.3987254389e-05 \\
+\hline
+20 &
+4.7287080450e-01 &
+4.7287080450e-01 &
+6.6286589629e-05 &
+6.6286589629e-05 \\
+\hline
+\dots & \ldots & \ldots & \ldots & \ldots \\
+\hline
+20000 &
+8.4089641525e-02 &
+8.4089641525e-02 &
+1.3137530316e-11 &
+1.3137530316e-11 \\
+\hline
+\end{tabular}
+\caption{Zastosowanie metody Aitkena na piątym ciągu.}
+\end{table}
+
+\item $x_n = \frac{1}{2^n}$, $g = 0$ \\ \\
+Wszystkie wyrazy przyspieszonego ciągu są granicą ciągu $\{x_n\}$. W dalszych doświadczeniach nie będziemy już rozważać tego ciągu.
+\begin{table}[h]
+\centering
+\begin{tabular}[c]{|c|c|c|}
+\hline
+\textbf{Lp.} & $e_n$ & $\bar{e}_n$ \\
+\hline
+1 & 
+5e-01 &
+0e+00 \\
+\hline
+2 &
+2.5e-01 &
+0e+00 \\
+\hline
+3 &
+1.25e-01 &
+0e+00 \\
+\hline
+4 &
+6.25e-02 &
+0e+00 \\
+\hline
+\end{tabular}
+\caption{Zastosowanie metody Aitkena na szóstym ciągu.}
+\end{table}
+\end{enumerate}
+
+\subsection{Dwukrotne przyspieszenie zbieżności (Zadanie b)}
+Zauważmy, że raz przyspieszony metodą $\Delta$ Aitkena ciąg może zostać przyspieszony kolejny raz w ten sam sposób. 
+W tej podsekcji sprawdzimy, jakie efekty daje to w praktyce. Dla uproszczenie porównamy tylko błędy względne ciągu jedno oraz dwukrotnie przyspieszonego.
+
+\begin{enumerate}
+
+\item $x_n = \sum\limits_{j=0}^n \frac{(-1)^j}{2j + 1}$, $g = \frac{\pi}{4} \approx 0.7853981634$ \\ \\
+Można zauważyć, że pierwsze wyrazy ciągu dwukrotnie przyspieszonego są dużo bliżej granicy $g$ niż ciąg jednokrotnie przyspieszony. Podczas gdy pierwsze wyrazy $\{\bar{e}_n\}$ są rzędu $10^{-2}$, pierwsze wyrazy ciągu $\{\bar{e}_n^2\}$ od razu osiągają rząd $10^{-12}$. Dla dużych $n$ błędy względne obu ciągów zrównują się, co świadczy o tym, że $\{\bar{x}_n^2\}$ nie zbiega szybciej do granicy $g$ niż ciąg $\{\bar{x}_n\}$
+\begin{table}[h]
+\centering
+\begin{tabular}[c]{|c|c|c|}
+\hline
+\textbf{Lp.} & $\bar{e}_n$ & $\bar{e}_n^2$ \\
+\hline
+1 & 
+1.5320916890e-02 &
+2.5516092986e-12 \\
+\hline
+2 &
+5.6242237991e-03 &
+2.5516057662e-12 \\
+\hline
+\dots & \ldots & \ldots \\
+\hline
+20000 &
+1.3137530316e-11 &
+2.5516092033e-12 \\
+\hline
+\end{tabular}
+\caption{Dwukrotne przyspieszenie pierwszego ciągu.}
+\end{table}
+
+\item $x_n = \sum\limits_{k=0}^n \frac{1}{k^\frac{3}{2}}$, $g \approx 2.612375348685488$ \\ \\
+Dwukrotne zastosowanie metody Aitkena na ciągu $\{x_n\}$ tak samo jak i jednokrotne nie przyniosło żadnego efektu. Rzędy błędów bezwzględnych ciągów przyspieszonych są takie same. Dla dalekich wyrazów stałe są bardzo bliskie.
+\begin{table}[h]
+\centering
+\begin{tabular}[c]{|c|c|c|}
+\hline
+\textbf{Lp.} & $\bar{e}_n$ & $\bar{e}_n^2$ \\
+\hline
+1 & 
+8.3647566612e-01 &
+4.7112486021e-01 \\
+\hline
+2 &
+7.0971910018e-01 &
+4.1691312142e-01 \\
+\hline
+\dots & \ldots & \ldots \\
+\hline
+20000 &
+9.4277633061e-03 &
+9.4274401203e-03 \\
+\hline
+\end{tabular}
+\caption{Dwukrotne przyspieszenie drugiego ciągu.}
+\end{table}
+
+\item $x_n = \frac{1}{2^{2^n}}$, $g = 0$ \\ \\
+Dla tego ciągu wyniki okazują się bardzo interesujące. Rzędy błędów bezwzględnych dwukrotnie przyspieszonego ciągu są trzy razy większe od rzędu ciągu jednokrotnie przyspieszonego. Na potrzeby wyliczenia dokładnych wyników zwiększyłem tymczasowo precyzję BigFloat do 512 miejsc po przecinku. Normalnie już $\bar{e}_6^2$ przekracza domyślną precyzję (128), więc Julia reprezentuję tę liczbę jako zero.
+\begin{table}[h]
+\centering
+\begin{tabular}[c]{|c|c|c|}
+\hline
+\textbf{Lp.} & $\bar{e}_n$ & $\bar{e}_n^2$ \\
+\hline
+1 & 
+2.2727272727e-02  &
+3.0185814389e-06 \\
+\hline
+2 &
+2.61506276159e-04  &
+1.36954740669e-11 \\
+\hline
+3 &
+5.98393051364e-08 &
+2.10934274704e-22 \\
+\hline
+4 &
+3.55276789056e-15  &
+4.48408666410e-44 \\
+\hline
+5 &
+1.26217744864e-29 &
+2.01076468291e-87\\
+\hline
+6 &
+1.59309191113e-58 &
+4.04317461195e-174 \\
+\hline
+\end{tabular}
+\caption{Dwukrotne przyspieszenie trzeciego ciągu.}
+\end{table}
+
+\item $x_n =\sum\limits_{k=1}^n \frac{1}{k^4}$, $g = \frac{\pi^4}{90} \approx 1.0823232337111381$  \\ \\
+W przypadku tego ciągu, drugie zastosowanie metody Aitkena nie przynosi żadnego rezultatu. Rzędy błędów względnych ciągów jednokrotnie oraz dwukrotnie przyspieszonych metodą Aitkena nie różnią się.
+\begin{table}[h]
+\centering
+\begin{tabular}[c]{|c|c|c|}
+\hline
+\textbf{Lp.} & $\bar{e}_n$ & $\bar{e}_n^2$ \\
+\hline
+1 & 
+4.43861832652e-03 &
+4.02493483546e-04 \\
+\hline
+2 &
+1.76326898450e-03 &
+2.03790642089e-04 \\
+\hline
+3 &
+8.61277598521e-04 &
+1.15890858015e-04 \\
+\hline
+\dots & \ldots & \ldots \\
+\hline
+20 &
+8.36239259885e-06 &
+1.82043712270e-06 \\
+\hline
+\dots & \ldots & \ldots \\
+\hline
+20000 &
+1.03674711162e-14  &
+2.55391440894e-15 \\
+\hline
+\end{tabular}
+\caption{Dwukrotne przyspieszenie czwartego ciągu.}
+\end{table}
+
+\item $x_n = \frac{(-1)^n}{n^4}$, $g = 0$ \\ \\
+W tym przypadku drugie zastosowanie metody Aitkena daje widoczne rezultaty. Już od samego początku rząd błędu bezwzględnego początkowych wyrazów dwukrotnie przyspieszonego ciągu jest bliski $10^{-18}$ i nie zmienia się przez długi czas. Natomiast rzędy błędów względnych jednokrotnie przyspieszonego ciągu wzrastają od dwóch miejsc po przecinku dla pierwszych wyrazów aż do jedenastu dla dwudziesto tysięcznego wyrazu.
+\begin{table}[h]
+\centering
+\begin{tabular}[c]{|c|c|c|}
+\hline
+\textbf{Lp.} & $\bar{e}_n$ & $\bar{e}_n^2$ \\
+\hline
+1 & 
+1.53209168907e-02  &
+4.69014267851e-18 \\
+\hline
+2 &
+5.62422379907e-03 & 
+1.15229143205e-17 \\
+\hline
+3 &
+2.86083369978e-03 &
+1.06048369190e-17 \\
+\hline
+\dots & \ldots & \ldots \\
+\hline
+20 &
+6.62865896295e-05 &
+8.74586255541e-19 \\
+\hline
+\dots & \ldots & \ldots \\
+\hline
+20000 &
+1.31375303163e-11 &
+3.38894076022e-18 \\
+\hline
+\end{tabular}
+\caption{Dwukrotne przyspieszenie piątego ciągu.}
+\end{table}
+
+\end{enumerate}
+
+\subsection{Wielokrotne przyspieszenie zbieżności (Zadanie c)}
+Skoro ciąg $\{x_n\}$ można przyspieszyć dwa razy, to dlaczego by nie spróbować przyspieszać go wielokrotnie? 
+W tej podsekcji sprawdzimy, co da nam wielokrotne zastosowanie metody Aitkena na różnych ciągach.
+
+\begin{enumerate}
+
+\item $x_n = \sum\limits_{j=0}^n \frac{(-1)^j}{2j + 1}$, $g = \frac{\pi}{4} \approx 0.7853981634$ \\ \\
+Zbadamy teraz jakie efekty da dziesięciokrotne i dwudziestokrotne przyspieszenie ciągu $\{x_n\}$. Porównamy te wyniki z dwukrotnym przyspieszeniem. Okazuje się, że dalsze zastosowania metody $\Delta$ Aitkena nie przynoszą żadnych efektów. Błędy bezwzględne dziesięciokrotnie oraz dwudziestokrotnie przyspieszonych ciągów nie różnią się od błędów bezwzględnych $\bar{e}_n^2$.
+\begin{table}[h]
+\centering
+\begin{tabular}[c]{|c|c|c|c|}
+\hline
+\textbf{Lp.} & $\bar{e}_n^2$ & $\bar{e}_n^{10}$ & $\bar{e}_n^{20}$ \\
+\hline
+1 & 
+2.5516092986e-12 &
+2.5516157359e-12 &
+2.5516078252e-12 \\
+\hline
+2 &
+2.5516057662e-12 &
+2.5516115486e-12 &
+2.5516071712e-12 \\
+\hline
+\dots & \ldots & \ldots & \ldots \\
+\hline
+20000 &
+2.5516092033e-12 &
+2.5516092096e-12 &
+2.5516092099e-12 \\
+\hline
+\end{tabular}
+\caption{Wielokrotne przyspieszenie pierwszego ciągu.}
+\end{table}
+
+\item $x_n = \sum\limits_{k=0}^n \frac{1}{k^\frac{3}{2}}$, $g \approx 2.612375348685488$ \\ \\
+W przypadku ciągu $\{x_n\}$ metoda Aitkena nie przyspieszy zbieżności ciągu nieważne, ile razy byśmy jej nie zastosowali. Dziesięciokrotnie i dwudziestokrotnie przyspieszony ciąg osiąga takie same rezultaty jak jednokrotnie przyspieszony ciąg. Jedyna różnica jest taka, że dla początkowych wyrazów ciągów dwu oraz wielokrotnie przyspieszonych różnica rzędów błędów bezwzględnych różni się o jedno miejsce po przecinku. Dla dużych $n$ błędy się zrównują.
+\begin{table}[h]
+\centering
+\begin{tabular}[c]{|c|c|c|c|}
+\hline
+\textbf{Lp.} & $\bar{e}_n^{2}$ & $\bar{e}_n^{10}$ & $\bar{e}_n^{20}$\\
+\hline
+1 & 
+4.7112486021e-01 &
+7.6520182333e-02 &
+4.3908664064e-02 \\
+\hline
+2 &
+4.1691312142e-01 &
+7.3473152149e-02 &
+4.3909092865e-02 \\
+\hline
+\dots & \ldots & \ldots & \ldots \\
+\hline
+20000 &
+9.4274401203e-03 &
+9.4260458431e-03 &
+9.4228213151e-03 \\
+\hline
+\end{tabular}
+\caption{Wielokrotne przyspieszenie drugiego ciągu.}
+\end{table}
+
+\item $x_n = \frac{1}{2^{2^n}}$, $g = 0$ \\ \\
+Można zauważyć, że każde kolejne zastosowanie metody Aitkena zwiększa blisko trzykrotnie rząd błędu bezwzględnego.
+\begin{table}[h]
+\centering
+\begin{tabular}[c]{|c|c|c|c|}
+\hline
+\textbf{Lp.} & $\bar{e}_n^{2}$ & $\bar{e}_n^{3}$ & $\bar{e}_n^{4}$\\
+\hline
+1 & 
+3.0185814389e-06 &
+6.2137490406e-17 &
+1.6985595091e-49 \\
+\hline
+2 &
+1.3695474066e-11 &
+3.2487570731e-33 &
+2.7969483371e-98 \\
+\hline
+3 &
+2.1093427470e-22 &
+9.5323689046e-66 &
+8.5289615814e-196 \\
+\hline
+4 &
+4.48408666410e-44 &
+9.01671825933e-131 &
+7.33025348562e-391 \\
+\hline
+5 &
+2.01076468291e-87 &
+8.12987272036e-261 &
+5.37342558527e-781 \\
+\hline
+\end{tabular}
+\caption{Wielokrotne przyspieszenie trzeciego ciągu.}
+\end{table}
+
+\item $x_n =\sum\limits_{k=1}^n \frac{1}{k^4}$, $g = \frac{\pi^4}{90} \approx 1.0823232337111381$  \\ \\
+Tutaj porównamy błędy względne ciągów dwu, dziesięcio oraz dwudziestokrotnie przyspieszonych. Jak się okazuje początkowe wyrazy dziesięcio i dwudziestokrotnie przyspieszonych ciągów mają dwa razy większe rzędy błędów niż rząd błędu początkowych wyrazów dwukrotnie przyspieszonego ciągu. Podczas gdy wielokrotne przyspieszenie ciągu $\{x_n\}$ faktycznie zwiększa rzędy błędów dla początkowych wyrazów, rzędy błędów ciągu $\{x_n\}$ i wielokrotnie przyspieszonych ciągów szybko się zrównują: już pięćdziesiąte wyrazy ciągów mają praktycznie takie same błędy bezwzględne, co świadczy o tym, że metoda Aitkena nie przyspieszyła zbieżności ciągu.
+
+\begin{table}[h]
+\centering
+\begin{tabular}[c]{|c|c|c|c|}
+\hline
+\textbf{Lp.} & $\bar{e}_n^{2}$ & $\bar{e}_n^{10}$ & $\bar{e}_n^{20}$\\
+\hline
+1 & 
+4.02493483546e-04 &
+4.17074011842e-08 &
+5.40789175852e-10 \\
+\hline
+2 &
+2.03790642089e-04 &
+1.56047594818e-09 &
+4.02197865088e-09 \\
+\hline
+\dots & \ldots & \ldots & \ldots \\
+\hline
+20 &
+1.82043712270e-06 &
+7.84475509904e-10 &
+3.72251612716e-09 \\
+\hline
+\dots & \ldots & \ldots & \ldots \\
+\hline
+50 &
+6.86894707458e-10 &
+6.86894707458e-10 &
+6.86894707458e-10 \\
+\hline
+\end{tabular}
+\caption{Wielokrotne przyspieszenie czwartego ciągu.}
+\end{table}
+
+\item $x_n = \frac{(-1)^n}{n^4}$, $g = 0$ \\ \\
+Porównujemy błędy względne ciągów dwu, dziesięcio oraz dwudziestokrotnych.
+W przypadku tego ciągu błędy względne ciągów wielokrotnie przyspieszonych doganiają się i są niemal równe błędom względnym ciągu dwukrotnie przyspieszonego, zatem wielokrotne zastosowanie metody Aitkena na tym ciągu nic nie daje.
+\begin{table}[h]
+\centering
+\begin{tabular}[c]{|c|c|c|c|}
+\hline
+\textbf{Lp.} & $\bar{e}_n^{2}$ & $\bar{e}_n^{10}$ & $\bar{e}_n^{20}$\\
+\hline
+1 & 
+4.14496087738e-04 &
+1.26304021436e-18 &
+4.69014267851e-18 \\
+\hline
+2 &
+1.09537741987e-04 &
+5.53755813297e-19 &
+1.15229143205e-17 \\
+\hline
+\dots & \ldots & \ldots & \ldots \\
+\hline
+20 &
+6.95546889896e-08 &
+1.14216243990e-17 &
+8.74586255541e-19 \\
+\hline
+\dots & \ldots & \ldots & \ldots \\
+\hline
+20000 &
+3.41296888796e-18 &
+3.55856455642e-18 &
+3.38894076022e-18 \\
+\hline
+\end{tabular}
+\caption{Wielokrotne przyspieszenie piątego ciągu.}
+\end{table}
+\end{enumerate}
+
+\section{Wnioski}
+Wygląda na to, że jeśli jedna próba przyspieszenia nie daje rezultatu, to nieważne, ile razy zastosujemy metodę $\Delta$ Aitkena, nie uzyskamy żadnych efektów.
+
+\begin{enumerate}
+
+\item $x_n = \sum\limits_{j=0}^n \frac{(-1)^j}{2j + 1}$, $g = \frac{\pi}{4} \approx 0.7853981634$ \\ \\
+Zbadajmy wykładnik zbieżności tego ciągu:
+\begin{equation*}
+\lim_{n \to \infty} \frac{\sum\limits_{j=0}^{n+1} \frac{(-1)^j}{2j + 1} - \frac{\pi}{4}}{\sum\limits_{j=0}^{n} \frac{(-1)^j}{2j + 1} - \frac{\pi}{4}} = -1
+\end{equation*}
+Zatem ciąg jest zbieżny do $\pi/4$ podliniowo. Twierdzenie 1 mówiło, że jeśli ciąg $\{x_n\}$ jest zbieżny liniowo, to zastosowanie metody $\Delta$ Aitkena wyprodukuje ciąg szybciej zbieżny $\{\bar{x}_n\}$. Dlatego w przypadku tego ciągu nie mamy żadnej gwarancji, że metoda Aitkena zadziała. Mimo, że ciąg jest zbieżny podliniowo, to metoda Aitkena zadziałała. Kolejne próby zastosowania tej samej metody nie generują ciągów szybciej zbiegających do granicy $g$.
+
+\item $x_n = \sum\limits_{k=1}^n \frac{1}{k^\frac{3}{2}}$, $g \approx 2.612375348685488$ \\ \\
+Ciąg ten okazuje się być zbieżny podliniowo. Zbiega on do wartości funkcji dzeta Riemanna ($\zeta(z) = \sum\limits_{n=1}^{\infty} \frac{1}{n^z}$) w punkcje $\frac{3}{2}$ czyli w przybliżeniu $2.612375348685488$.
+\begin{equation*}
+\lim_{n \to \infty} \frac{\sum\limits_{k=1}^{n+1} \frac{1}{k^\frac{3}{2}} - \zeta(\frac{3}{2})}{\sum\limits_{k=1}^n \frac{1}{k^\frac{3}{2}} - \zeta(\frac{3}{2})} = 1
+\end{equation*}
+W przeciwieństwie do poprzedniego zbieżnego podliniowo ciągu, metoda $\Delta$ Aitkena nie produkuje ciągu zbiegającego szybciej do granicy $g$. Oczywiście kolejne próby przyspieszenia nie dadzą żadnego efektu.
+
+\item $x_n = \frac{1}{2^{2^n}}$, $g = 0$ \\ \\
+Ciąg $\{x_n\}$ jest świetnym przykładem ciągu zbieżnego kwadratowo.
+\begin{equation*}
+\lim_{n \to \infty} \frac{\frac{1}{2^{2^{n+1}}}}{(\frac{1}{2^{2^n}})^2} = 1
+\end{equation*}
+Z doświadczen wynika, że ile razy nie zastosujemy metody Aitkena na ciągu zbieżnym kwadratowo, zawsze uzyskamy ciąg szybciej zbiegający do granicy $g$. Przyspieszony ciąg także będzie zbieżny kwadratowo. Błędy bezwzględne wyrazów $k+1$ krotnie przyspieszonego ciągu mają rząd trzy razy większy niż $k$ krotnie przyspieszony ciąg (Dla $k \in \mathbbm{N}$).  
+
+\item $x_n =\sum\limits_{k=1}^n \frac{1}{k^4}$, $g = \frac{\pi^4}{90} \approx 1.0823232337111381$  \\ \\
+\begin{equation*}
+\lim_{n \to \infty} \frac{\sum\limits_{k=1}^{n+1} \frac{1}{k^4} - \frac{\pi^4}{90}}{\sum\limits_{k=1}^n \frac{1}{k^4} - \frac{\pi^4}{90}} = 1
+\end{equation*}
+Ciąg ten jest zbieżny podliniowo. Próba przyspieszenia tego ciągu zawodzi. Oczywiście początkowe wyrazy wygenerowanego ciągu są bliższe granicy, lecz szybko zostają dogonione przez wyrazy oryginalnego ciągu.
+
+\item $x_n = \frac{(-1)^n}{n^4}$, $g = 0$ \\ \\
+\begin{equation*}
+\lim_{n \to \infty} \frac{\frac{(-1)^{n+1}}{(n+1)^4}}{\frac{(-1)^{n}}{n^4}} = -1
+\end{equation*}
+Ciąg $\{x_n\}$ jest zbieżny podliniowo. Metoda $\Delta$ Aitkena produkuje ciąg szybciej zbieżny do granicy $g$. Drugie zastosowanie znowu generuje szybciej zbiegający ciąg, ale kolejne aplikacje tej metody nie przyspieszają zbieżności ciągu.
+\end{enumerate}
+
+Niektóre ciągi zbieżne podliniowo okazują się podatne na metodę Aitkena. W tym przypadku zaszło to dla szeregu i ciągu naprzemiennego (Ciąg pierwszy i piąty). Dla niektórych ciągów zbieżnych kwadratowo metoda Aitkena będzie działać za każdym razem. W przypadku ciągu zbieżnego liniowo jedna aplikacja metody Aitkena wystarczyła, by wyprodukować ciąg, którego każdy wyraz był równy granicy oryginalnego ciągu. 
+\\ \\
+Druga aplikacja metody $\Delta$ Aitkena okazała się być skuteczna tylko dla ciągu piątego - zbieżnego podliniowo, oraz dla ciągu zbieżnego kwadratowo.
+\\ \\
+Kolejne aplikacje przynoszą efekty tylko dla ciągu zbieżnego kwadratowo.
+
+\begin{thebibliography}{9} %nie wiem, po co jest to 9
+
+\bibitem{Kincaid}
+Kincaid, D.R. and Cheney, E.W.
+\emph{Numerical Analysis: Mathematics of Scientific Computing},
+American Mathematical Society, 2002.
+
+\bibitem{Sidi}
+A. Sidi.
+\emph{Practical Extrapolation Methods: Theory and Applications},
+Number 10 in Cambridge Monographs on Applied and Computational Mathematics.
+Cambridge University Press, Cambridge, 2003.
+
+\end{thebibliography}
+
+\end{document}
