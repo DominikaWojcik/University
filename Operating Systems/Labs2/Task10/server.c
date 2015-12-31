@@ -10,13 +10,13 @@
 #include <errno.h>
 #include <stdio.h>
 
-#define max(a,b) (a < b) ? a : b
+#define max(a,b) (a > b) ? a : b
 #define BUFFER_SIZE 128
 #define STDOUT 1
 #define LISTEN_BACKLOG 64
-#define LISTENER_ADDRESS "/Task10"
+#define LISTENER_ADDRESS "/tmp/Task10"
 #define MAX_CONNECTIONS 256
-#define POLL_TIMEOUT 3000
+#define POLL_TIMEOUT 10000
 
 //Kolejka
 typedef struct
@@ -71,7 +71,7 @@ int descriptorCount;
 int pollRetVal;
 
 int byteCounter[MAX_CONNECTIONS];
-int lastBlockSize[MAX_CONNECTIONS];
+int lastByte[MAX_CONNECTIONS];
 queue sendQueue[MAX_CONNECTIONS];
 
 int itoa(long unsigned int i, char* buffer, size_t size)
@@ -130,15 +130,17 @@ void acceptNewConnections(int* socketsToHandle)
 			if(descriptors[searchPos].fd < 0)
 			{
 				descriptors[searchPos].fd = retVal;
-				descriptors[searchPos].events = POLLIN | POLLOUT;
+				descriptors[searchPos].events = POLLIN | POLLPRI| POLLOUT;
 				descriptors[searchPos].revents = 0;
 				byteCounter[searchPos] = 0;
-				lastBlockSize[searchPos] = -1;
+				lastByte[searchPos] = -1;
 				descriptorCount = max(descriptorCount, searchPos + 1);
 				initialize(&sendQueue[searchPos]);
 
+				printf("Nowe połączenie na pozycji %d\n", searchPos);
+
 				searchPos++;
-				printf("Nowe połączenie\n");
+
 				break;
 			}
 			searchPos++;
@@ -156,7 +158,7 @@ void receiveAndSendData(int* socketsToHandle)
 
 		(*socketsToHandle)--;
 
-		if((descriptors[i].revents & POLLIN) && byteCounter[i] != -1)
+		if((descriptors[i].revents & (POLLIN | POLLPRI)) && byteCounter[i] != -1)
 		{
 			//Odczytujemy dane póki się da
 			int retVal;
@@ -169,8 +171,17 @@ void receiveAndSendData(int* socketsToHandle)
 					printf("Błąd przy odbieraniu danych\n");
 					printf("%s\n", strerror(errno));
 
-					unlink(LISTENER_ADDRESS);
-					exit(EXIT_FAILURE);
+					close(descriptors[i].fd);
+					descriptors[i].fd = -1;
+					descriptors[i].events = 0;
+					descriptors[i].revents = 0;
+					lastByte[i] = -1;
+					byteCounter[i] = -1;
+
+					if(i == descriptorCount - 1)
+					{
+						descriptorCount--;
+					}
 				}
 
 				if(retVal == 0)
@@ -180,29 +191,31 @@ void receiveAndSendData(int* socketsToHandle)
 					descriptors[i].fd = -1;
 					descriptors[i].events = 0;
 					descriptors[i].revents = 0;
-					byteCounter[i] = 0;
-					lastBlockSize[i] = -1;
+					byteCounter[i] = -1;
+					lastByte[i] = -1;
 
-					printf("Zerwano połączenie\n");
+					printf("Zerwano połączenie z pozycją %d\n", i);
 				}
 
+				printf("Odebrano na poz %d %d bajtów: %s\n", i, retVal, buffer);
 				for(int j=0; j<retVal && byteCounter[i]>=0; j++)
 				{
 					if(buffer[j] == 0)
 					{
-						if(lastBlockSize[i] == 0)
+						if(lastByte[i] == 0)
 						{
 							//Koniec transmisji
 							byteCounter[i] = -1;
+							printf("Koniec transmisji od pozycji %d\n", i);
 						}
 						else
 						{
-							lastBlockSize[i] = byteCounter[i];
 							push(&sendQueue[i], byteCounter[i]);
 							byteCounter[i] = 0;
 						}
 					}
 					else byteCounter[i]++;
+					lastByte[i] = buffer[j];
 				}
 
 
@@ -226,11 +239,20 @@ void receiveAndSendData(int* socketsToHandle)
 				retVal = send(descriptors[i].fd, buffer, length, 0);
 				if(retVal < 0 && errno != EWOULDBLOCK && errno != EAGAIN)
 				{
-					printf("Błąd podczas wysyłania\n");
+					printf("Błąd podczas wysyłania do pozycji %d\n", i);
 					printf("%s\n", strerror(errno));
 
-					unlink(LISTENER_ADDRESS);
-					exit(EXIT_FAILURE);
+					close(descriptors[i].fd);
+					descriptors[i].fd = -1;
+					descriptors[i].events = 0;
+					descriptors[i].revents = 0;
+					lastByte[i] = -1;
+					byteCounter[i] = -1;
+
+					if(i == descriptorCount - 1)
+					{
+						descriptorCount--;
+					}
 				}
 
 				if(retVal >= 0)
@@ -247,9 +269,14 @@ void receiveAndSendData(int* socketsToHandle)
 				descriptors[i].fd = -1;
 				descriptors[i].events = 0;
 				descriptors[i].revents = 0;
-				lastBlockSize[i] = -1;
+				lastByte[i] = -1;
+				
+				if(i == descriptorCount - 1)
+				{
+					descriptorCount--;
+				}
 
-				printf("Koniec połączenia - transmisja zakończona\n");
+				printf("Koniec połączenia z poz %d - transmisja zakończona\n", i);
 			}
 		}
 
@@ -268,11 +295,12 @@ void handleSigint(int sigint)
 
 	unlink(LISTENER_ADDRESS);
 
+	char sigBuffer[BUFFER_SIZE];
 	int length;
-	length = snprintf(buffer, BUFFER_SIZE, "Zamknięto gniazda oraz usunięto adres gniazda nasłuchującego\n");
-	write(STDOUT, buffer, length);
-	length = snprintf(buffer, BUFFER_SIZE, "Program zakończony sygnałem SIGINT\n");
-	write(STDOUT, buffer, length);
+	length = snprintf(sigBuffer, BUFFER_SIZE, "Zamknięto gniazda oraz usunięto adres gniazda nasłuchującego\n");
+	write(STDOUT, sigBuffer, length);
+	length = snprintf(sigBuffer, BUFFER_SIZE, "Program zakończony sygnałem SIGINT\n");
+	write(STDOUT, sigBuffer, length);
 
 	exit(128 + sigint);
 }
@@ -326,18 +354,20 @@ int main()
 	//Zainicjalizuj strukturę do poll
 	descriptorCount = 1;
 	descriptors[0].fd = listener;
-	descriptors[0].events = POLLIN;
+	descriptors[0].events = POLLIN | POLLPRI;
 	for(int i=1; i<MAX_CONNECTIONS; i++)
 	{
 		descriptors[i].fd = -1;
-		lastBlockSize[i] = -1;
+		lastByte[i] = -1;
 	}
 
 	printf("Zainicjalizowano struktury do poll\n");
 
 	while(1)
 	{
+		printf("descriptorCount = %d\n", descriptorCount);
 		pollRetVal = poll(descriptors, descriptorCount, POLL_TIMEOUT);
+		printf("Poll zwrócił %d\n", pollRetVal);
 		if(pollRetVal > 0)
 		{
 			acceptNewConnections(&pollRetVal);

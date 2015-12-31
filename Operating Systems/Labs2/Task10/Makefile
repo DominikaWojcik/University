@@ -1,7 +1,11 @@
 CC = gcc
 CFLAGS = -std=gnu99 -Wall -Wextra
 
-prog: prog.c
-	$(CC) $(CFLAGS) prog.c -o prog
+all: server client
+
+server: server.c
+	$(CC) $(CFLAGS) server.c -o server
+client: client.c
+	$(CC) $(CFLAGS) client.c -o client
 clean:
-	rm prog
+	rm server client
