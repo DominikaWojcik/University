@@ -1,0 +1,117 @@
+ZAD 1:
+
+Planowanie zadań: dokonywanie wyborów na temat tego, w jakiej kolejności będą wykonywane procesy, w celu zoptymalizowania zużycia zasobów i czasu wykonywania.
+
+Planista (short-term): decyduje, który proces będzie wykonywany przez porcesor następny. Ma procesy w kolejce gotowych i z nich wybiera jakieś.
+
+Dyspozytor (ekspedytor [Płoski xD], dispatcher): Wiedząc, który proces będzie wykonywany następny: 
+- Zmienia kontekst na kontekst kolejnego procesu
+- Zmienia tryb na tryb użytkownika
+- Skacze do odpowiedniej instrukcji, która ma się teraz wykonać.
+
+Proces ograniczony przez operacje wejścia-wyjścia: taki, który ma dużo krótkich faz procesora (czyli wykonuje dużo operacji i/o i dużo czeka)
+
+Proces ograniczony przez procesor: taki, który ma długie fazy procesora.
+
+Algorytmy planowania oprócz procesów:
+
+-Działania na dysku - cały czas dostajemy żądania wyszukania czegoś. Wiemy, że różne żądanie zajmują różną ilość czasu. Im lepsze planowanie, tym lepsze rezultaty daje dysk.
+
+-Działania na urządzeniach peryferyjnych (???) Drukarki
+
+-Może w przypadku partycjonowania - przydzielanie partycji procesom ??
+
+-Może w przypadku walki o dostęp do zasobów do sekcji krytycznej ??
+
+ZAD 2:
+
+Czas wejścia i czas wyjścia: kiedy proces po raz pierwszy dołącza do kolejki gotowych i kiedy ostatni raz opuszcza procesor.
+
+Czas oczekiwania (waiting time): sumaryczny czas jaki proces spędza w kolejce gotowych procesów.
+
+Czas cyklu przetwarzania (turnaround time): Czas od uruchomienia procesu do zakończenia.
+
+Czas obsługi (service time): Czas potrzebny na wykonanie procesu.
+-----------------
+Kryteria:
+^^^^^^^^^
+//All systems:
+
+Uczciwość - każdy proces dostaje sprawiedliwy czas dostępu do procesora (optymalny). Dwa podobne procesy powinny dostawać tyle samo czasu. Brak przetrzymywania procesów w nieskończoność.
+
+Utrzymywanie ustalonej polityki: np. jeśli polityka jest taka, że systemowe procesy zaesze mają pierwszeństwo, to tak zawsze powinno być. Ustalona polityka powinna być wykonywana.
+
+Balans - wszystkie komponenty systemu powinny stale coś robić. Nie marnować czasu urządzeń. (np. procesor nic nie robi, gdy procesy czekają na I/O).
+
+//Batch systems:
+
+Przepustowość (throughput): Liczba procesów kończonych w jednostce czasu.
+
+Czas cyklu przetwarzania (turnaround time): Czas od uruchomienia procesu do jego zakończenia.
+
+Zużycie procesora (CPU utilization): Przez jaką część czasu procesor pracuje.
+
+//Interactive systems:
+
+Czas odpowiedzi (response time): Czas od uruchomienia procesu do wyprodukowania pierwszej odpowiedzi. Jak mamy procesy w tle i np. chcemy otworzyć folder, to folder powinien zostać szybko otworzony, a procesy w tle powinny sobie poczekać dłużej.
+
+Proporcjonalność (proportionality): Zadania, które powinny z reguły trwać krótko (a przynajmniej użytkownik tak twierdzi), powinny faktycznie trwać krótko. Np. jak chcę wyłączyć program klikając iksa, to oczekuję, że szybko się wyłączy.
+
+//Real-time systems - wykonują programy, mają deadline'y
+
+Wykonywanie procesów przed terminem (meeting deadlines): można stracić dane, jeśli nie wyrobi się w czasie. (Urządzenie co jakiś czas produkuje dane, jeśli proces nie zbierze ich na czas, to może je utracić).
+
+Przewidywalność (Predictability): Pewne procesy powinny działać zawsze w tym samym tempie niezależnie od obciążenia systemu. Jeśli proces audio będzie działał nieregularnie, niespodziewanie, to jakość dzwięku będzie słaba. To samo z procesami video.
+
+//Embedded systems (systemy wbudowane)
+Tutaj mamy takie sprzęty jak kalkulator, konsole, automaty do gier, telewizory. 
+
+Zależałoby nam na czasie odpowiedzi (Wciskamy przyciski, a tutaj nic się nie dzieje? Głupie.)
+
+
+ZAD 3:
+
+Są różne momenty, w których można podejmować decyzję na temat planowania zadań. Dlatego mamy przynajmniej planistów długoterminowego i krótkoterminowych.
+
+Planista długoterminowy (long-term scheduler):
+
+-Decyduje, któremu z nowych procesów system operacyjny ma przydzielić zasoby i który może w ogóle zostać dopuszczony do kolejki gotowych. Podejmuje ją w zależności od tego, jakie efekty ma osiągnąć. Polityki mogą być różne: proste (fifo) lub bardziej skomplikowane. Na decyzję też wpływają aktualne statystyki zużycia zasobów. Np. okazuje się, że przez ostatni czas zużycie procesora było małe, no to wrzuci się nowe oczekujące programy. Albo przez ostatni czas operacji I/O było mało - można więc wrzucić jakieś procesy ograniczone przez operacje wejscia-wyjścia.
+
+-Statystyki te w takim wypadku powinno się księgować. Jakie statystyki?
+a) Zużycie procesora.
+b) Zużycie pamięci głównej.
+c) Zużycie urządzeń I/O
+d) Liczba procesów dopuszczonych do działania.
+
+-Uruchamia się, kiedy proces się kończy (Moje podejrzenia: lub co jakiś czas lub kiedy uruchamia się nowy proces [Inaczej byłoby trochę słabo]).
+-Planista długoterminowy uruchamia się rzadko - kiedy proces się kończy / tworzy / co jakiś czas. Może zatem działać wolno.
+
+Planista krótkoterminowy (short-term scheduler):
+
+-Decyduje, który z gotowych do wykonywania procesów ma być wykonywany następny.
+
+-Uruchamia się, kiedy kończy się proces lub kiedy następuje wydarzenie, przy którym można wywłaszczyć aktualnie działający proces np.:
+a)Przerwania zegarowe (np. kwant czasu procesu upłynął)
+b)Przerwania I/O (sprzętowe)
+c)Wywołania systemowe (tutaj niekoniecznie wywłaszcza się proces, no ale stalin tak pisze, więc ok)
+d)Sygnały
+[Wyszło na to, że wszystko to przerwania xd]
+
+-Jest wywoływany na okrągło, więc musi być szybki.
+
+ZAD 4:
+
+Wielopoziomowe kolejki ze sprzężeniem zwrotnym (Multilevel feedback scheduling):
+
+Mamy mamy kilka kolejek, z których każda kolejna ma mniejszy priorytet niż poprzednia. Nowe procesy trafiają do kolejki o najwyższym priorytecie. Każda kolejka ma swój kwant czasu - im ważniejsza kolejka, tym mniejszy ten kwant. Wybierany jest zawsze najważniejszy proces, który jest w strukturze. Jeśli wyrobi się on przed upływem jego kwantu czasu, to pozostanie on w tej samej kolejce. W przeciwnym przypadku, zostaje on wywłaszczony i wrzucony do kolejki o niższym priorytecie. Kolejka na "samym dole" ma charakterystykę First Come First Served albo Round Robin.
+
+a) W jaki sposób faworyzować procesy ograniczone przez operacje wejścia-wyjścia? Procesy te mają krótkie fazy procesora, więc będą się szybko wyrabiały w swoim małym kwancie czasu.
+
+b) Jak uwzględnić procesy interaktywne, a jak wsadowe? Interaktywne procesy potrzebują mieć szybki czas odpowiedzi.  Zazwyczaj mają one krótkie fazy procesora, więc powinny być w kolejce o wysokim priorytecie.
+Procesy wsadowe (wykonywane w tle) nie potrzebują krótkiego czasu odpowiedzi, więc mogą sobie siedzieć w kolejce o niższym priorytecie.
+
+c) Kiedy proces można przenieść do kolejki, o krótszym kwancie czasu? Jeśli proces czeka zbyt długo w swojej kolejce, to można go przenieść na koniec kolejki poziom wyższej.
+
+Ewentualnie, można zrobić tak, że kiedy proces blokuje się z powodu operacji I/O, przenosi się go na koniec wyższej kolejki. (Liczymy na to, że proces ten może mieć teraz krótsze fazy procesora).
+
+d) Jakiej techniki użyć, by uniknąć głodzenia procesów? Po pierwsze, procesy wymagające więcej czasu procesora są w kolejce o większym kwancie czasu. Po drogie stosujemy starzenie - kiedy proces przekroczy dopuszczalny czas oczekiwania w kolejce na pewnym poziomie, proces ten jest wrzucany do kolejki poziom wyżej.
