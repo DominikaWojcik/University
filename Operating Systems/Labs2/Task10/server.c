@@ -16,7 +16,7 @@
 #define LISTEN_BACKLOG 64
 #define LISTENER_ADDRESS "/tmp/Task10"
 #define MAX_CONNECTIONS 256
-#define POLL_TIMEOUT 10000
+#define POLL_TIMEOUT 3000
 
 //Kolejka
 typedef struct
@@ -137,7 +137,7 @@ void acceptNewConnections(int* socketsToHandle)
 				descriptorCount = max(descriptorCount, searchPos + 1);
 				initialize(&sendQueue[searchPos]);
 
-				printf("Nowe połączenie na pozycji %d\n", searchPos);
+				printf("Nowe połączenie -  przydzielone do pozycji %d w tablicy dekryptorów\n", searchPos);
 
 				searchPos++;
 
@@ -194,10 +194,10 @@ void receiveAndSendData(int* socketsToHandle)
 					byteCounter[i] = -1;
 					lastByte[i] = -1;
 
-					printf("Zerwano połączenie z pozycją %d\n", i);
+					printf("Zerwano połączenie z pozycją %d w tablicy deskryptorów\n", i);
 				}
 
-				printf("Odebrano na poz %d %d bajtów: %s\n", i, retVal, buffer);
+				//printf("Odebrano na poz %d %d bajtów: %s\n", i, retVal, buffer);
 				for(int j=0; j<retVal && byteCounter[i]>=0; j++)
 				{
 					if(buffer[j] == 0)
@@ -206,11 +206,12 @@ void receiveAndSendData(int* socketsToHandle)
 						{
 							//Koniec transmisji
 							byteCounter[i] = -1;
-							printf("Koniec transmisji od pozycji %d\n", i);
+							printf("Koniec transmisji od pozycji %d w tablicy deskryptorów\n", i);
 						}
 						else
 						{
 							push(&sendQueue[i], byteCounter[i]);
+							printf("Odebrano %d niezerowych bajtów od deskryptora nr %d\n", byteCounter[i], i);
 							byteCounter[i] = 0;
 						}
 					}
@@ -239,7 +240,7 @@ void receiveAndSendData(int* socketsToHandle)
 				retVal = send(descriptors[i].fd, buffer, length, 0);
 				if(retVal < 0 && errno != EWOULDBLOCK && errno != EAGAIN)
 				{
-					printf("Błąd podczas wysyłania do pozycji %d\n", i);
+					printf("Błąd podczas wysyłania do deskryptora nr %d\n", i);
 					printf("%s\n", strerror(errno));
 
 					close(descriptors[i].fd);
@@ -270,13 +271,13 @@ void receiveAndSendData(int* socketsToHandle)
 				descriptors[i].events = 0;
 				descriptors[i].revents = 0;
 				lastByte[i] = -1;
-				
+
 				if(i == descriptorCount - 1)
 				{
 					descriptorCount--;
 				}
 
-				printf("Koniec połączenia z poz %d - transmisja zakończona\n", i);
+				printf("Koniec połączenia z deskryptorem %d w descriptors- transmisja zakończona\n", i);
 			}
 		}
 
@@ -365,13 +366,17 @@ int main()
 
 	while(1)
 	{
-		printf("descriptorCount = %d\n", descriptorCount);
+		//printf("descriptorCount = %d\n", descriptorCount);
 		pollRetVal = poll(descriptors, descriptorCount, POLL_TIMEOUT);
 		printf("Poll zwrócił %d\n", pollRetVal);
 		if(pollRetVal > 0)
 		{
 			acceptNewConnections(&pollRetVal);
 			receiveAndSendData(&pollRetVal);
+		}
+		else if(pollRetVal == 0)
+		{
+			printf("Upłynął czas pollowania (timeout = %dms)\n", POLL_TIMEOUT);
 		}
 		else if(pollRetVal < 0 && errno != EINTR)
 		{
