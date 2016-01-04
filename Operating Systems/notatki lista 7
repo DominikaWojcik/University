@@ -3,6 +3,8 @@ ZAD 1:
 Planowanie zadań: dokonywanie wyborów na temat tego, w jakiej kolejności będą wykonywane procesy, w celu zoptymalizowania zużycia zasobów i czasu wykonywania.
 
 Planista (short-term): decyduje, który proces będzie wykonywany przez porcesor następny. Ma procesy w kolejce gotowych i z nich wybiera jakieś.
+W systemach wbudowanych planista też decyduje o zmianie częstotliwości procesora.
+Można chcieć zminimalizować liczbę "wzbudzeń" procesora - wymagają one więcej czasu. Planista czasami może pogrupować wzbudzenia____|||__||__|||_____ ----> ____|||||||||________
 
 Dyspozytor (ekspedytor [Płoski xD], dispatcher): Wiedząc, który proces będzie wykonywany następny: 
 - Zmienia kontekst na kontekst kolejnego procesu
@@ -16,8 +18,9 @@ Proces ograniczony przez procesor: taki, który ma długie fazy procesora.
 Algorytmy planowania oprócz procesów:
 
 -Działania na dysku - cały czas dostajemy żądania wyszukania czegoś. Wiemy, że różne żądanie zajmują różną ilość czasu. Im lepsze planowanie, tym lepsze rezultaty daje dysk.
+-Cośtam z routerami, pakietami
 
--Działania na urządzeniach peryferyjnych (???) Drukarki
+-Spooling: Działania na urządzeniach peryferyjnych np. Drukarki, oprogramowanie może zdecydować, które dokumenty są drukowane w jakiej kolejności.
 
 -Może w przypadku partycjonowania - przydzielanie partycji procesom ??
 
@@ -77,11 +80,15 @@ Planista długoterminowy (long-term scheduler):
 
 -Decyduje, któremu z nowych procesów system operacyjny ma przydzielić zasoby i który może w ogóle zostać dopuszczony do kolejki gotowych. Podejmuje ją w zależności od tego, jakie efekty ma osiągnąć. Polityki mogą być różne: proste (fifo) lub bardziej skomplikowane. Na decyzję też wpływają aktualne statystyki zużycia zasobów. Np. okazuje się, że przez ostatni czas zużycie procesora było małe, no to wrzuci się nowe oczekujące programy. Albo przez ostatni czas operacji I/O było mało - można więc wrzucić jakieś procesy ograniczone przez operacje wejscia-wyjścia.
 
+Sprawdza, czy całościowa polityka, którą pl. krótkoterminowy ma wywierać, faktycznie się sprawdza.
+Może aktualizować priorytety.
+
 -Statystyki te w takim wypadku powinno się księgować. Jakie statystyki?
 a) Zużycie procesora.
-b) Zużycie pamięci głównej.
+b) Zużycie pamięci głównej. - liczba błędów stron.
 c) Zużycie urządzeń I/O
 d) Liczba procesów dopuszczonych do działania.
+e) Ile proces czekał w której kolejce, ile razy się blokował etc.
 
 -Uruchamia się, kiedy proces się kończy (Moje podejrzenia: lub co jakiś czas lub kiedy uruchamia się nowy proces [Inaczej byłoby trochę słabo]).
 -Planista długoterminowy uruchamia się rzadko - kiedy proces się kończy / tworzy / co jakiś czas. Może zatem działać wolno.
@@ -90,14 +97,14 @@ Planista krótkoterminowy (short-term scheduler):
 
 -Decyduje, który z gotowych do wykonywania procesów ma być wykonywany następny.
 
--Uruchamia się, kiedy kończy się proces lub kiedy następuje wydarzenie, przy którym można wywłaszczyć aktualnie działający proces np.:
+-Uruchamia się, kiedy kończy się proces (lub blokuje) lub kiedy następuje wydarzenie, przy którym można wywłaszczyć aktualnie działający proces np.:
 a)Przerwania zegarowe (np. kwant czasu procesu upłynął)
 b)Przerwania I/O (sprzętowe)
 c)Wywołania systemowe (tutaj niekoniecznie wywłaszcza się proces, no ale stalin tak pisze, więc ok)
 d)Sygnały
 [Wyszło na to, że wszystko to przerwania xd]
 
--Jest wywoływany na okrągło, więc musi być szybki.
+-Jest wywoływany na okrą gło, więc musi być szybki.
 
 ZAD 4:
 
@@ -115,3 +122,5 @@ c) Kiedy proces można przenieść do kolejki, o krótszym kwancie czasu? Jeśli
 Ewentualnie, można zrobić tak, że kiedy proces blokuje się z powodu operacji I/O, przenosi się go na koniec wyższej kolejki. (Liczymy na to, że proces ten może mieć teraz krótsze fazy procesora).
 
 d) Jakiej techniki użyć, by uniknąć głodzenia procesów? Po pierwsze, procesy wymagające więcej czasu procesora są w kolejce o większym kwancie czasu. Po drogie stosujemy starzenie - kiedy proces przekroczy dopuszczalny czas oczekiwania w kolejce na pewnym poziomie, proces ten jest wrzucany do kolejki poziom wyżej.
+
+
