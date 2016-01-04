@@ -112,8 +112,7 @@ int main()
         strcat(buffer, "\n");
         write(STDOUT, buffer, BUFFER_SIZE);
 
-        int kappa;
-        if((kappa = sendFileDescriptor(socketDescriptors[0], fileDescriptor)) == -1)
+        if(sendFileDescriptor(socketDescriptors[0], fileDescriptor) == -1)
         {
             strcpy(buffer, "Nie udało się wysłać deskryptora pliku\n");
             write(STDOUT, buffer, BUFFER_SIZE);
