@@ -1,0 +1,104 @@
+\documentclass{article}
+\usepackage[utf8]{inputenc}
+\usepackage{polski}
+\usepackage[polish]{babel}
+\usepackage{bbm}
+\usepackage{amsmath}
+\usepackage{amsthm}
+\usepackage{graphicx}
+\usepackage{epstopdf}
+\usepackage{float}
+
+\newtheorem{defi}{Definicja}
+\newtheorem{twr}{Twierdzenie}
+\newtheorem*{dd}{Dowód}
+
+\DeclareMathOperator{\sign}{sign}
+\DeclareMathOperator{\arctg}{arctg}
+
+\newcommand{\twopartdef}[4]
+{
+	\left\{
+		\begin{array}{ll}
+			#1 & \mbox{jeśli } #2 \\
+			#3 & \mbox{jeśli } #4
+		\end{array}
+	\right.
+}
+
+
+\author{Jarosław Dzikowski 273233}
+\date{Wrocław, \today}
+\title{\textbf{Pracownia z analizy numerycznej} \\ Sprawozdanie do zadania \textbf{P.3.11}}
+\begin{document}
+\maketitle
+\section{Uwagi techniczne}
+Program można uruchomić normalnie z wiersza poleceń. Nie wypisuje on dużo, ponieważ wyniki doświadczeń są zamieniane na wykresy. Program ma zakomentowane wywołania funkcji produkującej dane do sporządzenia wykresu przez gnuplot'a.\\
+
+Sprawozdanie należy kompilować z wiersza poleceń będąc wewnątrz katalogu doc.
+Do skompilowania sprawozdania wymagana jest obecność folderu ,,wykresy'' z wykresami w formacie eps, które następnie będą zamieszczone w sprawozdaniu. Folder ,,wykresy'' znajduje się w folderze ,,doc''.
+
+\section{Wstęp}
+W tym zadaniu
+
+\section{Wprowadzenie}
+
+\subsection{Kwadratury interpolacyjne}
+
+\subsection{Kwadratury Newtona-Cotesa}
+
+\subsection{Twierdzenie MacLaurina}
+
+\subsection{Metoda Romberga}
+Pierdoły
+
+\section{Doświadczenia}
+
+\section{Wnioski}
+
+\begin{thebibliography}{9}
+
+\bibitem{Dahlquist&Bjorck}
+Dahlquist, G., Bjo\"rck, A.
+\emph{Numerical Methods in Scientific Computing, Volume I},
+Society for Industrial and Applied Mathematics (September 4, 2008), 354-360.
+
+\bibitem{Cheney&Light}
+Cheney, E. W., Light, W. A.
+\emph{A Course in Approximation Theory},
+American Mathematical Soc., 2009, 11-22.
+
+\bibitem{Erdos}
+Erdo\"s, P.
+\emph{Problems and results on the theory of interpolation, II.}
+Acta Math. Acad. Sci.
+Hungar. 12 (1961), 235-244.
+
+\bibitem{Brutman}
+Brutman, L.
+\emph{On the Lebesgue function for polynomial interpolation.}
+SIAM J. Numerical Analysis 15 (1978), 694-704.
+
+\bibitem{Rivlin}
+Rivlin, T.J.
+\emph{Chebyshev Polynomials}
+Wiley, New York, 1974. 2nd Edition, 1990.
+
+\bibitem{Turetskii}
+Turetskii, A. H.
+\emph{The bounding of polynomials prescribed at equally distributed points.}
+Proc. Pedag. Inst. Vitebsk 3 (1940), 117-127.
+
+\bibitem{Faber}
+Faber, G.
+\emph{Uber die interpolatorische Darstellung stetiger Funktionen.}
+Jahresber. Deutsch. Math. Verein., 23 (1914), 191-200.
+
+\bibitem{Vertesi}
+Vertesi, P.
+\emph{Optimal Lebesgue constant for Lagrange interpolation.}
+SIAM J. Numerical Analysis Vol. 27 (1990), 1322–1331.
+
+\end{thebibliography}
+
+\end{document}
