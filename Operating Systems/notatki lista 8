@@ -196,6 +196,19 @@ Umożliwiają szybki (losowy) dostęp do pojedyńczego rekordu lub sekwencji rek
     wyczerpująco: sekwencyjne, potem sterta i sekwencyjne indeksowane.
 
 
+Blokowanie rekordów: rekord to jednostka dostępu do ustrukturyzowanego pliku. Jednostka I/O to blok.
+                    Żeby operacja I/O mogła zostać wykonana, potrzebne jest zorganizowanie
+                    rekordów w bloki.
+                    Czy bloki mają być ustalonej, czy zmiennej długości.
+                    Jaki rozmiar bloku, by było optymalnie - im większy, tym więcej rekordów w
+                    jednej operacji. Z drugiej strony importujemy wiele niepotrzebnych danych.
+                    Trzeba zarządzać dużymi buforami do operacji I/O, co może być trudne.
+Blokowanie o ustalonej długości - rekordy mają stałą długość, może cierpieć z powodu wewnętrznej fragmentacji
+Blokowanie o zmiennej długości pokrywajace - rekordy mają zmienną długość, mogą znajdować się na dwóch blokach
+                    ale pomiędzy jedną częścią rekordu a drugą musi być wskaźnik. Brak marnowanego miejsca.
+                    Trudne do implementacji. Rekordy na dwóch blokach wymagają dwóch operacji I/O.
+Blokowanie o zmiennej długości niepokrywające - rekordy mają zmienną długość ale
+                    mogą być tylko na jednym bloku.
 
 Używamy blokad na pliki z powodów oczywistych (to samo co w synchronizacji)
 shared lock - to jak czytelnik w readers-writers problem
