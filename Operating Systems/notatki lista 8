@@ -222,3 +222,93 @@ advisory file-locking - blokady są odpowiedzialnością programisty - jeśli za
 Przy mandatory lockach programista musi pamiętać o tym, by zwolnić plik, gdy z niego nie korzysta, natomiast przy
 advisory programista musi sam zapewnić synchronizację
 UNIX ma locki doradcze (advisory), windows wymuszające (mandatory).
+
+ZAD 4:
+Hierarchiczna struktura katalogów - drzewo, dag etc.
+Ścieżka absolutna - ścieżka od korzenia
+Ścieżka relatywna - ścieżka od bieżącego katalogu roboczego
+Ścieżka znormalizowana - Ścieżka pozbawiona pętli /home/A/../A/../A/../A -> /home/A
+
+Operacje na katalogach:
+    1. Create
+    2. Delete
+    3. Opendir - otwieramy plik w ce
+    4. Closedir - when directory has been read it should be closed to free internal table space
+    5. Readdir - zwraca następny wpis w katalogu
+    6. Rename
+    7. Linkowanie (o tym potem)
+    8. Odlinkowanie
+-- tannenbaum
+9. Stwórz plik
+10. Usuń plik
+11. Wypisz zawartość
+12. Zaktualizuj katalog - jeśli jakiś atrybut pliku zostanie zmieniony, to być może trzeba zmienić wpis
+13. Szukaj pliku
+14. Przeglądanie systemu plików.
+
+Atrybuty katalogu:
+Takie jak pliku.
+Plus takie rzeczy jak:
+Katalog ojciec.
+Liczba plików zawartych w katalogu. Pewnie sumaryczny rozmiar plików.
+System plików(?)
+
+Jak przechowywać katalogi na dysku? Można mieć listę wpisów stałej długości postaći nazwa | atrybuty
+Albo po prostu nazwa | wskaźnik na strukturę przechowującą atrybuty
+
+Można ustalić maksymalną długość nazwy (255) ale to często jest zbyt dużo.
+Można zatem zastosować dwa podejścia (inne od listy):
+a) Przechowywać w blokach wpisy w takiej postaci: długość wpisu, atrybyty i bajt po bajcie nazwa zakonczona specjalnym znakiem.
+    musi być wyrównana do słowa maszynowego, więc czasem trzeba powstawiać puste filler bajty.
+b) Wpis może mieć stałą długość: wskaźnik na nazwę a następnie atrybuty(stałej długości).
+    Na końcu znajduje się sterta, w której znak po znaku znajdują się nazwy.
+Problemy z błędami stron przy przetwarzaniu nazwy pliku.
+Co, kiedy ktoś usuwa albo zmienia nazwę.
+
+Można zrobić też tablicę haszującą nazwa -> wpis dla przyspieszenia wyszukiwania
+Można cachować wyniki wyszukiwania.
+
+Dowiązania symboliczne pliki zawierające ścieżkę do oryginalnego pliku.
+Dowiązania twarde to pliki, których wpisy w katalogu mają wskaźnik na inode oryginalnego pliku.
+
+ZAD 5:
+
+Często zdarza się, że korzystamy z różnych systemów plików. Na przykład kiedy używamy CD
+albo pendrive'a etc. albo dołączamy kolejny dysk twardy. Wirtualny system plików umożliwia nam
+obsługę wszystkich systemów plików, tak jakby były jednym. - Udostępnia interfejs do interakcji z plikami
+bez potrzeby przejmowania się, w jakim systemie plików jest.
+
+VFS udostępnia 2 interfejsy zewnętrzny dla użytkownika (POSIX open(), etc.) oraz interfejs VFS służący do komunikacji z systemami plików.
+System plików musi realizować wszystkie funkcje interfejsu VFS, by móc zostać dodanym.
+Za każdym razem, gdy dołączamy nowy system plików (przy starcie lub przy montowaniu) następuje rejestracja systemu plików.
+System plików przekazuje adresy wszystkich funkcji w interfejsie VFS.
+
+W PCB procesu znajduje się tablica deskryptorów plików. Każdy deskryptor wskazuje na strukturę, która
+posiada aktualną pozycję w pliku oraz wskaźnik na vnode. vnode to struktura, która przechowuje
+adres tablicy funkcji spełniających interfejs VFS. Kiedy plik jest otwierany, jego ścieżka jest parsowana
+przez wirtualny system plików skąd dedukuje się jego system plików. Punkty montażowe to miejsa w systemie plików,
+do którego montujemy nowy system plików.
+
+Block cache:
+
+W pamięci głównej przechowujemy cache na bloki, do których się odnosimy.
+Mamy dwukierunkową listę bloków. Te na początku to LRU, te na końcu to MRU, kiedy odnosimy się do bloku w cache,
+przenosimy go na koniec listy. Możemy sobie na to pozwolić, bo próby ściągania bloków zdarzają się rzadko.
+Dodatkowo trzymamy tablicę haszującą, w której kubełkach mamy listy bloków - służy to do szybkiego szukania.
+
+Co jeśli system się wywali? Wtedy stracimy wszystkie bloki z cache, których nie zapisaliśmy.
+Np. inode będzie używany rzadko i dużo czasu zajmie, by został on zapisany na dysk. A jest to ważna
+z punktu widzeia spójności systemu plików struktura. W zasadzie wszystko oprócz bloku z danymi jest ważne.
+
+Cache możemy dzielić ze względu na urządzenie oraz wewnątrz ze względu na ważność
+bloku (i-node, blok indeksujący, blok katalogowy pełen blok danych, częściowo wypełniony blok danych).
+Krytyczne bloki możemy zapisywać od razu (write-through).
+
+Przy leniwym zapisywaniu (write-back) brudnych bloków czekamy aż blok wyleci z cache i dopiero wtedy zapisujemy go.
+Przy gorliwym (write-through) zapisujemy i do cache i do dysku.
+
+Zapisując leniwie narażamy się na uszkodzenie systemu plików podczas krachu. Jest to dobre z punktu widzenia
+wydajności. Co jeśli wyciąniemy nagle dysk? stracimy cachowane dane.
+Zapisując gorliwie marnujemy dużo czasu, bo stale zapisujemy na dysk. Za to jesteśmy bezpieczni.
+
+Na unixie mamy proces update, który co 30 sekund zapisuje brudne bloki w cache'u na dysk. Dzięki temu tracimy 30sekund danych.
