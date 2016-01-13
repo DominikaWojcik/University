@@ -109,7 +109,7 @@ urządzenia, na którym operujemy.
 
 W unixie dostęp do konfiguracji / specjalnych funkcji urządzeń może uzyskać poprzez
 specjalne wywołanie systemowe ioctl(int fd, int request, ... args). Do urządzenia
-wysyła się żądanie, czyli ciąg bajtów. Dla różnych te same kody żadania mogą
+wysyła się żądanie, czyli ciąg bajtów. Dla różnych urządzeń te same kody żadania mogą
 oznaczać co innego.
 
 ZAD 2:
@@ -121,7 +121,8 @@ gdzie mamy tablicę [blok] -> adres kolejnego
 -indeksowanie - blok przechowujący adresy bloków - lepszy czas losowego dostępu,
 tracimy dużo pamęci dla małych plików. można robić połączone bloki indeksujące, albo wielopoziomowe (jak tablice stron)
 -inode (rodzaj indeksowania) - rozwiązuje problemy indeksowania, przechowujemy dla pliku strukturę,
-która jest wczytywana do pamięci głownej, kiedy plik jest otwierany(w wersji tannenbauma). Ma ona kilkanaście wpisów wskazujących na bloki z danymi.
+która jest wczytywana do pamięci głownej, kiedy plik jest otwierany(w wersji tannenbauma).
+Ma ona kilkanaście wpisów wskazujących na bloki z danymi.
 Ostatnie 3 wpisy to wskaźniki na bloki (indirect blocks): pierwszy jest po prostu blokiem indeksującym.
 Drugi jest blokiem indeksującym bloki indeksujące, trzeci ma 3 poziomy.
 U tannenbauma inode jest jak blok indeksujący. U silberschatza nie ma nic o wczytywaniu do pamięci głownej.
@@ -162,7 +163,7 @@ a) sterta (pile): rekordy o zmiennej długości z polami o zmiennej długości. 
 b) pliki sekwencyjne: rekordy mają stałe rozmiary. W każdym rekordzie np. pierwsze pole jest kluczem,
                     według którego uporządkowane są rekordy. Wyszukanie czegokolwiek zajmuje czas liniowy.
                     A gdy szukamy względem innego klucza niż tego narzuconego, to też słabo. Dobre do masowego przetwarzania
-                    i przechowywania rekordów o stałym roziarze.
+                    i przechowywania rekordów o stałym rozmiarze.
                     Dla plików sekwencyjnych nowe rekordy są wpisywane do pliku stertowego, który jest co jakiś
                     czas dołączany do głównego pliku.
 c) pliki sekwencyjne indeksowane: to samo, co poprzednio, ale dodajemy tablicę (posortowaną), która
@@ -288,6 +289,12 @@ posiada aktualną pozycję w pliku oraz wskaźnik na vnode. vnode to struktura, 
 adres tablicy funkcji spełniających interfejs VFS. Kiedy plik jest otwierany, jego ścieżka jest parsowana
 przez wirtualny system plików skąd dedukuje się jego system plików. Punkty montażowe to miejsa w systemie plików,
 do którego montujemy nowy system plików.
+
+Po stronie systemu op. mamy strukturę "mount", która ma listę vnode'ów dla tego systemu plików
+(każdy vnode ma listę buforów dla deskryptorów, które na nie wskazują). Są bufory dirty i są bufory clean.
+W punktach montażowych mogą być nowe atrybuty - sync: nie cachuj, noexec - nie wykonuj plików
+
+/etc/fstab - info o punktach montażowych.
 
 Block cache:
 
