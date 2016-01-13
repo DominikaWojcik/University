@@ -1,6 +1,6 @@
 #=
-  Zadanie 3.11: Mebda Romberga
-  Aubr: Jarosław Dzikowski 273233
+  Zadanie 3.11: Metoda Romberga
+  Autor: Jarosław Dzikowski 273233
 =#
 
 # Złożona metoda trapezów
