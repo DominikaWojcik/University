@@ -8,10 +8,14 @@
 \usepackage{graphicx}
 \usepackage{epstopdf}
 \usepackage{float}
+\usepackage{hyperref}
+\usepackage{cleveref}
 
 \newtheorem{defi}{Definicja}
 \newtheorem{twr}{Twierdzenie}
 \newtheorem*{dd}{Dowód}
+
+\crefname{twr}{Twierdzenie}{Twierdzenia}
 
 \DeclareMathOperator{\sign}{sign}
 \DeclareMathOperator{\arctg}{arctg}
@@ -33,8 +37,16 @@
 \begin{document}
 \maketitle
 \section{Uwagi techniczne}
-Program można uruchomić normalnie z wiersza poleceń. Nie wypisuje on dużo, ponieważ wyniki doświadczeń są zamieniane na wykresy. Program ma zakomentowane wywołania funkcji produkującej dane do sporządzenia wykresu przez gnuplot'a.\\
-
+Program można uruchomić normalnie z wiersza poleceń. Wypisze on wartości całek, przybliżenia całek wyliczone
+przez metodę Romberga kończoną warunkiem podanym w treści zadania, oraz wartości wyliczone przez
+metodę Romberga wyliczającą $K$ poziomów tablicy Romberga.
+\newline
+\newline
+Oprócz tego program wypisze pełne tablice błędów dla pięciu badanych funkcji. Dla pierwszych trzech tablica będzie
+wymiaru 10x10, natomiast dla ostatnich dwóch tablica będzie miała rozmiar 20x20, co może być kłopotliwe
+do przeglądania.
+\newline
+\newline
 Sprawozdanie należy kompilować z wiersza poleceń będąc wewnątrz katalogu doc.
 Do skompilowania sprawozdania wymagana jest obecność folderu ,,wykresy'' z wykresami w formacie eps, które następnie będą zamieszczone w sprawozdaniu. Folder ,,wykresy'' znajduje się w folderze ,,doc''.
 
@@ -191,11 +203,6 @@ Okazuje się, że dla kwadratur Newtona-Cotesa, współczynniki $A_k$ da się za
 		A_k = h \cdot (-1)^{n - k} \cdot \frac{1}{k! (n-k)!} \cdot \int_a^b \left ( \prod_{\substack{j = 0 \\ j \neq k}}^n \frac{(x - x_j)}{(x_k - x_j)}\right ) dt
 	\end{equation*}
 \end{twr}
-\begin{dd}
-	\normalfont
-	Dowód dorzucę jeśli trzeba, było na ćwiczeniach.
-	\qed
-\end{dd}
 
 Dowodzi się, że błąd kwadratur Newtona-Cotesa wyraża się następująco
 \begin{equation*}
@@ -239,7 +246,9 @@ zbieżny do całki $\int_b^a f$. Między innymi z tego powodu nie stosuje się w
 rzędów. Na ogół bardziej celowy jest podział przedziału całkowania $[a, b]$ na $n$ równych podprzedziałów
 $[t_k, t_{k+1}]$, wyznaczony przez punkty $t_k = a + kh (k = 0, 1, \ldots , n)$, gdzie $h = \frac{b - a}{n}$, a następnie
 zastosowanie w każdym z nich kwadratury Newtona-Cotesa niskiego rzędu. Otrzymujemy w ten sposób
-\emph{kwadratury złożone} Newtona-Cotesa, służące do obliczania całki w całym przedziale $[a, b]$.\\
+\emph{kwadratury złożone} Newtona-Cotesa, służące do obliczania całki w całym przedziale $[a, b]$.
+\newline
+\newline
 Jeśli w każdym z podprzedziałów $[t_k, t_{k+1}]$ użyć wzoru trapezów
 \begin{equation*}
 	\int_{t_k}^{t_{k + 1}} f(x) dx = \frac{h}{2}[f(t_k) + f(t_{k + 1})] - \frac{h^3}{12} f^{\prime\prime}(\xi_k),
@@ -253,12 +262,42 @@ gdzie $T_n$ jest kwadraturą nazywaną \emph{złożonym wzorem trapezów}, okre�
 	T_n(f) = h {\sum_{k = 0}^n} {}^{\prime\prime} f(t_k),
 \end{equation*}
 gdzie $\sum {}^{\prime}$ oznacza sumę z pierwszym składnikiem podzielonym przez dwa, a $
-sum {}^{\prime\prime}$ oznacza sumę z pierwszym i ostatnim składnikiem podzielonym przez dwa. \\
+sum {}^{\prime\prime}$ oznacza sumę z pierwszym i ostatnim składnikiem podzielonym przez dwa.
+\newline
+\newline
 $R_n^T$ jest resztą tej kwadratury, równą
 \begin{equation*}
 	R_n^T(f) = -\frac{h^3}{12} \sum_{k = 0}^{n - 1} f^{\prime\prime}(\xi_k) = - n \frac{h^3}{12} f^{\prime\prime} (\xi) = -(b - a)\frac{h^2}{12} f^{\prime\prime} (\xi)
 \end{equation*}
 dla pewnego $\xi \in (a,b)$, pod warunkiem, że $f \in C^2[a,b]$.\\
+Pokażemy, że złożony wzór trapezów przy $n \to \infty$ zbiega do wartości całki.
+\begin{twr}[Zbieżność złożonego wzoru trapezów]
+	\label{twr5}
+	Niech $T_n(f)$ będzie wartością złożonego wzorów trapezów dla funkcji $f$ w przedziale całkowania $[a,b]$.
+	Wtedy zachodzi
+	\begin{equation*}
+		\lim_{n \to \infty} T_n(f) = \int_a^b f(x) dx
+	\end{equation*}
+\end{twr}
+\begin{dd}
+	\normalfont
+	Niech $s_n$ będzie dolną sumą częściową całkowania, a $S_n$ będzie górną sumą częściową całkowania. Przedział całkowania dzielimy na $n$ przedziałów długości
+	$\frac{b - a}{n}$.
+	\begin{equation*}
+		s_n = \sum_{i = 0}^{n - 1} h \cdot \min_{x \in [a + ih, a + (i+1)h]} f(x) \quad S_n = \sum_{i = 0}^{n - 1} h \cdot \max_{x \in [a + ih, a + (i + 1)h]} f(x)
+	\end{equation*}
+	Oczywiście złożony wzór trapezów $T_n(f)$ wynosi
+	\begin{equation*}
+		T_n(f) = \sum_{i = 0}^{n - 1} h \left( \frac{f(a + ih) + f(a + (i + 1)h)}{2}\right)
+	\end{equation*}
+	Zatem możemy oszacować $T_n(f)$ używając sum częściowych
+	\begin{equation*}
+		\sum_{i = 0}^{n - 1} h \cdot \min_{x \in [a + ih, a + (i+1)h]} f(x) \leq \sum_{i = 0}^{n - 1} h \left( \frac{f(a + ih) + f(a + (i + 1)h)}{2}\right) \leq \sum_{i = 0}^{n - 1} h \cdot \max_{x \in [a + ih, a + (i + 1)h]} f(x)
+	\end{equation*}
+	Następnie ponieważ $\lim_{n \to \infty} s_n = \int_a^b f(x) dx = \lim_{n \to \infty} S_n$, to z reguły trzech ciągów otrzymujemy
+	$\lim_{n \to \infty} T_n(f) = \int_a^b f(x) dx$.
+	\qed
+\end{dd}
 Niech n będzie liczbą parzystą, $n = 2m$. Załóżmy, że $f \in C^4[a,b]$ i podzielmy przedział całkowania
 na $m$ podprzedziałów $[t_k, t_{k + 1}]$ o długości $2h$, a następnie zastosujmy do całki w każdym
 podpzedziale wzór Simpsona
@@ -280,13 +319,17 @@ a $R_n^S(f)$ jest resztą tego wzoru
 \begin{equation*}
 	R_n^S(f) = - \frac{h^5}{90} \sum_{k = 0}^{m - 1} f^{(4)}(\eta_k) = - m \frac{h^5}{90} f(\eta) = -(b - a) \frac{h^4}{180} f^{(4)} (\eta),
 \end{equation*}
-gdzie $\eta \in (a,b)$. \\
+gdzie $\eta \in (a,b)$.
+\newline
+\newline
 Ze wzorów na reszty złożonych wzorów trapezów i Simpsona wynika, że dla dostatecznie regularnych funkcji $f$ całka $I(f)$ może być przybliżona
 dowolnie blisko za pomocą $T_n(f)$ lub $S_n(f)$, pod warunkiem, że weźmiemy dostatecznie małe $h$. Zachodzi zatem
 \begin{equation*}
 	\lim_{n \to \infty} T_n(f) = \lim_{n \to \infty} S_n(f) = I(f)
 \end{equation*}
-\\
+Dowód jest analogiczny do dowodu ~\cref{twr5}: ograniczamy złożoną kwadraturę przez sumy częściowe dolne i górne całkowania.
+\newline
+\newline
 Problemem dla kwadratur Newtona-Cotesa są funkcje, dla których przedział całkowania nie zawiera się w dziedzinie funkcji.
 Przykładem jest następująca całka $\int_{-1}^1 \frac{1}{\sqrt{1 - x^2}} dx$ Ponieważ w punktach $x = -1$ oraz $x = 1$ funkcja jest nieokreślona,
 nie możemy zastosować kwadratur Newtona-Cotesa.
@@ -352,14 +395,18 @@ Widać, że zwiększyliśmy liczbę cyfr dokładnych.
 Skoro udało nam się wyeliminować najbardziej znaczący składnik błędu złożonego wzoru
 trapezów $R_n^T$, to dlaczego mielibyśmy zatrzymać się w tym miejscu? W analogiczny sposób jak poprzednio możemy usunąć
 kolejny najbardziej znaczący składnik reszty: $\frac{1}{n^4}$. Następnie możemy usuwać kolejne najbardziej znaczące
-składniki. W ten właśnie sposób działa metoda Romberga. \\
-W metodzie tej skonstruujemy trójkątną tablicę kolejnych ,,przyspieszeń" złożonego wzoru trapezów.
+składniki. W ten właśnie sposób działa metoda Romberga.
+\newline
+\newline
+W metodzie tej skonstruujemy trójkątną tablicę kolejnych ,,przyspieszeń'' złożonego wzoru trapezów.
 Niech
 \begin{equation*}
 T_{0,k} = T_{2^k}
 \end{equation*}
 Pierwsza kolumna tablicy wypełniona jest złożonymi wzorami trapezów dla podziału
-przedziału całkowania na $2^k$ równych części. Niech $h_k = \frac{b - a}{2^k}$ oznacza długośc podprzedziału. \\
+przedziału całkowania na $2^k$ równych części. Niech $h_k = \frac{b - a}{2^k}$ oznacza długośc podprzedziału.
+\newline
+\newline
 Kolejne kolumny tablicy konstruujemy poznaną przez nas metodą:
 \begin{equation}
 	T_{m,k} = \frac{4^m T_{m - 1, k + 1} - T_{m - 1, k}}{4^m - 1}
@@ -409,6 +456,56 @@ $T_{0,k}$ & $T_{1,k - 1}$ & $T_{2,k - 2}$ & $T_{3,k - 3}$ & \dots & $T_{k,0}$ \\
 	\qed
 \end{dd}
 
+\begin{twr}[Zbieżność metody Romberga]
+	Niech $T_{i,j}$ będą wyrazami tablicy Romberga. Wtedy zachodzi
+	\begin{equation*}
+		\lim_{m \to \infty} T_{m, 0} = \int_a^b f(x) dx
+	\end{equation*}
+\end{twr}
+\begin{dd}
+	\normalfont
+	Dowód analogiczny do dowodu ~\cref{twr5}. Zawsze możemy ograniczyć $T_{i,j}$ przez sumy częściowe całkowania dolną oraz górną.
+	Następnie z twierdzenia o trzech ciągach pokazujemy, że $\lim_{n \to \infty} T_{n,0} = \int_a^b f(x) dx$.
+
+	Ograniczenie przez sumy częściowe całkowania można udowodnić indukcyjnie
+	\begin{enumerate}
+		\item $m = 0$
+			\newline
+			Dla $m = 0$ mamy do czynienia ze złożonym wzorem trapezów. Zbieżność ta została udowodniona wcześniej.
+		\item Załóżmy indukcyjnie, że dla $m \geq 0$ teza zachodziła, tj.
+			\begin{equation*}
+				s_{m,k} \leq T_{m,k} \leq S_{m,k} ,
+			\end{equation*}
+			gdzie $s_{m,k}$ oraz $S_{m,k}$ są odpowiednio dolną oraz górną sumą częściową całkowania.
+			Pokażemy, że dla $m + 1$ $T_{m + 1,k}$ też da się ograniczyć przez sumy częściowe.
+			Z rekurencyjnej zależności wzoru Romberga mamy
+			\begin{equation*}
+				T_{m+1,k} = \frac{4^{m + 1} T_{m,k + 1} - T_{m, k}}{4^{m + 1} - 1}
+			\end{equation*}
+			Na mocy założenia indukcyjnego zachodzą dwie nierówności
+			\begin{equation*}
+				s_{m,k + 1} \leq T_{m,k + 1} \leq S_{m,k + 1} \quad\quad s_{m,k} \leq T_{m,k} \leq S_{m,k}
+			\end{equation*}
+			Zatem zachodzi następująca nierówność
+			\begin{equation*}
+				4^{m+1} s_{m,k+1} - s_{m,k} \leq 4^{m+1} T_{m,k+1} - T_{m,k} \leq 4^{m+1} S_{m,k+1} - S_{m,k}
+			\end{equation*}
+			Poneważ $s_{m,k} \leq s_{m,k+1}$ oraz $S_{m,k+1} \leq S_{m,k}$ mamy
+			\begin{equation*}
+				(4^{m+1} - 1) s_{m,k} \leq 4^{m+1} T_{m,k+1} - T_{m,k} \leq (4^{m+1} - 1) S_{m,k}
+			\end{equation*}
+			Dzieląc obustronnie przez $(4^{m+1} - 1)$ otrzymujemy
+			\begin{equation*}
+				s_{m,k} \leq \frac{4^{m+1} T_{m,k+1} - T_{m,k}}{4^{m+1} - 1} \leq S_{m,k}
+			\end{equation*}
+			Otrzymujemy zatem tezę
+			\begin{equation*}
+				s_{m+1,k} = s_{m,k} \leq T_{m+1,k} \leq S_{m,k} = S_{m+1,k}
+			\end{equation*}
+			\qed
+	\end{enumerate}
+\end{dd}
+
 Przy obliczaniu pierwszej kolumy, czyli złożonych wzorów trapezów dla $n = 2^i$ możemy wykonać małą optymalizację,
 która pozwoli nam policzyć wszystkie $T_{0,0}, T_{0,1}, \ldots, T_{0,k}$ czyli de facto $T_1, T_{2}, \ldots, T_{2^k}$
 dodając wartość funkcji całkowanej w każdym z $2^k$ węzłów tylko jeden raz. Niech $h_i = \frac{b-a}{2^i}$.
@@ -425,10 +522,18 @@ Tak jak polecono w zadaniu, liczenie kolejnych wierszy tablicy Romberga przerwie
 \begin{equation*}
 	|T_{K,0} - T_{K-1,0}| < \epsilon |T_{K,0}|
 \end{equation*}
+gdzie w doświadczeniach $\epsilon = 10^{-9}$.
+\newline
+\newline
 Dodatkowo policzymy pełną tablicę Romberga oraz przedstawimy pełną tablicę błędów.
 Dla każdej funkcji obliczono wartość całki za pomocą wbudowanej w Julii funkcji \verb+quadgk()+,
 która oblicza całkę
 używając kwadratur Gaussa-Konroda.
+\newline
+\newline
+Należy zaznaczyć, że wartości przedstawione w tablicach błędów są bardzo mocno zaokrąglone. W przeciwnym wypadku
+tablice byłyby zbyt szerokie i nie zmieściłyby się w sprawozdaniu. Jedyna ważna informacja w tablicach błędów, to
+rząd błędu.
 
 \begin{enumerate}
 	\item $\int_a^b f(x) dx = \int_{-1}^{1} \frac{1}{x^4 + x^2 + 0.9} dx \approx 1.5822329637296728$ \\ \\
@@ -437,73 +542,206 @@ używając kwadratur Gaussa-Konroda.
 	    \includegraphics[width=0.8\textwidth]{wykresy/1.eps}
 	    \caption{$f(x) = \frac{1}{x^4 + x^2 + 0.9}$}
 	\end{figure}
+	Metoda Romberga dla tej całki spełniła warunki końcowe już po wyliczeniu kolumny
+	numer 7 oraz zwróciła $1.5822329637296089$.
+	Tak prezentuje się tablica błędów względnych.
+
+	\begin{table}[h]
+	\centering
+	\begin{tabular}[c]{|c|c|c|c|c|c|c|}
+	\hline
+	Lp. & 0 & 1 & 2 & \ldots & 8 & 9 \\
+	\hline
+	0 & $0.564125392$ &  &  &  &  & \\
+	1 & $0.079820272$ & $0.081614767$ &  &  & & \\
+	2 & $0.018658028$ & $0.001729386$ & $0.00359630$ & & & \\
+	3 & $0.004692614$ & $3.74772453e-5$ & $0.00015526$	& \dots &  &  \\
+	\dots & \dots & \dots & \dots & \dots & & \\
+	8 & $4.5868371e-6$ & $1.3418809e-11$ & $4.518826e-14$ & \dots & $4.2100868e-16$ &  \\
+	9 & $1.1467099e-6$ & $8.38228e-13$ & $4.210086e-16$ & \dots & $2.8067245e-16$ & $2.8067245e-16$ \\
+	\hline
+	\end{tabular}
+	\caption{Tablica błędów względnych metody Romberga dla pierwszej całki.}
+	\end{table}
+
 	\item $\int_a^b f(x) dx = \int_0^1 \frac{1}{1 + x^4} dx \approx 0.866972987339911$ \\ \\
 	\begin{figure}[H]
 		\centering
 		\includegraphics[width=0.8\textwidth]{wykresy/2.eps}
 		\caption{$f(x) = \frac{1}{1 + x^4}$}
 	\end{figure}
+	Dla tej całki, metoda Romberga kończy działanie po obliczeniu kolumny nr 6.
+	Otrzymano przybliżenie całki $\int_0^1 \frac{1}{1 + x^4} dx \approx 0.8669729873400975$.
+
+	\begin{table}[h]
+	\centering
+	\begin{tabular}[c]{|c|c|c|c|c|c|c|}
+	\hline
+	Lp. & 0 & 1 & 2 & \ldots & 8 & 9 \\
+	\hline
+	0 & 0.1349211440	& & & & & \\
+ 	1 & 0.0246659957 & 0.01208572032	& & & & \\
+ 	2 & 0.0060447709 & 0.00016230402 & 0.0006325903 & & & \\
+ 	3 & 0.0015042187 & 9.298617849e-6 & 9.017423310e-7	& \dots & & \\
+	\dots & \dots & \dots & \dots & \dots & & \\
+	8 & 1.466675102e-6 & 8.951852211e-12 & 0.0 & \dots & 0.0 &  \\
+	9 & 3.666683557e-7 & 5.599949891e-13 & 5.12229580e-16 & \dots & 5.12229580e-16 & 5.1222958e-16 \\
+	\hline
+	\end{tabular}
+	\caption{Tablica błędów względnych metody Romberga dla drugiej całki.}
+	\end{table}
+
 	\item $\int_a^b f(x) dx = \int_0^1 \frac{2}{2 + \sin(10 \pi x)} dx \approx 1.1547005383792308$ \\ \\
 	\begin{figure}[H]
 		\centering
 		\includegraphics[width=0.8\textwidth]{wykresy/3.eps}
 		\caption{$f(x) = \frac{2}{2 + \sin(10 \pi x)}$}
 	\end{figure}
+	W przypadku tej całki, metoda Romberga szybko kończy działanie (po wyliczeniu
+	kolumny nr 1) i zwraca niepoprawny wynik $0.9999999999999999$.
+	Metoda Romberga wyliczająca 10 poziomów tablicy Romberga otrzymuje już dokładny wynik $1.1547005383792495$.
+	Tablica błędów wygląda następująco
+
+	\begin{table}[h]
+	\centering
+	\begin{tabular}[c]{|c|c|c|c|c|c|c|}
+	\hline
+	Lp. & 0 & 1 & 2 & \ldots & 8 & 9 \\
+	\hline
+	0 & 0.1339745962 & & & & &\\
+	1 & 0.1339745962 & 0.1339745962 & & & & \\
+	2 & 0.0103629710 & 0.058475493 & 0.071305499 & & & \\
+	3 & 5.31448463e-5 & 0.0033834638 & 0.007507394 & \dots & & \\
+	\dots & \dots & \dots & \dots & \dots & & \\
+	8 & 1.78835529e-14 & 1.76912567e-14 & 1.76912567e-14 & \dots & 7.86491738e-14 & \\
+	9 & 1.78835529e-14 & 1.78835529e-14 & 1.78835529e-14 & \dots & 1.78835529e-14 & 1.78835529e-14 \\
+	\hline
+	\end{tabular}
+	\caption{Tablica błędów względnych metody Romberga dla trzeciej całki.}
+	\end{table}
+
 	\item $\int_a^b f(x) dx = \int_{-200}^{200} \cos(\frac{200}{1 + x^2}) dx  \approx 364.56214839923837$ \\ \\
-		Dla tej funkcji zbyt trudno narysować wykres, ponieważ w przedziale $[-1, 1]$ cosinus ,,wariuje".
-		Natomiast przy $x \to \pm \infty$ funkcja $f$ dąży do jedynki.
+	Dla tej funkcji zbyt trudno narysować wykres, ponieważ w przedziale $[-1, 1]$ cosinus ,,wariuje".
+	Natomiast przy $x \to \pm \infty$ funkcja $f$ dąży do jedynki.
+	Metoda Romberga dla początkowych numerów kolumn odbiega od poprawnego wyniku,
+	lecz poźniej dogania dokładną wartość całki zwracając $\int_{-200}^{200} \cos(\frac{200}{1 + x^2}) dx \approx 364.5621483992415$.
+	\newline
+	\newline
+	Aby obliczyć satysfakcjonujący wynik, metoda Romberga potrzebuje policzyć aż wiersz numer 19.
+	Jeśli spojrzy się na pełną tablicę błędów, można zauważyć, że w tych samych wierszach błędy mogą się
+	zwiększać. Na przykład w wierszu nr 18 metoda trapezów dała przybliżenie całki o błędzie rzędu
+	$10^{-15}$. Natomiast na końcu, w kolumnie 18, mamy błąd rzędu $10^{-12}$.
+
+	\begin{table}[h]
+	\centering
+	\begin{tabular}[c]{|c|c|c|c|c|c|c|}
+	\hline
+	Lp. & 0 & 1 & 2 & \ldots & 18 & 19 \\
+	\hline
+	0 & 0.0971928984 &  &  &  &  & \\
+	1 & 0.1841307814 & 0.2779053413 &  &  & & \\
+	2 & 0.0435717793 & 0.0032812213 & 0.022026992 & & & \\
+	3 & 0.0259299849 & 0.0490972396 & 0.052151640 & \dots &  &  \\
+	\dots & \dots & \dots & \dots & \dots & & \\
+	18 & 5.613207756e-15 & 5.769130193e-15 & 5.92505263e-15 & \dots & 1.13355612e-12	 &  \\
+	19 & 7.484277008e-15 & 8.263889196e-15 & 8.41981163e-15 & \dots & 8.26388919e-15 & 8.26388919e-15\\
+	\hline
+	\end{tabular}
+	\caption{Tablica błędów względnych metody Romberga dla czwartej całki.}
+	\end{table}
+
+
 	\item $\int_a^b f(x) dx = \int_{-0.9999}^{0.9999} \frac{1}{\sqrt{1 - x^2}} dx \approx 3.113308146635046$ \\ \\
 	\begin{figure}[H]
 		\centering
 		\includegraphics[width=0.8\textwidth]{wykresy/5.eps}
 		\caption{$f(x) = \frac{1}{\sqrt{1 - x^2}}$}
 	\end{figure}
+	Metoda Romberga nie jest w stanie obliczyć całki z tej samej funkcji dla przedziału całkowania $[-1,1]$,
+	ponieważ funkcja nie jest określona dla $x = \pm 1$.
+	\newline
+	Metoda Romberga zwraca $\int_{-0.9999}^{0.9999} \frac{1}{\sqrt{1 - x^2}} dx \approx 3.113308146650636$.
+	Także i dla tej funkcji, aby osiągnąć warunki końcowe i zakończyć algorytm, potrzebne jest wyliczenie kolumny
+	numer 18 w tablicy Romberga.
+
+	\begin{table}[h]
+	\centering
+	\begin{tabular}[c]{|c|c|c|c|c|c|c|}
+	\hline
+	Lp. & 0 & 1 & 2 & \ldots & 18 & 19 \\
+	\hline
+	0 & 44.42137904 &  &  &  &  & \\
+	1 & 22.03185914 & 14.56868584 &  &  & & \\
+	2 & 10.88677194 & 7.171742881 & 6.67861335 & & & \\
+	3 & 5.351986353 & 3.507057822 & 3.26274548	& \dots &  &  \\
+	\dots & \dots & \dots & \dots & \dots & & \\
+	18 & 2.7533692e-7 & 9.978023e-11 & 7.435939e-13 & \dots & 5.0075980e-12 &  \\
+	19 & 2.7533692e-7 & 9.978023e-11 & 7.435939e-13 & \dots & 9.7139357e-14	& 9.7139357e-14	 \\
+	\hline
+	\end{tabular}
+	\caption{Tablica błędów względnych metody Romberga dla piątej całki.}
+	\end{table}
+
 \end{enumerate}
 
 \section{Wnioski}
+
+Jak się okazuje, metoda Romberga faktycznie bardzo szybko przyspiesza zbieżność złożonego wzoru Trapezów.
+Mogliśmy to zaobserwować w przypadku każdej funkcji.
+\newline
+\newline
+Jednakże, istnieją funkcje, dla których metoda Romberga zwraca niepoprawny wynik. Było tak w przypadku
+$\int_0^1 \frac{2}{2 + \sin(10 \pi x)} dx$. Metoda Romberga wyliczała tylko pierwsze dwie kolumy, zauważyła, że
+zachodzi warunek końcowy i zakończyła działanie zwracając niepoprawny wynik. Powodem, dla którego
+metoda zakończyła się, jest to, że metoda trapezów dla jednego przedziału zwraca wynik równy 1
+\begin{equation*}
+	f(0) = f(1) = 1 \implies h \frac{f(0) + f(1)}{2} = 1
+\end{equation*}
+Natomiast jeśli popatrzeć się na metodę Simpsona dzielącą przedział całkowania na 2 części, to
+\begin{equation*}
+	f(0) = f(1) = f(\frac{1}{2}) = 1 \implies \frac{h}{2} \frac{f(0) + 4f(\frac{1}{2} + f(1))}{3} = 1
+\end{equation*}
+Nic dziwnego, że metoda Romberga uznaje, że osiągnięto stabilny wynik.
+\newline
+\newline
+Dla funkcji o ,,skomplikowanym'' wykresie jak $\frac{2}{2 + \sin(10 \pi x)}$ kwadratury dla małych $n$ będą zwracać wynik sporo
+odbiegający od rzeczywistego. Mając ,,pecha'', kwadratury Newtona-Cotesa wybiorą takie węzły równoodległe,
+że metoda Romberga da podobny wynik dla pierwszego wiersza danej kolumny, jak dla pierwszego wiersza kolumny poprzedniej.
+\newline
+\newline
+To w szczególności jest prawdziwe dla funkcji okresowych. Można dobrać takie okresowe funkcje, które całkowicie zepsują nam pierwsze kolumny
+tablicy Romberga. Przykładem jest chociażby trzecia badana funkcja, chociaż możnaby ją ,,usprawnić'' zwiększając jej
+okresowość chociażby do $f_2(x) = \frac{2}{2 + \sin(2^{20} \pi x)}$. Można sobie tylko wyobrazić, jak bardzo
+złożony wzór trapezów dla $n = 2^k$ będzie się mylił trafiając aż do $n = 2^{20}$ w punkty o wartosci 1. To samo
+będzie zachodziło dla złożonego wzoru Simpsona.
+\newline
+\newline
+Inną kwestią, na którą wartoby było zwrócić uwagę jest związek długości przedziału całkowania do liczby poziomów
+tablicy Romberga, którą algorytm potrzebuje wyliczyć, by znaleźć satysfakcjonujące przybliżenie całki.
+Wydaje się naturalne, że im dłuższy przedział całkownia lub im bardziej skomplikowana funkcja,
+tym powinniśmy używać większej liczby węzłów w kwadraturze.
+Czwarta funkcja potwierdza to, mamy przedział całkowania $[-200, 200]$, aby wyliczyć odpowiednie przybliżenie
+całki, musimy wyliczyć dwadzieścia poziomów tablicy Romberga.
+\newline
+\newline
+Natomiast piąta rozpatrywana całka pokazuje, że nie zawsze krótki przedział całkowania i stosunkowo ,,prosta'' funkcja
+pozwolą nam na wyliczenie zaledwie kilku poziomów tablicy Romberga. Funkcja $\frac{1}{\sqrt{1 - x^2}}$ dla $x \to \pm 1$ dąży do nieskończoności.
+Jednak nasze przedziały całkowania $[-0.9999,0.9999]$ nie znajdują się aż tak blisko $\pm 1$, ani funkcja ta
+nie wydaje się specjalnie skomplikowana. Mimo to musimy policzyć aż dziewietnaście
+poziomów tablicy Romberga.
+
 
 \begin{thebibliography}{9}
 
 \bibitem{Dahlquist&Bjorck}
 Dahlquist, G., Bjo\"rck, A.
 \emph{Numerical Methods in Scientific Computing, Volume I},
-Society for Industrial and Applied Mathematics (September 4, 2008), 354-360.
+Society for Industrial and Applied Mathematics (September 4, 2008), 547-550.
 
-\bibitem{Cheney&Light}
-Cheney, E. W., Light, W. A.
-\emph{A Course in Approximation Theory},
-American Mathematical Soc., 2009, 11-22.
-
-\bibitem{Erdos}
-Erdo\"s, P.
-\emph{Problems and results on the theory of interpolation, II.}
-Acta Math. Acad. Sci.
-Hungar. 12 (1961), 235-244.
-
-\bibitem{Brutman}
-Brutman, L.
-\emph{On the Lebesgue function for polynomial interpolation.}
-SIAM J. Numerical Analysis 15 (1978), 694-704.
-
-\bibitem{Rivlin}
-Rivlin, T.J.
-\emph{Chebyshev Polynomials}
-Wiley, New York, 1974. 2nd Edition, 1990.
-
-\bibitem{Turetskii}
-Turetskii, A. H.
-\emph{The bounding of polynomials prescribed at equally distributed points.}
-Proc. Pedag. Inst. Vitebsk 3 (1940), 117-127.
-
-\bibitem{Faber}
-Faber, G.
-\emph{Uber die interpolatorische Darstellung stetiger Funktionen.}
-Jahresber. Deutsch. Math. Verein., 23 (1914), 191-200.
-
-\bibitem{Vertesi}
-Vertesi, P.
-\emph{Optimal Lebesgue constant for Lagrange interpolation.}
-SIAM J. Numerical Analysis Vol. 27 (1990), 1322–1331.
+\bibitem{Kincaid&Cheney}
+Kincaid, D. R., Cheney, E. W.
+\emph{Numerical Analysis: Mathematics of Scientific Computing}
+American Mathematical Society, 2002.
 
 \end{thebibliography}
 

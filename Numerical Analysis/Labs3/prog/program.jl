@@ -47,6 +47,7 @@ function RombergsMethodEpsilon(a, b, f, K::Int, eps)
       T[i+1,j+1] = ((4.0^i)*T[i,(j+1)+1] - T[i,j+1])/ (4.0^i - 1)
     end
     if abs(T[i+1,1] - T[i,1]) < eps * abs(T[i+1,1])
+      #println("Epsilon osiągnięty w ",i, " kolumnie")
       return T[i+1,1]
     end
   end
@@ -109,9 +110,11 @@ function PrintErrorTable(f, a, b, K, I)
 
   # Wypisujemy tablicę błędów
   for i = 0:K-1
+    print("[",i,"] ")
     for j = 0:i
       print(abs((I - T[j+1,i-j+1]) / I), "\t")
     end
+    print("\n")
     print("\n")
   end
 
@@ -180,11 +183,10 @@ println("-------------------------------------")
 
 println("-------------------------------------")
 println("Tablica błędów dla czwartej funkcji")
-PrintErrorTable(F[4], A[4], B[4], 10, I[4])
+PrintErrorTable(F[4], A[4], B[4], 20, I[4])
 println("-------------------------------------")
 
 println("-------------------------------------")
 println("Tablica błędów dla piątej funkcji")
-PrintErrorTable(F[5], A[5], B[5], 10, I[5])
+PrintErrorTable(F[5], A[5], B[5], 20, I[5])
 println("-------------------------------------")
-
