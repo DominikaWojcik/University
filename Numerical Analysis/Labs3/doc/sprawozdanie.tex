@@ -63,7 +63,7 @@ Wtedy musimy skorzystać z jakiejś uniwersalnej metody obliczania przybliżonej
 Zacznijmy od wprowadzenia pojęcia kwadratury. Niech $\mathbbm{F} = \mathbbm{F}[a,b]$ będzie zbiorem funkcji całkowalnych w przedziale [a,b].
 Jeśli $f$ jest ciągła w [a,b), to $f \in \mathbbm{F}$. \\
 Jeśli $f$ jest funkcją ograniczoną i ma skończenie wiele punktów nieciągłości w [a,b], to $f \in \mathbbm{F}$.
-Całka $I: \mathbbm{F} \to \mathbbm{R}$ jest funkcjonałem liniowym.
+Całka $I: \mathbbm{F} \to \mathbbm{R}$ zapisuje się następująco
 \begin{equation*}
 	I(f) = \int_a^b f(x) dx
 \end{equation*}
@@ -73,11 +73,15 @@ W przypadku całki z daną funkcją wagową $p$ mamy
 \end{equation*}
 Oczywiście, z własności całki wiemy, że $I$ spełnia następujące właśności:
 \begin{equation*}
-	(1) \ I(f + g) = I(f) + I(g)
+	(1) \ I(f + g) = \int_a^b (f+g)(x) dx = \int_a^b f(x) + g(x) dx = \int_a^b f(x) dx \ + \int_a^b g(x) dx = I(f) + I(g)
 \end{equation*}
 \begin{equation*}
-	(2) \ I(\alpha f) = \alpha I(f)
+	(2) \ I(\alpha f) = \int_a^b \alpha f(x) dx = \alpha \int_a^b f(x) dx = \alpha I(f)
 \end{equation*}
+\begin{equation*}
+	(3) \ I(0) = \int_a^b 0 \ dx = 0
+\end{equation*}
+Zatem $I: \mathbbm{F} \to \mathbbm{R}$ jest \emph{funkcjonałem liniowym}.
 \begin{defi}[Kwadratura liniowa]
 	Funkcjonał $Q_n: \mathbbm{F} \to \mathbbm{R}$ postaci
 	\begin{equation}
