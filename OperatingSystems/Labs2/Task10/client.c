@@ -118,4 +118,8 @@ int main()
         write(STDOUT, buffer, length + 1);*/
 
     }
+
+    close(socketDescriptor);
+
+    return 0;
 }
