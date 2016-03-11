@@ -11,8 +11,17 @@
 #include <netinet/in.h>
 
 #define WAITING_TIME 1
+#define MAX_TTL 30
 #define PACKETS_TO_SEND 3
+#define IP_ADDRESS_LENGTH 20
 
+typedef struct
+{
+	struct timeval sendTime, receiveTime;
+	char ipAddr[IP_ADDRESS_LENGTH];
+} ttlPacket;
+
+ttlPacket packetInfo[MAX_TTL][PACKETS_TO_SEND];
 char* recipientAddress;
 int mySocket;
 int responseFromTarget;
@@ -76,9 +85,9 @@ int SendPacket(int ttl, int id)
 		return -1;
 	}
 
-	setsockopt (mySocket, IPPROTO_IP, IP_TTL, &ttl, sizeof(int));
+	setsockopt(mySocket, IPPROTO_IP, IP_TTL, &ttl, sizeof(int));
 
-	ssize_t bytesSent = sendto (mySocket, &icmpHeader, sizeof(icmpHeader),
+	ssize_t bytesSent = sendto(mySocket, &icmpHeader, sizeof(icmpHeader),
 						0, (struct sockaddr*)&recipient, sizeof(recipient));
 	if(bytesSent < 0)
 	{
@@ -90,9 +99,58 @@ int SendPacket(int ttl, int id)
 	return 0;
 }
 
-int ReceivePackets()
-{
+int ReceivePackets(int ttl)
+{	
+	ssize_t packetLength = 0;
 
+	do
+	{
+		struct sockaddr_in sender;
+		socklen_t senderLength = sizeof(sender);
+		u_int8_t buffer[IP_MAXPACKET+1];
+
+		ssize_t packetLength = recvfrom (
+				mySocket,
+				buffer,
+				IP_MAXPACKET,
+				MSG_DONTWAIT,
+				(struct sockaddr*)&sender,
+				&senderLength
+				);
+		if(packetLength < 0)
+		{
+			if(errno != EAGAIN && errno != EWOULDBLOCK)
+			{
+				fprintf(stderr, "Error while receiving packets for ttl = %d\n", ttl);
+				perror("Receive Packets\n");
+				return -1;
+			}
+		}
+
+		struct iphdr* ipHeader = (struct iphdr*) buffer;
+		u_int8_t* icmpPacket = buffer + 4 * ipHeader->ihl; 
+		struct icmphdr* icmpHeader = (struct icmphdr*) icmpPacket;
+
+		if(icmpHeader->un.echo.id != myPid || 
+			icmpHeader->un.echo.sequence >= (ttl + 1) * PACKETS_TO_SEND || 
+			icmpHeader->un.echo.sequence < ttl * PACKETS_TO_SEND)
+		{
+			continue;
+		}
+
+		if(icmpHeader->type == ICMP_ECHOREPLY || 
+			(icmpHeader->type == ICMP_TIME_EXCEEDED && icmpHeader->code == ICMP_EXC_TTL))
+		{
+			if(icmpHeader->type == ICMP_ECHOREPLY)	
+			{
+				responseFromTarget = 1;
+			}
+			
+		}
+	}
+	while(packetLength >= 0);
+
+	return 0;
 }
 
 void PrintResults()
@@ -119,7 +177,7 @@ int TraceRoute(char* address)
 
 		sleep(WAITING_TIME);
 
-		ReceivePackets();
+		ReceivePackets(ttl);
 
 		PrintResults();
 	}
