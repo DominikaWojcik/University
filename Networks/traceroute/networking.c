@@ -120,14 +120,31 @@ int ReceivePackets(int ttl)
 {	
 	debug("Receive Packets ttl %d\n", ttl);
 	ssize_t packetLength = 0;
+	time_t secondsElapsed = 0;
+	struct timeval startTime, currentTime, difference;
+
+	if(gettimeofday(&startTime, NULL) < 0)
+	{
+		perror("Get time of day failed.\n");
+		return -1;
+	}	
 
 	do
 	{
+		if(gettimeofday(&currentTime, NULL) < 0)
+		{
+			perror("Get time of day failed.\n");
+			return -1;
+		}
+
+		timersub(&currentTime, &startTime, &difference);
+		secondsElapsed = difference.tv_sec;	
+
 		struct sockaddr_in sender;
 		socklen_t senderLength = sizeof(sender);
 		u_int8_t buffer[IP_MAXPACKET+1];
 
-		ssize_t packetLength = recvfrom (
+		packetLength = recvfrom (
 				mySocket,
 				buffer,
 				IP_MAXPACKET,
@@ -143,7 +160,7 @@ int ReceivePackets(int ttl)
 				perror("Recvfrom error\n");
 				return -1;
 			}
-			break;
+			continue;
 		}
 
 		struct iphdr* ipHeader = (struct iphdr*) buffer;
@@ -197,8 +214,17 @@ int ReceivePackets(int ttl)
 				return -1;
 			}
 		}
+
+		if(gettimeofday(&currentTime, NULL) < 0)
+		{
+			perror("Get time of day failed.\n");
+			return -1;
+		}
+
+		timersub(&currentTime, &startTime, &difference);
+		secondsElapsed = difference.tv_sec;	
 	}
-	while(packetLength >= 0);
+	while(secondsElapsed < WAITING_TIME);
 
 	debug("Receive Packets end ttl %d\n", ttl);
 	return 0;
@@ -234,7 +260,7 @@ void PrintResults(int ttl)
 
 		receivedAnswers++;
 		struct timeval difference;
-		timersub(&packetInfo[ttl][i].sendTime, &packetInfo[ttl][i].receiveTime, &difference);	
+		timersub(&packetInfo[ttl][i].receiveTime, &packetInfo[ttl][i].sendTime, &difference);	
 		totalTime += difference.tv_usec;
 	}
 
@@ -248,7 +274,7 @@ void PrintResults(int ttl)
 	}
 	else
 	{
-		printf("%ldms\n", (totalTime / PACKETS_TO_SEND) /* / MICROSEC_TO_MILLISEC */);
+		printf("%ldms\n", (totalTime / PACKETS_TO_SEND) / MICROSEC_TO_MILLISEC);
 	}
 }
 
@@ -270,8 +296,6 @@ int TraceRoute(char* address)
 				return -2;
 			}
 		}
-
-		sleep(WAITING_TIME);
 
 		ReceivePackets(ttl);
 
