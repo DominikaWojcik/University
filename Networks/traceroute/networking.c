@@ -270,11 +270,12 @@ void PrintResults(int ttl)
 	}
 	else if(receivedAnswers < PACKETS_TO_SEND) 
 	{
-		printf("???\n");
+		printf("\t???\n");
 	}
 	else
 	{
-		printf("%ldms\n", (totalTime / PACKETS_TO_SEND) / MICROSEC_TO_MILLISEC);
+		suseconds_t averageTime = totalTime / PACKETS_TO_SEND;
+		printf("\t%ld.%ld ms\n", averageTime / MICROSEC_TO_MILLISEC, averageTime % MICROSEC_TO_MILLISEC);
 	}
 }
 
