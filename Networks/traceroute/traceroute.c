@@ -45,6 +45,13 @@ int ProcessInput(char* input)
 			return -1;
 		}
 	}
+
+	if(dots < 3)
+	{
+		fprintf(stderr, "Invalid IP address.\n");
+		return -1;
+	}
+
 	return 0;
 }
 

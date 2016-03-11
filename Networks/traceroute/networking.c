@@ -6,7 +6,7 @@
 #include <stdio.h>
 #include <assert.h>
 #include <sys/socket.h>
-#include <time.h>
+#include <sys/time.h>
 #include <arpa/inet.h>
 #include <netinet/in.h>
 
@@ -14,6 +14,11 @@
 #define MAX_TTL 30
 #define PACKETS_TO_SEND 3
 #define IP_ADDRESS_LENGTH 20
+#define MICROSEC_TO_MILLISEC 1000
+#define ICMP_EXC_LENGTH 8
+
+#define DEBUG 0
+#define debug(...) if(DEBUG) fprintf(stderr, __VA_ARGS__)
 
 typedef struct
 {
@@ -21,7 +26,7 @@ typedef struct
 	char ipAddr[IP_ADDRESS_LENGTH];
 } ttlPacket;
 
-ttlPacket packetInfo[MAX_TTL][PACKETS_TO_SEND];
+ttlPacket packetInfo[MAX_TTL + 1][PACKETS_TO_SEND];
 char* recipientAddress;
 int mySocket;
 int responseFromTarget;
@@ -29,6 +34,7 @@ pid_t myPid;
 
 int Initialization(char* address)
 {
+	debug("Init\n");
 	mySocket = socket(AF_INET, SOCK_RAW, IPPROTO_ICMP);
 	if(mySocket < 0)
 	{
@@ -40,6 +46,7 @@ int Initialization(char* address)
 	responseFromTarget = 0;
 	myPid = getpid();
 
+	debug("Init end\n");
 	return 0;
 }
 
@@ -58,6 +65,8 @@ u_int16_t compute_icmp_checksum (const void *buff, int length)
 
 int SendPacket(int ttl, int id)
 {
+	debug("SendPacket ttl %d id %d\n", ttl, id);
+
 	struct icmphdr icmpHeader;
 	icmpHeader.type = ICMP_ECHO;
 	icmpHeader.code = 0;
@@ -88,19 +97,28 @@ int SendPacket(int ttl, int id)
 	setsockopt(mySocket, IPPROTO_IP, IP_TTL, &ttl, sizeof(int));
 
 	ssize_t bytesSent = sendto(mySocket, &icmpHeader, sizeof(icmpHeader),
-						0, (struct sockaddr*)&recipient, sizeof(recipient));
+						MSG_DONTWAIT, (struct sockaddr*)&recipient, sizeof(recipient));
 	if(bytesSent < 0)
 	{
 		fprintf(stderr, "Error while sending packet ttl = %d, id = %d\n", ttl, id);
-		perror("Send Packet\n");
+		perror("sendto error\n");
 		return -1;
 	}
 
+	if(gettimeofday(&packetInfo[ttl][id - 3*ttl].sendTime, NULL) < 0)
+	{
+		perror("Get time of day failed.\n");
+		return -1;
+	}
+	debug("Send time ttl %d id %d = %ld, %ld\n", ttl, id - 3*ttl, packetInfo[ttl][id - 3*ttl].sendTime.tv_sec, packetInfo[ttl][id - 3*ttl].sendTime.tv_usec);
+
+	debug("SendPacket end ttl %d id %d\n", ttl, id);
 	return 0;
 }
 
 int ReceivePackets(int ttl)
 {	
+	debug("Receive Packets ttl %d\n", ttl);
 	ssize_t packetLength = 0;
 
 	do
@@ -122,20 +140,25 @@ int ReceivePackets(int ttl)
 			if(errno != EAGAIN && errno != EWOULDBLOCK)
 			{
 				fprintf(stderr, "Error while receiving packets for ttl = %d\n", ttl);
-				perror("Receive Packets\n");
+				perror("Recvfrom error\n");
 				return -1;
 			}
+			break;
 		}
 
 		struct iphdr* ipHeader = (struct iphdr*) buffer;
 		u_int8_t* icmpPacket = buffer + 4 * ipHeader->ihl; 
 		struct icmphdr* icmpHeader = (struct icmphdr*) icmpPacket;
+		struct icmphdr* oldIcmpHeader;
 
-		if(icmpHeader->un.echo.id != myPid || 
-			icmpHeader->un.echo.sequence >= (ttl + 1) * PACKETS_TO_SEND || 
-			icmpHeader->un.echo.sequence < ttl * PACKETS_TO_SEND)
+
+		if(icmpHeader->type == ICMP_TIME_EXCEEDED && icmpHeader->code == ICMP_EXC_TTL)
 		{
-			continue;
+			//Wyciągam stary nagłówek ICMP
+			icmpPacket = ((u_int8_t*) icmpHeader) + ICMP_EXC_LENGTH;
+			struct iphdr* oldIpHeader = (struct iphdr*) icmpPacket;
+			icmpPacket = ((u_int8_t*) oldIpHeader) + 4 * oldIpHeader->ihl;
+			oldIcmpHeader = (struct icmphdr*) icmpPacket;
 		}
 
 		if(icmpHeader->type == ICMP_ECHOREPLY || 
@@ -145,17 +168,88 @@ int ReceivePackets(int ttl)
 			{
 				responseFromTarget = 1;
 			}
+			else
+			{
+				icmpHeader = oldIcmpHeader;
+			}
+
+			if(icmpHeader->un.echo.id != myPid || 
+				icmpHeader->un.echo.sequence >= (ttl + 1) * PACKETS_TO_SEND || 
+				icmpHeader->un.echo.sequence < ttl * PACKETS_TO_SEND)
+			{
+				continue;
+			}
 			
+			int id = icmpHeader->un.echo.sequence - 3*ttl;
+
+			if(gettimeofday(&packetInfo[ttl][id].receiveTime, NULL) < 0)
+			{
+				perror("Get time of day failed.\n");
+				return -1;
+			}	
+
+			debug("Receive time ttl %d id %d = %ld, %ld\n", ttl, id, packetInfo[ttl][id].receiveTime.tv_sec, packetInfo[ttl][id].receiveTime.tv_usec);
+
+			if(inet_ntop(AF_INET, &sender.sin_addr, 
+				packetInfo[ttl][id].ipAddr, IP_ADDRESS_LENGTH) == NULL)
+			{
+				perror("Inet_ntop error.\n");
+				return -1;
+			}
 		}
 	}
 	while(packetLength >= 0);
 
+	debug("Receive Packets end ttl %d\n", ttl);
 	return 0;
 }
 
-void PrintResults()
+void PrintResults(int ttl)
 {
+	printf("%d. ", ttl);
+	int receivedAnswers = 0;
+	suseconds_t totalTime = 0;
 
+	for(int i = 0; i < PACKETS_TO_SEND; i++)
+	{
+		time_t recvSeconds = packetInfo[ttl][i].receiveTime.tv_sec;
+		suseconds_t recvMicroseconds = packetInfo[ttl][i].receiveTime.tv_usec;
+		
+		if(recvSeconds == 0 && recvMicroseconds == 0) continue;
+		
+		int repeatingAddress = 0;
+		for(int j = i - 1; j >= 0; j--)
+		{
+			if(strcmp(packetInfo[ttl][i].ipAddr, packetInfo[ttl][j].ipAddr) == 0)
+			{
+				repeatingAddress = 1;
+				break;
+			}
+		}
+
+		if(!repeatingAddress)
+		{
+			printf("%s ", packetInfo[ttl][i].ipAddr);
+		}
+
+		receivedAnswers++;
+		struct timeval difference;
+		timersub(&packetInfo[ttl][i].sendTime, &packetInfo[ttl][i].receiveTime, &difference);	
+		totalTime += difference.tv_usec;
+	}
+
+	if(receivedAnswers == 0) 
+	{
+		printf("*\n");
+	}
+	else if(receivedAnswers < PACKETS_TO_SEND) 
+	{
+		printf("???\n");
+	}
+	else
+	{
+		printf("%ldms\n", (totalTime / PACKETS_TO_SEND) /* / MICROSEC_TO_MILLISEC */);
+	}
 }
 
 int TraceRoute(char* address)
@@ -164,6 +258,8 @@ int TraceRoute(char* address)
 	{
 		return -1;
 	}
+	
+	printf("Traceroute to %s\n", address);
 
 	for(int ttl = 1; ttl <= 30 && !responseFromTarget; ttl++)
 	{
@@ -179,7 +275,7 @@ int TraceRoute(char* address)
 
 		ReceivePackets(ttl);
 
-		PrintResults();
+		PrintResults(ttl);
 	}
 
 
