@@ -176,43 +176,36 @@ int ReceivePackets(int ttl)
 			struct iphdr* oldIpHeader = (struct iphdr*) icmpPacket;
 			icmpPacket = ((u_int8_t*) oldIpHeader) + 4 * oldIpHeader->ihl;
 			oldIcmpHeader = (struct icmphdr*) icmpPacket;
+			icmpHeader = oldIcmpHeader;
 		}
 
-		if(icmpHeader->type == ICMP_ECHOREPLY || 
-			(icmpHeader->type == ICMP_TIME_EXCEEDED && icmpHeader->code == ICMP_EXC_TTL))
+		if(icmpHeader->un.echo.id != myPid || 
+			icmpHeader->un.echo.sequence >= (ttl + 1) * PACKETS_TO_SEND || 
+			icmpHeader->un.echo.sequence < ttl * PACKETS_TO_SEND)
 		{
-			if(icmpHeader->type == ICMP_ECHOREPLY)	
-			{
-				responseFromTarget = 1;
-			}
-			else
-			{
-				icmpHeader = oldIcmpHeader;
-			}
+			continue;
+		}
 
-			if(icmpHeader->un.echo.id != myPid || 
-				icmpHeader->un.echo.sequence >= (ttl + 1) * PACKETS_TO_SEND || 
-				icmpHeader->un.echo.sequence < ttl * PACKETS_TO_SEND)
-			{
-				continue;
-			}
-			
-			int id = icmpHeader->un.echo.sequence - 3*ttl;
+		if(icmpHeader->type == ICMP_ECHOREPLY)	
+		{
+			responseFromTarget = 1;
+		}
 
-			if(gettimeofday(&packetInfo[ttl][id].receiveTime, NULL) < 0)
-			{
-				perror("Get time of day failed.\n");
-				return -1;
-			}	
+		int id = icmpHeader->un.echo.sequence - 3*ttl;
 
-			debug("Receive time ttl %d id %d = %ld, %ld\n", ttl, id, packetInfo[ttl][id].receiveTime.tv_sec, packetInfo[ttl][id].receiveTime.tv_usec);
+		if(gettimeofday(&packetInfo[ttl][id].receiveTime, NULL) < 0)
+		{
+			perror("Get time of day failed.\n");
+			return -1;
+		}	
 
-			if(inet_ntop(AF_INET, &sender.sin_addr, 
-				packetInfo[ttl][id].ipAddr, IP_ADDRESS_LENGTH) == NULL)
-			{
-				perror("Inet_ntop error.\n");
-				return -1;
-			}
+		debug("Receive time ttl %d id %d = %ld, %ld\n", ttl, id, packetInfo[ttl][id].receiveTime.tv_sec, packetInfo[ttl][id].receiveTime.tv_usec);
+
+		if(inet_ntop(AF_INET, &sender.sin_addr, 
+			packetInfo[ttl][id].ipAddr, IP_ADDRESS_LENGTH) == NULL)
+		{
+			perror("Inet_ntop error.\n");
+			return -1;
 		}
 
 		if(gettimeofday(&currentTime, NULL) < 0)
