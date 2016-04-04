@@ -156,3 +156,11 @@ FROM wyborBD w1 JOIN wyborBD w2 ON w1.kod_uz=w2.kod_uz
 WHERE w1.semestr_id != w2.semestr_id;
 
 #18
+WITH UZYTK AS (SELECT wybor.kod_uz
+FROM grupa JOIN wybor USING(kod_grupy)
+    JOIN przedmiot_semestr USING(kod_przed_sem)
+GROUP BY wybor.kod_uz
+HAVING COUNT(DISTINCT semestr_id)=6)
+
+SELECT COUNT(*)
+FROM UZYTK;
