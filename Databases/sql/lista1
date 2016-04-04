@@ -104,3 +104,55 @@ ORDER BY COUNT(kod_przed_sem) DESC
 LIMIT 1;
 
 #12
+SELECT COUNT(*)
+FROM przedmiot
+WHERE nazwa LIKE '%(ang.)';
+
+#13
+WITH przed AS (SELECT kod_przed_sem
+    FROM przedmiot_semestr JOIN semestr USING(semestr_id)
+    WHERE semestr.nazwa LIKE '%zimowy 2009%'),
+
+zapisy AS (SELECT data
+    FROM przed JOIN grupa USING(kod_przed_sem)
+        JOIN wybor USING(kod_grupy)),
+
+zapisA AS (SELECT MIN(data)
+    FROM zapisy),
+
+zapisB AS (SELECT MAX(data)
+    FROM zapisy)
+
+SELECT * FROM zapisA, zapisB;
+
+#14
+SELECT nazwa
+FROM przedmiot
+WHERE rodzaj='k' AND kod_przed NOT IN(SELECT kod_przed FROM przedmiot_semestr);
+
+#15
+SELECT COUNT(*)
+FROM grupa NATURAL JOIN uzytkownik
+WHERE nazwisko='Kanarek' AND imie LIKE 'P%' AND rodzaj_zajec='p';
+
+#16
+SELECT COUNT(DISTINCT kod_grupy)
+FROM grupa NATURAL JOIN uzytkownik
+    JOIN przedmiot_semestr USING(kod_przed_sem)
+    JOIN przedmiot USING(kod_przed)
+WHERE nazwisko='Charatonik' AND imie='Witold' AND przedmiot.nazwa='Logika dla informatyków';
+
+#17
+WITH grupyBD AS (SELECT kod_grupy, semestr_id
+    FROM grupa NATURAL JOIN przedmiot_semestr
+        NATURAL JOIN przedmiot
+    WHERE nazwa='Bazy danych'),
+
+wyborBD AS (SELECT kod_uz, kod_grupy, semestr_id
+    FROM wybor JOIN grupyBD USING(kod_grupy))
+
+SELECT COUNT(DISTINCT w1.kod_uz)
+FROM wyborBD w1 JOIN wyborBD w2 ON w1.kod_uz=w2.kod_uz
+WHERE w1.semestr_id != w2.semestr_id;
+
+#18
