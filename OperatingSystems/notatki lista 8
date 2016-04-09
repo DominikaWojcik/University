@@ -1,0 +1,321 @@
+ZAD 1:
+
+Atrybuty (metadane) pliku (tannenbaum):
+Protection   Who can access the file and in what way
+Password    Password needed to access the file
+Creator     ID of the person who created the file
+Owner   Current owner
+Read-only flag      0 for read/write; 1 for read only
+Hidden flag     0 for normal; 1 for do not display in listings
+System flag     0 for normal files; 1 for system file
+Archive flag    0 for has been backed up; 1 for needs to be backed up (whether it has been backed up recently)
+ASCII/binary flag       0 for ASCII file; 1 for binary file
+Random access flag      0 for sequential access only; 1 for random access
+Temporary flag     0 for normal; 1 for delete file on process exit
+Lock flags      0 for unlocked; nonzero for locked
+Record length   Number of bytes in a record
+Key position    Offset of the key within each record
+Key length      Number of bytes in the key field
+Creation time       Date and time the file was created
+Time of last access     Date and time the file was last accessed
+Time of last change     Date and time the file was last changed
+Current size    Number of bytes in the file
+Maximum size    Number of bytes the file may grow to
+
+chattr manual:
+chattr changes the file attributes on a Linux file system.
+
+       The format of a symbolic mode is +-=[aAcCdDeijsStTu].
+
+       The  operator  '+'  causes  the  selected attributes to be added to the
+       existing attributes of the files; '-' causes them to  be  removed;  and
+       '=' causes them to be the only attributes that the files have.
+
+       The  letters  'aAcCdDeijsStTu' select the new attributes for the files:
+       append only (a), no atime updates (A), compressed (c), no copy on write
+       (C), no dump (d), synchronous directory updates (D), extent format (e),
+       immutable (i), data journalling (j), secure deletion  (s) [bloki zerowane i zapisywane na dysk],  synchronous
+       updates  (S),  no tail-merging (t), top of directory hierarchy (T), and
+       undeletable (u).
+
+       The following attributes are read-only, and may be listed by  lsattr(1)
+       but  not  modified  by  chattr:  compression  error (E), huge file (h),
+       indexed directory (I), inline data (N), compression raw access (X), and
+       compressed dirty file (Z).
+
+Dokładne wyjaśnienia w zakładce Attributes
+
+Operacje na plikach(ctrl-c ctrl-v z tannenbauma):
+
+1. Create . The file is created with no data. The purpose of the call is to
+announce that the file is coming and to set some of the attributes.
+
+2. Delete . When the file is no longer needed, it has to be deleted to free
+up disk space. There is always a system call for this purpose.
+
+3. Open . Before using a file, a process must open it. The purpose of the
+open call is to allow the system to fetch the attributes and list of disk
+addresses into main memory for rapid access on later calls.
+
+4. Close . When all the accesses are finished, the attributes and disk ad-
+dresses are no longer needed, so the file should be closed to free up
+internal table space. Many systems encourage this by imposing a
+maximum number of open files on processes. A disk is written in
+blocks, and closing a file forces writing of the file’s last block, even
+though that block may not be entirely full yet.
+
+5. Read . Data are read from file. Usually, the bytes come from the cur-
+rent position. The caller must specify how many data are needed and
+must also provide a buffer to put them in.
+
+6. Write . Data are written to the file again, usually at the current posi-
+tion. If the current position is the end of the file, the file’s size in-
+creases. If the current position is in the middle of the file, existing
+data are overwritten and lost forever.
+
+7. Append . This call is a restricted form of write . It can add data only to
+the end of the file. Systems that provide a minimal set of system calls
+rarely have append , but many systems provide multiple ways of
+doing the same thing, and these systems sometimes have append .
+
+8. Seek . For random-access files, a method is needed to specify from
+where to take the data. One common approach is a system call, seek ,
+that repositions the file pointer to a specific place in the file. After this
+call has completed, data can be read from, or written to, that position.
+
+9. Get attributes . Processes often need to read file attributes to do their
+work. For example, the UNIX make program is commonly used to
+manage software development projects consisting of many source
+files. When make is called, it examines the modification times of all
+the source and object files and arranges for the minimum number of
+compilations required to bring everything up to date. To do its job, it
+must look at the attributes, namely, the modification times.
+
+10. Set attributes . Some of the attributes are user settable and can be
+changed after the file has been created. This system call makes that
+possible. The protection-mode information is an obvious example.
+Most of the flags also fall in this category.
+
+11. Rename . It frequently happens that a user needs to change the name
+of an existing file. This system call makes that possible. It is not al-
+ways strictly necessary, because the file can usually be copied to a
+new file with the new name, and the old file then deleted.
+
+Semantyka pliku - system udostępnia jednolity interfejs do operacji na
+urządzeniach, gniazdach, potokach i zwykłych plikach. Każde urządzenie etc. jest
+reprezentowane jako deskryptor pliku, do którego można się odnośić standardowymi operacjami
+na plikach. Te operacje mają różne implementacje wewnątrz w zależności od rodzaju
+urządzenia, na którym operujemy.
+
+W unixie dostęp do konfiguracji / specjalnych funkcji urządzeń może uzyskać poprzez
+specjalne wywołanie systemowe ioctl(int fd, int request, ... args). Do urządzenia
+wysyła się żądanie, czyli ciąg bajtów. Dla różnych urządzeń te same kody żadania mogą
+oznaczać co innego.
+
+ZAD 2:
+
+Przydział pamięci plikom:
+-ciągły - tak samo jak w pamięci głównej - szybkie
+-lista blokow - wolne przy losowym dostępie, można FAT zrobić (file allocation table),
+gdzie mamy tablicę [blok] -> adres kolejnego
+-indeksowanie - blok przechowujący adresy bloków - lepszy czas losowego dostępu,
+tracimy dużo pamęci dla małych plików. można robić połączone bloki indeksujące, albo wielopoziomowe (jak tablice stron)
+-inode (rodzaj indeksowania) - rozwiązuje problemy indeksowania, przechowujemy dla pliku strukturę,
+która jest wczytywana do pamięci głownej, kiedy plik jest otwierany(w wersji tannenbauma).
+Ma ona kilkanaście wpisów wskazujących na bloki z danymi.
+Ostatnie 3 wpisy to wskaźniki na bloki (indirect blocks): pierwszy jest po prostu blokiem indeksującym.
+Drugi jest blokiem indeksującym bloki indeksujące, trzeci ma 3 poziomy.
+U tannenbauma inode jest jak blok indeksujący. U silberschatza nie ma nic o wczytywaniu do pamięci głownej.
+
+
+Organizacja pamięci wolnej:
+
+-Wektor bitów - 1 blok wolny, 0 blok zajęty  w pamięci podrzędnej - wolne, w pamięci głownej - za dużo miejsca
+-lista - jeden blok po drugim
+-grupowanie - po prostu stworzona z wolnych bloków lista bloków indeksujących wolne bloki
+-zliczanie - jeśli mamy ciągły przydział pamięci lub grupowanie sąsiednich bloków (clustering),
+            to może się opłacać robić taką listę wolnych bloków: blok w liście wolnych
+            pamięta, ile wolnych, ciągłych i sąsiednich z blokiem z listy bloków jeszcze się znajduje
+            wpis: blok [ile za nim jest, wskaźnik na kolejny element listy] - dzięki temu lista jest krótsza
+            Listę można pamiętać na jakimś drzewie zamiast na liście.
+
+Defragmentacja - to po prostu takie kompaktowanie pamięci na dysku.
+Może też sortować bloki danych plików, by dostęp do sąsiednich bloków był szybszy.
+Nie opłaca się używać tego na dyskach SSD, bo tam nie ma elementów, które się poruszają jak w HDD
+
+Ratowanie w przypadku zniszczenia struktur:
+przed operacją ustaw status bit na 1, po pomyslnie ukonczonej operacji zresetuj.
+Jeśli wykryto gdzies status bit 1, to trzeba naprawić problemy.
+-Consistency checking
+Utrata wpisu w katalogu (pierwszy blok na liście) albo (blok indeksujący), może być katastrofalne
+UNIX cachuje wpisy w katalogu przy czytaniu, a w przypadku zapisu, najpierw aktualizuje się cache, potem plik.
+Przez cachowanie możemy odbudować utracone pliki.
+
+ZAD 3:
+
+Organizacje plików
+
+a) sterta (pile): rekordy o zmiennej długości z polami o zmiennej długości. Nie ma żadnego porządku, rekordy
+                    wrzucone tak jakby na stertę. FIFO. Szukanie rekordu zajmuje długo.
+                    Modyfikacja rekordu na dłuższy zajmuje bardzo długo.
+                    Dobre, gdy po prostu potrzebujemy składować dane przed przetworzeniem.
+                    Albo, gdy ciężko jest jakoś uporządkować dane. I gdy masowo przetwarzamy potem dane.
+b) pliki sekwencyjne: rekordy mają stałe rozmiary. W każdym rekordzie np. pierwsze pole jest kluczem,
+                    według którego uporządkowane są rekordy. Wyszukanie czegokolwiek zajmuje czas liniowy.
+                    A gdy szukamy względem innego klucza niż tego narzuconego, to też słabo. Dobre do masowego przetwarzania
+                    i przechowywania rekordów o stałym rozmiarze.
+                    Dla plików sekwencyjnych nowe rekordy są wpisywane do pliku stertowego, który jest co jakiś
+                    czas dołączany do głównego pliku.
+c) pliki sekwencyjne indeksowane: to samo, co poprzednio, ale dodajemy tablicę (posortowaną), która
+                    dla jakichś paru indeksów  wskazuje, gdzie one są w głównej tablicy rekordów.
+                    Dzięki temu jesteśmy w stanie przyspieszyć wyszukiwanie. Im więcej poziomów tej tablicy
+                    zrobimy, tym szybciej jesteśmy w stanie wyszukiwać rekordy.
+                    Akutalizacja rekordów o równym rozmiarze jest dobra.
+                    Mamy overflow file, coś jak dla sekwencyjnego pliku, gdzie umieszczamy nowe rekordy
+                    ale każdy rekord (w tym w overflow file) ma wskaźnik na następny rekord (potrzebne do wyszukiwania).
+                    Co jakiś czas overflow file dołącza się do głównego pliku.
+d) pliki indeksowane: Nie mamy jednego klucza, ale wiele. Brak sekwencyjności, możemy odnosić się do rekordów
+                    tylko poprzez klucz. Można teraz mieć rekordy o zmiennej długości.
+                    Są indeksowania exhaustive (wyczerpujące?), które zawierają jeden wpis dla
+                    każdego rekordu w głównym pliku. Są one zorganizowane jako plik sekwencyjny
+                    Są też indeksowania częściowe, którez zawierają wpisy tylko dla rekordów, którymi moglibyśmy się interesować.
+                    Kiedy dodajemy rekord to pliku głównego, to indeksowania muszą zostać zaktualizowane.
+                    Indeksowane pliki stosuje się w aplikacjach, gdzie dane są rzadko wyczerpująco
+                    przeglądane oraz liczy się timeliness (aktualność??) danych.
+e) pliki hashowane: Nie ma sekwencyjności, do plików odnosimy się kluczem, który hashowany jest na
+                    odpowiedni blok na dysku. Używane gdzie trzeba mieć szybki dostęp i tylko jedna
+                    osoba na raz ma dostęp. Też mamy jakiś overflow file.
+                    Przykłady: katalogi, schedules, name lists, pricing tables.
+
+Najefektywniejsze do przechowywania rekordów o stałej długości: sekwencyjne pliki.
+    ---||--- o zmiennej długości: sterta
+Charakteryzują się najdłuższym czasem aktualizacji, gdy rozmiar rekordu jest (a) równy: sterta
+    ---||---- gdy rozmiar rekordu jest (b) większy: pliki indeksowane
+Umożliwiają szybki (losowy) dostęp do pojedyńczego rekordu lub sekwencji rekordów
+    pojedyńczy: indeksowane, hashowane, sekwencyjne indeksowane.
+    podzbiór: indeksowane
+    wyczerpująco: sekwencyjne, potem sterta i sekwencyjne indeksowane.
+
+
+Blokowanie rekordów: rekord to jednostka dostępu do ustrukturyzowanego pliku. Jednostka I/O to blok.
+                    Żeby operacja I/O mogła zostać wykonana, potrzebne jest zorganizowanie
+                    rekordów w bloki.
+                    Czy bloki mają być ustalonej, czy zmiennej długości.
+                    Jaki rozmiar bloku, by było optymalnie - im większy, tym więcej rekordów w
+                    jednej operacji. Z drugiej strony importujemy wiele niepotrzebnych danych.
+                    Trzeba zarządzać dużymi buforami do operacji I/O, co może być trudne.
+Blokowanie o ustalonej długości - rekordy mają stałą długość, może cierpieć z powodu wewnętrznej fragmentacji
+Blokowanie o zmiennej długości pokrywajace - rekordy mają zmienną długość, mogą znajdować się na dwóch blokach
+                    ale pomiędzy jedną częścią rekordu a drugą musi być wskaźnik. Brak marnowanego miejsca.
+                    Trudne do implementacji. Rekordy na dwóch blokach wymagają dwóch operacji I/O.
+Blokowanie o zmiennej długości niepokrywające - rekordy mają zmienną długość ale
+                    mogą być tylko na jednym bloku.
+
+Używamy blokad na pliki z powodów oczywistych (to samo co w synchronizacji)
+shared lock - to jak czytelnik w readers-writers problem
+exclusive lock - to jak pisarz w readers-writers
+
+mandatory file-locking - kiedy proces zakłada blokadę na plik, żaden inny proces nie ma prawa korzystać
+                    z zablokowanego pliku. (nawet jeśli inny proces nie próbuje uzyskać blokady)
+advisory file-locking - blokady są odpowiedzialnością programisty - jeśli założymy blokadę, a inny
+                        proces będzie chciał korzystać z pliku nie zakładając blokady, to uda mu się.
+
+Przy mandatory lockach programista musi pamiętać o tym, by zwolnić plik, gdy z niego nie korzysta, natomiast przy
+advisory programista musi sam zapewnić synchronizację
+UNIX ma locki doradcze (advisory), windows wymuszające (mandatory).
+
+ZAD 4:
+Hierarchiczna struktura katalogów - drzewo, dag etc.
+Ścieżka absolutna - ścieżka od korzenia
+Ścieżka relatywna - ścieżka od bieżącego katalogu roboczego
+Ścieżka znormalizowana - Ścieżka pozbawiona pętli /home/A/../A/../A/../A -> /home/A
+
+Operacje na katalogach:
+    1. Create
+    2. Delete
+    3. Opendir - otwieramy plik w ce
+    4. Closedir - when directory has been read it should be closed to free internal table space
+    5. Readdir - zwraca następny wpis w katalogu
+    6. Rename
+    7. Linkowanie (o tym potem)
+    8. Odlinkowanie
+-- tannenbaum
+9. Stwórz plik
+10. Usuń plik
+11. Wypisz zawartość
+12. Zaktualizuj katalog - jeśli jakiś atrybut pliku zostanie zmieniony, to być może trzeba zmienić wpis
+13. Szukaj pliku
+14. Przeglądanie systemu plików.
+
+Atrybuty katalogu:
+Takie jak pliku.
+Plus takie rzeczy jak:
+Katalog ojciec.
+Liczba plików zawartych w katalogu. Pewnie sumaryczny rozmiar plików.
+System plików(?)
+
+Jak przechowywać katalogi na dysku? Można mieć listę wpisów stałej długości postaći nazwa | atrybuty
+Albo po prostu nazwa | wskaźnik na strukturę przechowującą atrybuty
+
+Można ustalić maksymalną długość nazwy (255) ale to często jest zbyt dużo.
+Można zatem zastosować dwa podejścia (inne od listy):
+a) Przechowywać w blokach wpisy w takiej postaci: długość wpisu, atrybyty i bajt po bajcie nazwa zakonczona specjalnym znakiem.
+    musi być wyrównana do słowa maszynowego, więc czasem trzeba powstawiać puste filler bajty.
+b) Wpis może mieć stałą długość: wskaźnik na nazwę a następnie atrybuty(stałej długości).
+    Na końcu znajduje się sterta, w której znak po znaku znajdują się nazwy.
+Problemy z błędami stron przy przetwarzaniu nazwy pliku.
+Co, kiedy ktoś usuwa albo zmienia nazwę.
+
+Można zrobić też tablicę haszującą nazwa -> wpis dla przyspieszenia wyszukiwania
+Można cachować wyniki wyszukiwania.
+
+Dowiązania symboliczne pliki zawierające ścieżkę do oryginalnego pliku.
+Dowiązania twarde to pliki, których wpisy w katalogu mają wskaźnik na inode oryginalnego pliku.
+
+ZAD 5:
+
+Często zdarza się, że korzystamy z różnych systemów plików. Na przykład kiedy używamy CD
+albo pendrive'a etc. albo dołączamy kolejny dysk twardy. Wirtualny system plików umożliwia nam
+obsługę wszystkich systemów plików, tak jakby były jednym. - Udostępnia interfejs do interakcji z plikami
+bez potrzeby przejmowania się, w jakim systemie plików jest.
+
+VFS udostępnia 2 interfejsy zewnętrzny dla użytkownika (POSIX open(), etc.) oraz interfejs VFS służący do komunikacji z systemami plików.
+System plików musi realizować wszystkie funkcje interfejsu VFS, by móc zostać dodanym.
+Za każdym razem, gdy dołączamy nowy system plików (przy starcie lub przy montowaniu) następuje rejestracja systemu plików.
+System plików przekazuje adresy wszystkich funkcji w interfejsie VFS.
+
+W PCB procesu znajduje się tablica deskryptorów plików. Każdy deskryptor wskazuje na strukturę, która
+posiada aktualną pozycję w pliku oraz wskaźnik na vnode. vnode to struktura, która przechowuje
+adres tablicy funkcji spełniających interfejs VFS. Kiedy plik jest otwierany, jego ścieżka jest parsowana
+przez wirtualny system plików skąd dedukuje się jego system plików. Punkty montażowe to miejsa w systemie plików,
+do którego montujemy nowy system plików.
+
+Po stronie systemu op. mamy strukturę "mount", która ma listę vnode'ów dla tego systemu plików
+(każdy vnode ma listę buforów dla deskryptorów, które na nie wskazują). Są bufory dirty i są bufory clean.
+W punktach montażowych mogą być nowe atrybuty - sync: nie cachuj, noexec - nie wykonuj plików
+
+/etc/fstab - info o punktach montażowych.
+
+Block cache:
+
+W pamięci głównej przechowujemy cache na bloki, do których się odnosimy.
+Mamy dwukierunkową listę bloków. Te na początku to LRU, te na końcu to MRU, kiedy odnosimy się do bloku w cache,
+przenosimy go na koniec listy. Możemy sobie na to pozwolić, bo próby ściągania bloków zdarzają się rzadko.
+Dodatkowo trzymamy tablicę haszującą, w której kubełkach mamy listy bloków - służy to do szybkiego szukania.
+
+Co jeśli system się wywali? Wtedy stracimy wszystkie bloki z cache, których nie zapisaliśmy.
+Np. inode będzie używany rzadko i dużo czasu zajmie, by został on zapisany na dysk. A jest to ważna
+z punktu widzeia spójności systemu plików struktura. W zasadzie wszystko oprócz bloku z danymi jest ważne.
+
+Cache możemy dzielić ze względu na urządzenie oraz wewnątrz ze względu na ważność
+bloku (i-node, blok indeksujący, blok katalogowy pełen blok danych, częściowo wypełniony blok danych).
+Krytyczne bloki możemy zapisywać od razu (write-through).
+
+Przy leniwym zapisywaniu (write-back) brudnych bloków czekamy aż blok wyleci z cache i dopiero wtedy zapisujemy go.
+Przy gorliwym (write-through) zapisujemy i do cache i do dysku.
+
+Zapisując leniwie narażamy się na uszkodzenie systemu plików podczas krachu. Jest to dobre z punktu widzenia
+wydajności. Co jeśli wyciąniemy nagle dysk? stracimy cachowane dane.
+Zapisując gorliwie marnujemy dużo czasu, bo stale zapisujemy na dysk. Za to jesteśmy bezpieczni.
+
+Na unixie mamy proces update, który co 30 sekund zapisuje brudne bloki w cache'u na dysk. Dzięki temu tracimy 30sekund danych.

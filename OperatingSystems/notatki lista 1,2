@@ -1,0 +1,6 @@
+1. Zastosowania batchowania: karty kredytowe - faktury, rachunki, czy cośtam  - dostaje się nie za jedną transakcję, ale miesięcznie masowo wszystkie rachunki. wszystkie dane z miesiąca spakowano i wygenerowano rachunek.
+Aktualizacje - masowo się leci
+JCL:
+	JOB - mówi o rozpoczęciu zadania, informacje o zadaniu, czas, miejsce, priorytet etc
+	EXEC - mówi który program ma zostac uruchomiony w danym kroku zadania, informacje o kroku
+	DD  - opisuje dane/pliki, które mają byc uzywane w kroku, i zawiera info o nich. ,mogą byc dowolnie uporzadkowane

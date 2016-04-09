@@ -1,0 +1,7 @@
+Zad 1:
+Bity kontrolne: 
+
+P - present bit - jeśli zapalony, to potem występują dalsze bity kontrolne i adres ramki
+Jeśli go nie ma to reszta wpisu to adres na dysku.
+
+M - modify bit - mówi, czy strona została zmodyfikowana od czasu, gdy została wczytana. Jesli ie była, to nie trzeba marnować czasu na zapis do pamięci podręcznej, kiedy stronę usuwa się z pamięci

@@ -1,0 +1,66 @@
+O jak dobrze, że to ostatnia lista.
+
+ZAD 7:
+
+Atak przez buffer overflow: zadeklarujmy char buffer[128] i użyjmy procedury, która
+wczytuje dane użytkownika bez sprawdzania granic bufora (getc()). Jeśli podamy
+więcej danych niż rozmiar bufora, to dane te zapełnią pamięć poza buforem.
+
+Jeśli bufor stworzymy na stosie, to wrażliwe dane takie jak return address odkładany
+na stosie może zostać nadpisany - przez to skoczymy do wykonywania kodu w jakimś
+błędnym miejscu. Co jeśli atakujący specjlanie poda do getc() (czy innej procedury)
+adres jakiejś jego złośliwej procedury (którą też mógł podać przy wczytywaniu do bufora)?
+W tej procedurze może występować kod, który uruchamia terminal - wtedy atakujący ma dostęp
+do całego systemu.
+
+Atakujący nie musi nawet podawać dobrego adresu do jego kodu, wystarczy, że kod, który
+wprowadzi do pamięci będzie wypełniony operacjami nop. Wystarczy zaspamować duży
+obszar nopami z kodem atakującego na końcu. Wtedy z dużą szansą po trafieniu w
+pobliskie miejsce, natrafimy na serie nopów doprowadzających atakującego do jego kodu.
+Jeśli rozprowadzimy po stercie ten kod w wielu miejscach, to zwiększamy swoje
+prawdopodobnieństwo. Jest to heap spraying.
+
+Można się przeciwko temu bronić za pomocą tzw. stack canaries.
+Kiedy idziemy do procedury zapamiętujemy sobie jakiś numer. Jeśli podczas powrotu
+zauważymy, że numer przed return adresem jest inny niż zapamiętany, to oznacza, że
+coś jest nie tak.
+
+DEP - Data Execution Prevention
+
+Zaznacza się, że kod na stronach jest nie do wykonania. Używa się do tego
+specjalnego no-execute bitu. Mamy dwa podejścia: sprzętowe, gdzie po prostu we
+wpisie w tablicy stron ten bit jest zapisany i sprzętowo możemy sprawdzać,
+czy w ogóle można wykonywać kod z danej strony. Drugie podejście dla systemów,
+które nie wspierają tego NX bitu jest programowe sprawdzanie, czy kod,
+który mamy wykonać pochodzi z dobrej strony.
+
+Ale nie zawsze trzeba wprowadzać swojego kodu, by coś osiągnąć.
+Można korzystać z kodu już istniejącego i za jego pomocą osiągnąć oczekiwany
+efekt.
+
+Można spróbować skoczyć do procedury w standardowej bibliotece libc. Np. są tam takie
+funkcje jak np. system, którą można coś fajnego zrobić. Ale nawet nie trzeba z tego korzystać.
+Pod linuxem można robić return adress pod Procedure Linkage Table - tablica do dynamicznego
+linkowania. Są tam procedury, które wywołyłują odpowiednie kody z bibliotek.
+
+Mamy return-oriented programming. Dzięki buffer overflowowi przejeliśmy kontrolę nad stosem
+możemy wybierać, pod jakie adresy skakać. Jeśli teraz skoczymy do bibliotecznej
+procedury w jakimś losowym miejscu i ta procedura kończy się instrukcją return, to możemy
+wybrać, gdzie wrócimy. W ten sposób stos zamieniamy sobie na program counter.
+
+Fragmenty procedur bibliotecznych, w których losowe miejsca strzelamy nazywamy gadzetami
+mają one zazwyczaj nikłe znaczenie - np. gadzet może dodawać dwa rejestry. Ale mając wiele
+takich klocków możemy zbudować jakiś szkodliwy kod.
+
+To działa, jeśli adresy procedur zawsze są takie same.
+
+ASLR - Address space layout randomization.
+
+Niektóre segmenty dostają losowy offset, dzięki czemu atakującemu jest trudniej trafić
+w odpowiednie miejsca w kodzie.
+
+Przy odpalaniu programu (ładowaniu jego obrazu z ELF) segmenty dostają losowe przemieszczenia
+W praktyce są trzy losowe wartości:
+-delta_exec : do text/data/bss oraz do bkr() - program break
+-delta_mmap : do mmap() managed memory, libraries, heap ,thread stacks, shared memory
+-delta_stack : user stack
