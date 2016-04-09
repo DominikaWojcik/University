@@ -1,0 +1,8 @@
+C:\Users\Dziku\Desktop\University\Object Oriented Design\Zestaw 3\Lista 3\Lista 3\bin\Debug\Lista 3.exe.config
+C:\Users\Dziku\Desktop\University\Object Oriented Design\Zestaw 3\Lista 3\Lista 3\obj\Debug\Lista 3.csprojResolveAssemblyReference.cache
+C:\Users\Dziku\Desktop\University\Object Oriented Design\Zestaw 3\Lista 3\Lista 3\bin\Debug\Lista 3.exe
+C:\Users\Dziku\Desktop\University\Object Oriented Design\Zestaw 3\Lista 3\Lista 3\bin\Debug\Lista 3.pdb
+C:\Users\Dziku\Desktop\University\Object Oriented Design\Zestaw 3\Lista 3\Lista 3\obj\Debug\Lista 3.exe
+C:\Users\Dziku\Desktop\University\Object Oriented Design\Zestaw 3\Lista 3\Lista 3\obj\Debug\Lista 3.pdb
+C:\Users\Dziku\Desktop\University\Object Oriented Design\Zestaw 3\Lista 3\Lista 3\bin\Debug\nunit.framework.dll
+C:\Users\Dziku\Desktop\University\Object Oriented Design\Zestaw 3\Lista 3\Lista 3\bin\Debug\nunit.framework.xml
