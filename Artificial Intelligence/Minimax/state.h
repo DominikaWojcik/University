@@ -15,6 +15,8 @@ struct GameState
 
 	GameState();
 
+	bool IsDraw();
+
 	bool isFinalState();
 	
 	friend std::ostream& operator << (std::ostream& out, const GameState& state);

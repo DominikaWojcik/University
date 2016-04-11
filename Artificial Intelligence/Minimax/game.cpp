@@ -49,10 +49,17 @@ int main()
 		while(currentState.isFinalState() == false);
 
 		std::cout << "Koniec gry.\n" << currentState << "\n";
-		if(currentState.turn != player1)
-			std::cout << "ZWYCIĘSTWO!\n";
+		if(currentState.IsDraw())
+		{
+			std::cout << "REMIS!\n";
+		}
 		else
-			std::cout << "PORAŻKA!\n";
+		{
+			if(currentState.turn != player1)
+				std::cout << "ZWYCIĘSTWO!\n";
+			else
+				std::cout << "PORAŻKA!\n";
+		}
 
 		std::cout << "Nowa gra (y/n)";
 		char newGame;
