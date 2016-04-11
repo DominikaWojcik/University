@@ -191,55 +191,37 @@ std::pair<int,int> Minimax(GameState& state, int dist, int maxi, int mini)
 	{
 		int curMin = mini;
 		int childId = 0;
-		//std::vector<int> bestChildren;
 		std::vector<GameState> children = GenerateChildren(state);
 
-		for(unsigned int i=0;i<children.size();i++)
+		for(int i=0;i<children.size();i++)
 		{
 			std::pair<int,int> ret = Minimax(children[i], dist-1, maxi, curMin);
 			if(curMin < ret.first)
 			{
 				curMin = ret.first;
 				childId = i;
-				//bestChildren.clear();
-				//bestChildren.push_back(i);
 			}
-			/*else if(curMin == ret.first)
-			{
-				bestChildren.push_back(i);
-			}*/
-
 			if(curMin > maxi) return std::make_pair(maxi,i);
 		}
 		return std::make_pair(curMin, childId);
-		//return std::make_pair(curMin, bestChildren[MakeRandom(0,bestChildren.size()-1)]);
 	}
 	else
 	{
 		int curMax = maxi;
 		int childId = 0;
-		//std::vector<int> bestChildren;
 		std::vector<GameState> children = GenerateChildren(state);
 
-		for(unsigned int i=0;i<children.size();i++)
+		for(int i=0;i<children.size();i++)
 		{
 			std::pair<int,int> ret = Minimax(children[i], dist-1, curMax, mini);
 			if(curMax > ret.first)
 			{
 				curMax = ret.first;
 				childId = i;
-				//bestChildren.clear();
-				//bestChildren.push_back(i);
 			}
-			/*else if(curMin == ret.first)
-			{
-				bestChildren.push_back(i);
-			}*/
-
 			if(curMax < mini) return std::make_pair(mini, i);
 		}
 		return std::make_pair(curMax, childId);
-		//return std::make_pair(curMin, bestChildren[MakeRandom(0,bestChildren.size()-1)]);
 	}
 }
 
