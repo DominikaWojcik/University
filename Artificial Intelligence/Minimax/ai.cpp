@@ -12,9 +12,14 @@ int evaluate(GameState& state)
 {
 	if(state.isFinalState())
 	{
-		if(state.turn == GameState::A)
-			return B_WIN;
-		else return A_WIN;
+		if(state.IsDraw())
+			return 0;
+		else
+		{
+			if(state.turn == GameState::A)
+				return B_WIN;
+			else return A_WIN;
+		}
 	}
 
 	int pointsA = 0, pointsB = 0;
@@ -196,12 +201,19 @@ std::pair<int,int> Minimax(GameState& state, int dist, int maxi, int mini)
 		for(int i=0;i<children.size();i++)
 		{
 			std::pair<int,int> ret = Minimax(children[i], dist-1, maxi, curMin);
+			if(ret.second == -2) continue;
+
 			if(curMin < ret.first)
 			{
 				curMin = ret.first;
 				childId = i;
 			}
-			if(curMin > maxi) return std::make_pair(maxi,i);
+			/*else if(curMin == ret.first)
+			{
+				childId = (rand() % 2 ? childId : i);
+			}*/
+
+			if(curMin > maxi) return std::make_pair(maxi, -2);
 		}
 		return std::make_pair(curMin, childId);
 	}
@@ -214,12 +226,19 @@ std::pair<int,int> Minimax(GameState& state, int dist, int maxi, int mini)
 		for(int i=0;i<children.size();i++)
 		{
 			std::pair<int,int> ret = Minimax(children[i], dist-1, curMax, mini);
+			if(ret.second == -2) continue;
+
 			if(curMax > ret.first)
 			{
 				curMax = ret.first;
 				childId = i;
 			}
-			if(curMax < mini) return std::make_pair(mini, i);
+			/*else if(curMax == ret.first)
+			{
+				childId = (rand() % 2 ? childId : i);
+			}*/
+
+			if(curMax < mini) return std::make_pair(mini, -2);
 		}
 		return std::make_pair(curMax, childId);
 	}
@@ -246,6 +265,62 @@ GameState MakeMove(GameState& state)
 	std::cout<<"Wybrany ruch miał wartość "<<ret.first<<"\n";
 	int childId = ret.second;
 	return GenerateChildren(state)[childId];
+}
+
+GameState MakeMove2(GameState& state)
+{
+	std::vector<GameState> children = GenerateChildren(state);
+	std::vector<int> bestChildren;
+	int result;
+	if(state.turn == GameState::A)
+	{
+		result = B_WIN-1;
+		for(int i=0; i<children.size(); i++)
+		{
+			GameState& child = children[i];
+			auto ret = Minimax(child, SEARCH_DEPTH-1, A_WIN+1, B_WIN-1);
+			if(ret.first > result)
+			{
+				result = ret.first;
+				bestChildren.clear();
+				bestChildren.push_back(i);
+			}
+			else if(ret.first == result)
+			{
+				bestChildren.push_back(i);
+			}
+		}
+	}
+	else
+	{
+		result = A_WIN+1;
+		for(int i=0; i<children.size(); i++)
+		{
+			GameState& child = children[i];
+			auto ret = Minimax(child, SEARCH_DEPTH-1, A_WIN+1, B_WIN-1);
+			if(ret.first < result)
+			{
+				result = ret.first;
+				bestChildren.clear();
+				bestChildren.push_back(i);
+			}
+			else if(ret.first == result)
+			{
+				bestChildren.push_back(i);
+			}
+		}
+	}
+
+	std::cout<<"Możliwe wybory to ";
+	for(int i=0;i<bestChildren.size();i++)
+	{
+		std::cout<<bestChildren[i]+1<<" ";
+	}
+	std::cout<<"z wartością heurystyki "<<result<<"\n";
+
+	int chosenChild = bestChildren[rand() % bestChildren.size()];
+	std::cout<<"Wybieramy numer "<<chosenChild+1<<"\n";
+	return children[chosenChild];
 }
 
 bool IsValidMove(GameState& state, int column)

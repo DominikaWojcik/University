@@ -190,10 +190,10 @@ std::ostream& operator << (std::ostream& out, const GameState& state)
 			switch(state.board[i][j])
 			{
 				case GameState::A: 
-					out << "A";
+					out << "\033[1;32mA\033[0m";
 					break;
 				case GameState::B:
-					out << "B";
+					out << "\033[1;31mB\033[0m";
 					break;
 				default:
 					out << " ";

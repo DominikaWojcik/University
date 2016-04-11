@@ -2,6 +2,7 @@
 #include "ai.h"
 #include <iostream>
 #include <vector>
+#include <cstdlib>
 
 GameState currentState;
 int player1;
@@ -9,6 +10,8 @@ int player1;
 
 int main()
 {
+	srand(time(NULL));
+
 	std::cout << "CONNECT FOUR\n";
 	while(true)
 	{
@@ -38,12 +41,12 @@ int main()
 				}
 				else 
 				{
-					currentState = MakeMove(currentState);	
+					currentState = MakeMove2(currentState);	
 				}
 			}
 			else
 			{
-				currentState = MakeMove(currentState);
+				currentState = MakeMove2(currentState);
 			}
 		}
 		while(currentState.isFinalState() == false);
