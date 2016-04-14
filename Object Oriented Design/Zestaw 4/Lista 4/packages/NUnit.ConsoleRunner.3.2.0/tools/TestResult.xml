@@ -1,0 +1,43 @@
+﻿<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<test-run id="2" testcasecount="11" result="Passed" total="11" passed="11" failed="0" inconclusive="0" skipped="0" asserts="20" engine-version="3.2.0.0" clr-version="4.0.30319.34209" start-time="2016-04-14 21:23:47Z" end-time="2016-04-14 21:23:53Z" duration="6.090545">
+  <command-line><![CDATA["C:\Users\Dziku\Desktop\University\Object Oriented Design\Zestaw 4\Lista 4\packages\NUnit.ConsoleRunner.3.2.0\tools\nunit3-console.exe"  "..\..\..\Lista 4.sln"]]></command-line>
+  <test-suite type="Project" id="2" name="Lista 4.sln" fullname="C:\Users\Dziku\Desktop\University\Object Oriented Design\Zestaw 4\Lista 4\Lista 4.sln" testcasecount="11" result="Passed" total="11" passed="11" failed="0" inconclusive="0" skipped="0" asserts="20">
+    <test-suite type="Assembly" id="1-1015" name="Lista 4.exe" fullname="C:\Users\Dziku\Desktop\University\Object Oriented Design\Zestaw 4\Lista 4\Lista 4\bin\Debug\Lista 4.exe" runstate="Runnable" testcasecount="11" result="Passed" start-time="2016-04-14 21:23:47Z" end-time="2016-04-14 21:23:53Z" duration="6.055025" total="11" passed="11" failed="0" inconclusive="0" skipped="0" asserts="20">
+      <environment framework-version="3.2.0.0" clr-version="4.0.30319.34209" os-version="Microsoft Windows NT 6.3.9600.0" platform="Win32NT" cwd="C:\Users\Dziku\Desktop\University\Object Oriented Design\Zestaw 4\Lista 4\packages\NUnit.ConsoleRunner.3.2.0\tools" machine-name="BATTLESTATION" user="Dziku" user-domain="BattleStation" culture="pl-PL" uiculture="pl-PL" os-architecture="x86" />
+      <settings>
+        <setting name="WorkDirectory" value="C:\Users\Dziku\Desktop\University\Object Oriented Design\Zestaw 4\Lista 4\packages\NUnit.ConsoleRunner.3.2.0\tools" />
+        <setting name="ImageRuntimeVersion" value="4.0.30319" />
+        <setting name="ImageTargetFrameworkName" value=".NETFramework,Version=v4.5" />
+        <setting name="ImageRequiresX86" value="True" />
+        <setting name="RunAsX86" value="True" />
+        <setting name="ImageRequiresDefaultAppDomainAssemblyResolver" value="False" />
+        <setting name="NumberOfTestWorkers" value="4" />
+      </settings>
+      <properties>
+        <property name="_PID" value="5860" />
+        <property name="_APPDOMAIN" value="test-domain-Lista 4.sln" />
+      </properties>
+      <test-suite type="TestSuite" id="1-1016" name="Lista_4" fullname="Lista_4" runstate="Runnable" testcasecount="11" result="Passed" start-time="2016-04-14 21:23:47Z" end-time="2016-04-14 21:23:53Z" duration="6.047927" total="11" passed="11" failed="0" inconclusive="0" skipped="0" asserts="20">
+        <test-suite type="TestFixture" id="1-1000" name="Zadanie1Tests" fullname="Lista_4.Zadanie1Tests" classname="Lista_4.Zadanie1Tests" runstate="Runnable" testcasecount="3" result="Passed" start-time="2016-04-14 21:23:47Z" end-time="2016-04-14 21:23:53Z" duration="6.017809" total="3" passed="3" failed="0" inconclusive="0" skipped="0" asserts="9">
+          <test-case id="1-1001" name="TestSingleton1" fullname="Lista_4.Zadanie1Tests.TestSingleton1" methodname="TestSingleton1" classname="Lista_4.Zadanie1Tests" runstate="Runnable" seed="798259755" result="Passed" start-time="2016-04-14 21:23:47Z" end-time="2016-04-14 21:23:47Z" duration="0.007407" asserts="3" />
+          <test-case id="1-1002" name="TestSingleton2" fullname="Lista_4.Zadanie1Tests.TestSingleton2" methodname="TestSingleton2" classname="Lista_4.Zadanie1Tests" runstate="Runnable" seed="1630670862" result="Passed" start-time="2016-04-14 21:23:47Z" end-time="2016-04-14 21:23:47Z" duration="0.001292" asserts="3" />
+          <test-case id="1-1003" name="TestSingleton3" fullname="Lista_4.Zadanie1Tests.TestSingleton3" methodname="TestSingleton3" classname="Lista_4.Zadanie1Tests" runstate="Runnable" seed="993609143" result="Passed" start-time="2016-04-14 21:23:47Z" end-time="2016-04-14 21:23:53Z" duration="6.002267" asserts="3" />
+        </test-suite>
+        <test-suite type="TestFixture" id="1-1004" name="Zadanie2Tests" fullname="Lista_4.Zadanie2Tests" classname="Lista_4.Zadanie2Tests" runstate="Runnable" testcasecount="4" result="Passed" start-time="2016-04-14 21:23:53Z" end-time="2016-04-14 21:23:53Z" duration="0.009418" total="4" passed="4" failed="0" inconclusive="0" skipped="0" asserts="5">
+          <test-case id="1-1005" name="Test1" fullname="Lista_4.Zadanie2Tests.Test1" methodname="Test1" classname="Lista_4.Zadanie2Tests" runstate="Runnable" seed="458445963" result="Passed" start-time="2016-04-14 21:23:53Z" end-time="2016-04-14 21:23:53Z" duration="0.001337" asserts="1" />
+          <test-case id="1-1006" name="Test2" fullname="Lista_4.Zadanie2Tests.Test2" methodname="Test2" classname="Lista_4.Zadanie2Tests" runstate="Runnable" seed="1323870426" result="Passed" start-time="2016-04-14 21:23:53Z" end-time="2016-04-14 21:23:53Z" duration="0.000375" asserts="1" />
+          <test-case id="1-1007" name="Test3" fullname="Lista_4.Zadanie2Tests.Test3" methodname="Test3" classname="Lista_4.Zadanie2Tests" runstate="Runnable" seed="1355097167" result="Passed" start-time="2016-04-14 21:23:53Z" end-time="2016-04-14 21:23:53Z" duration="0.000667" asserts="1" />
+          <test-case id="1-1008" name="Test4" fullname="Lista_4.Zadanie2Tests.Test4" methodname="Test4" classname="Lista_4.Zadanie2Tests" runstate="Runnable" seed="963478164" result="Passed" start-time="2016-04-14 21:23:53Z" end-time="2016-04-14 21:23:53Z" duration="0.004989" asserts="2" />
+        </test-suite>
+        <test-suite type="TestFixture" id="1-1009" name="Zadanie3Tests" fullname="Lista_4.Zadanie3Tests" classname="Lista_4.Zadanie3Tests" runstate="Runnable" testcasecount="3" result="Passed" start-time="2016-04-14 21:23:53Z" end-time="2016-04-14 21:23:53Z" duration="0.009195" total="3" passed="3" failed="0" inconclusive="0" skipped="0" asserts="5">
+          <test-case id="1-1010" name="DifferentPlanes" fullname="Lista_4.Zadanie3Tests.DifferentPlanes" methodname="DifferentPlanes" classname="Lista_4.Zadanie3Tests" runstate="Runnable" seed="1272539657" result="Passed" start-time="2016-04-14 21:23:53Z" end-time="2016-04-14 21:23:53Z" duration="0.001927" asserts="2" />
+          <test-case id="1-1011" name="ExceptionOnEmptyAirport" fullname="Lista_4.Zadanie3Tests.ExceptionOnEmptyAirport" methodname="ExceptionOnEmptyAirport" classname="Lista_4.Zadanie3Tests" runstate="Runnable" seed="118089422" result="Passed" start-time="2016-04-14 21:23:53Z" end-time="2016-04-14 21:23:53Z" duration="0.003817" asserts="1" />
+          <test-case id="1-1012" name="ReleasingWorks" fullname="Lista_4.Zadanie3Tests.ReleasingWorks" methodname="ReleasingWorks" classname="Lista_4.Zadanie3Tests" runstate="Runnable" seed="1620750620" result="Passed" start-time="2016-04-14 21:23:53Z" end-time="2016-04-14 21:23:53Z" duration="0.002193" asserts="2" />
+        </test-suite>
+        <test-suite type="TestFixture" id="1-1013" name="Zadanie4Tests" fullname="Lista_4.Zadanie4Tests" classname="Lista_4.Zadanie4Tests" runstate="Runnable" testcasecount="1" result="Passed" start-time="2016-04-14 21:23:53Z" end-time="2016-04-14 21:23:53Z" duration="0.006910" total="1" passed="1" failed="0" inconclusive="0" skipped="0" asserts="1">
+          <test-case id="1-1014" name="Test1" fullname="Lista_4.Zadanie4Tests.Test1" methodname="Test1" classname="Lista_4.Zadanie4Tests" runstate="Runnable" seed="703520303" result="Passed" start-time="2016-04-14 21:23:53Z" end-time="2016-04-14 21:23:53Z" duration="0.006481" asserts="1" />
+        </test-suite>
+      </test-suite>
+    </test-suite>
+  </test-suite>
+</test-run>
