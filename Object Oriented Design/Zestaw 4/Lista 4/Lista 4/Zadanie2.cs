@@ -8,7 +8,7 @@ namespace Lista_4
 {
     class Zadanie2
     {
-        public static void Main(string[] args)
+        public static void sMain(string[] args)
         {
             ShapeFactory factory = new ShapeFactory();
             IShape square = factory.CreateShape("Square", 5);

@@ -19,8 +19,8 @@ namespace Lista_4
             s1 = Singleton.GetInstance();
             s2 = Singleton.GetInstance();
 
-            Assert.AreNotEqual(s1, null);
-            Assert.AreNotEqual(s2, null);
+            Assert.IsNotNull(s1);
+            Assert.IsNotNull(s2);
             Assert.AreSame(s1, s2);
         }
 
@@ -47,8 +47,8 @@ namespace Lista_4
             t2.Join();
 
 
-            Assert.AreNotEqual(s1, null);
-            Assert.AreNotEqual(s2, null);
+            Assert.IsNotNull(s1);
+            Assert.IsNotNull(s2);
             Assert.AreNotSame(s1, s2);
         }
 
