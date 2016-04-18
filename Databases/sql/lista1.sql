@@ -43,7 +43,7 @@ SELECT imie||' '||nazwisko
 FROM grupa JOIN wyklad ON grupa.kod_przed_sem=wyklad.kod_przed_sem
     JOIN wybor USING(kod_grupy)
     JOIN uzytkownik ON wybor.kod_uz=uzytkownik.kod_uz
-ORDER BY data DESC
+ORDER BY data ASC
 LIMIT 1;
 
 --#3
@@ -62,7 +62,7 @@ FROM zapisy z1, zapisy z2;
 --#4
 SELECT COUNT(DISTINCT nazwa)
 FROM grupa NATURAL JOIN przedmiot_semestr NATURAL JOIN przedmiot
-WHERE rodzaj_zajec='r';
+WHERE rodzaj_zajec='e';
 
 --#5
 WITH przedZimOb AS (SELECT kod_przed_sem
@@ -155,7 +155,7 @@ WHERE rodzaj='k' AND kod_przed NOT IN(SELECT kod_przed FROM przedmiot_semestr);
 --#15
 SELECT COUNT(*)
 FROM grupa NATURAL JOIN uzytkownik
-WHERE nazwisko='Kanarek' AND imie LIKE 'P%' AND rodzaj_zajec='p';
+WHERE nazwisko='Kanarek' AND imie LIKE 'P%' AND rodzaj_zajec='r';
 
 --#16
 SELECT COUNT(DISTINCT kod_grupy)
