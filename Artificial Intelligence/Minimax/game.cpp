@@ -2,6 +2,7 @@
 #include "ai.h"
 #include <iostream>
 #include <vector>
+#include <cstdlib>
 
 GameState currentState;
 int player1;
@@ -9,6 +10,8 @@ int player1;
 
 int main()
 {
+	srand(time(NULL));
+
 	std::cout << "CONNECT FOUR\n";
 	while(true)
 	{
@@ -38,21 +41,28 @@ int main()
 				}
 				else 
 				{
-					currentState = MakeMove(currentState);	
+					currentState = MakeMove2(currentState);	
 				}
 			}
 			else
 			{
-				currentState = MakeMove(currentState);
+				currentState = MakeMove2(currentState);
 			}
 		}
 		while(currentState.isFinalState() == false);
 
 		std::cout << "Koniec gry.\n" << currentState << "\n";
-		if(currentState.turn != player1)
-			std::cout << "ZWYCIĘSTWO!\n";
+		if(currentState.IsDraw())
+		{
+			std::cout << "REMIS!\n";
+		}
 		else
-			std::cout << "PORAŻKA!\n";
+		{
+			if(currentState.turn != player1)
+				std::cout << "ZWYCIĘSTWO!\n";
+			else
+				std::cout << "PORAŻKA!\n";
+		}
 
 		std::cout << "Nowa gra (y/n)";
 		char newGame;

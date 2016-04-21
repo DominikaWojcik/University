@@ -18,8 +18,24 @@ GameState::GameState()
 	turn = A;
 }
 
+bool GameState::IsDraw()
+{
+	bool draw = true;
+	for(int i=0;i<WIDTH && draw;i++)
+	{
+		draw &= (board[HEIGHT-1][i] != FREE);
+	}
+	return draw;
+}
+
 bool GameState::isFinalState()
 {
+	//Czy nie jest remis?
+	if(IsDraw())
+	{
+		return true;
+	}
+
 	//kolumnami
 	for(int i=0;i<WIDTH;i++)
 	{
@@ -174,10 +190,10 @@ std::ostream& operator << (std::ostream& out, const GameState& state)
 			switch(state.board[i][j])
 			{
 				case GameState::A: 
-					out << "A";
+					out << "\033[1;32mA\033[0m";
 					break;
 				case GameState::B:
-					out << "B";
+					out << "\033[1;31mB\033[0m";
 					break;
 				default:
 					out << " ";

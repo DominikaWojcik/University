@@ -12,6 +12,7 @@ bool IsValidMove(GameState& state, int column);
 GameState MakeMove(GameState& state, int column);
 
 GameState MakeMove(GameState& state);
+GameState MakeMove2(GameState& state);
 
 int evaluate(GameState& state);
 

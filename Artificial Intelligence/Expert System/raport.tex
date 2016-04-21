@@ -1,0 +1,108 @@
+\documentclass{article}
+\usepackage[utf8]{inputenc}
+\usepackage{polski}
+\usepackage[polish]{babel}
+\usepackage{bbm}
+\usepackage{amsmath}
+\usepackage{amsthm}
+
+
+\author{Jarosław Dzikowski 273233}
+\date{Wrocław, \today}
+\title{\textbf{System ekspercki} \\ Raport z zadania.}
+\begin{document}
+\maketitle
+
+\section{Uwagi techniczne}
+System ekspercki należy wczytać do CLIPS'a za pomocą funkcji \\
+\emph{(load expsys.clp)} \\
+lub wczytać w trakcie uruchamiania CLIPS'a z wiersza poleceń poleceniem \\
+\emph{clips -l expsys.clp} \\
+Następnie należy zresetować listę reguł i faktów startowych funkcją \\
+\emph{(reset)} \\
+Jaką strategię wyboru reguł wybrałem ,,Simplicity'', wybierającą w pierwszej kolejności najbardziej
+ogólne reguły wnioskowania. Przed uruchomieniem programu należy zmienić strategię funkcją \\
+\emph{(set-strategy simplicity)}\\
+Na samym końcu uruchamiamy system ekspercki \\
+\emph{(run)}
+
+
+\section{Sprawozdanie}
+
+\subsection{Temat}
+Raport ten dotyczy pierwszego zadania z kursu ,,Sztuczna inteligencja''. Celem zadania było zaprojektowanie i implementacja systemu eksperckiego z pewnej dziedziny. Taki system, mając zestaw wiedzy początkowej oraz reguł wnioskowania, ma za zadanie doradzić użytkownikowi rozwiązanie problemu, z którym użytkownik zwraca się do eksperta.
+\newline
+\newline
+Tematem zaimplementowanego systemu eksperckiego jest ,,Propozycja zabicia wolnego czasu''. 
+Ekspert ma doradzić jakieś zajęcie nudzącemu się użytkownikowi, który nie ma co robić. 
+W tym celu ekspert zbiera wiedzę o sytuacji użytkownika (Ilość wolnego czasu, pogoda, preferencje
+ etc.), podając propozycje spędzenia czasu.
+\newline
+\newline
+Źródło wiedzy wykorzystane do stworzenia systemu eksperckiego, to własne doświadczenie życiowe. Każdy wielokrotnie przeżył taki moment, w którym nie miał co robić, zatem łatwo jest znaleźć rozwiązanie do tego problemu.
+
+\subsection{Testy}
+W tej podsekcji zostaną opisane trzy przypadki testowe wraz z propozycjami zabicia czasu uzyskanymi od eksperta.
+\begin{enumerate}
+	\item Upalne letnie popołudnie. Z reguły nikomu nie chce się wychodzić z domu, czas nikogo nie goni. Większości osób nie nudzi się aż tak bardzo, by wykonywać jakieś domowe obowiązki (Np. posprzątać / poodkurzać), mimo że jest to pierwsza propozycja, jaką byśmy usłyszeli od rodziców. Poniważ jest lato, to nie ma żadnych zadań / egzaminów, zatem nie trzeba się na nie uczyć. Ekspert dowiaduje się od użytkownika, że ten nie ma nic przeciwko czytaniu książek oraz używaniu urządzeń elektronicznych. Dowiaduje się, że użytkownik posiada telewizor oraz komputer. Na podstawie tej wiedzy ekspert proponuje:
+	\begin{enumerate}
+		\item Poczytanie którejś z nieprzeczytanych przez użytkownika książek.
+		\item Przegląd telewizji.
+		\item Zagranie w grę komputerową.
+		\item Obejrzenie jakiegoś filmu.
+	\end{enumerate}
+
+	\item Rok akademicki. Dowiadujemy się z rana, że mamy godziny rektorskie
+,
+ co daje nam cały dzień wolny. Trzeba coś z nim zrobić. Bez przesady, nie 
+ będziemy sprzątać w domu, więc musimy znaleźć sobie inne zajęcie. 
+ Tak naprawdę wszystko jest nam jedno jeśli chodzi o wychodzenie z domu. 
+ Oczywiście zbliżają się terminy oddania projektów, więc niechętnie wysłuchujemy
+	 zdrowo rozsądkowej propozycji eksperta mówiącej, by zabrać się do roboty.
+	Jesteśmy skłonni wydawać pieniądze i znamy inne osoby, które podobnie jak my mają dzisiaj wolne. Nie mamy nic przeciwko aktywności fizycznej. Z drugiej strony mamy w domu komputer, przed którym możemy zmarnować kolejny dzień. Nie chcemy widzieć na oczy książek, w końcu musimy czytać je na codzień, by zdać. Ekspert doradza następująco:
+	\begin{enumerate}
+		\item Pracowanie nad projektami do wykonania.
+		\item Zagranie w grę komputerową.
+		\item Przejechanie się na rowerze.
+		\item Wyjście do kina.
+		\item Wyjście na spacer.
+		\item Pójście na siłownię.
+		\item Bieganie.
+		\item Umówienie się z kolegami na jakiś sport (Piłka nożna etc.).
+		\item Obejrzenie jakiegoś filmu (w domu).
+	\end{enumerate}
+	Jak widać jest to szeroki wachlarz możliwości. Od humoru i gustu studenta zależy wybranie opcji. 
+
+	\item Jest południe i za 20 minut musimy wyjść z domu. Jesteśmy już 
+	przygotowani, wszystko jest zapięte na ostatni guzik. Bez straty 
+	ogólności załóżmy, że czas na założenie butów jest pomijalny. 
+	Będziemy zatem nudzić się przez całe 20 minut. Musimy znaleźć zajęcie 
+	które będzie nam odpowiadało. Jesteśmy otwarci na wszystkie propozycje,
+	możemy nawet od biedy posprzątać. Mamy w kieszeni telefon, telewizor w 
+	pokoju oraz szafkę z książkami. Ekspert proponuje następujące czynności:
+	\begin{enumerate}
+		\item Sprzątanie w domu / pokoju.
+		\item Czytanie książki.
+		\item Oglądanie telewizji.
+		\item Zagranie na telefonie w jakąś gierkę.	
+	\end{enumerate}
+\end{enumerate}
+
+\subsection{Podsumowanie}
+System pokrywa większość przyziemnych scenariuszy, proponując najbardziej popularne metody zabicia czasu. Z własnego doświadczenia wiem, że już obejrzenie filmu, zagranie w grę komputerową, czy poczytanie książki, jest w większości przypadków rozwiązaniem, do którego użytkownik się skłoni. Oczywiście dodane zostały zdrowo rozsądkowe rady eksperta, który zawsze nakłania użytkownika do nauki oraz propaguje pożytecznie spędzony czas na np. sprzątaniu w domu lub zrobieniu zakupów.
+\newline
+\newline
+Jeśli chodzi o możliwość rozbudowy, to jest to temat rzeka. Możliwości jest
+nieskończenie wiele, chociażby możnaby rozszerzyć eksperta o wybór 
+proponowanego sportu/filmu/etc. według preferencji użytkownika. 
+Można dodać bardziej wyspecyfikowane aktywności grupowe niż wyjście na 
+miasto/sport zespołowy.
+\begin{thebibliography}{9} %nie wiem, po co jest to 9
+
+\bibitem{Reference manual}
+\emph{CLIPS Reference Manual. Volume I. Basic Programming Guide},
+Version 6.24, June, 2006.
+
+\end{thebibliography}
+
+\end{document}
