@@ -1,10 +1,14 @@
 #include <string>
 #include <vector>
+#include <cstdio>
 
 using namespace std;
 
 #ifndef _UTILS_H_
 #define _UTILS_H_
+
+#define DEBUG 0
+#define debug(fmt, ...)	if(DEBUG) printf(fmt, __VA_ARGS__)
 
 bool ValidAddress(string ip, unsigned int netmask);
 

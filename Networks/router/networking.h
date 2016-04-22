@@ -6,7 +6,7 @@ using namespace std;
 #ifndef _NETWORKING_H_
 #define _NETWORKING_H_
 
-const int UNREACHABLE = 64; //Odleglosc traktowana jako nieskonczonosc
+const unsigned int UNREACHABLE = 24; //Odleglosc traktowana jako nieskonczonosc
 const int TURN = 10; //Czas trwania tury w sekundach
 const int TIMEOUT = 4; //Ile tur do usunięcia z tablicy wektora odl
 const int PORT = 9876; //Na którym porcie nasłuchujemy
@@ -31,6 +31,7 @@ struct PacketDVEntry
 {
 	unsigned int network, netmask, distance, via;
 
+	PacketDVEntry();
 	PacketDVEntry(const DVEntry& dventry);
 };
 
