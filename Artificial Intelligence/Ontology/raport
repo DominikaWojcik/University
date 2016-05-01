@@ -1,0 +1,112 @@
+Pizza tutorial zadanie 43: AmericanaPizza nie została przydzielona do Interesting pizza, mimo że miała 3 składniki. Gdy ustawiłem min. liczbę składników dla InterestingPizza na 2, to zarówno Margherita jak i Americana dołączyły do InterestingPizza
+
+Pizza tutorial zadanie 55: AmericanaPizza i AmericanHotPizza nie zostały sklasyfikowane jako NonVegetarianPizza
+
+1c)
+
+Bezpośrednie nadklasy: 
+hasTopping some CheeseTopping and not (hasTopping some MeatTopping)
+Wynik: CheesyPizza
+
+Równoważne klasy:
+Pizza and (hasTopping only 
+(CheeseTopping or VegetableTopping))
+Wynik: VegetarianPizza
+
+Bezpośrednie podklasy:
+hasTopping some (VegetableTopping and hasSpiciness some Hot)
+Wynik: AmericanHotPizza
+
+Instancje:
+ExampleAmericanHot
+QuatrroFormaggio
+
+Warunek, by każda pizza posiadała dokładnie jeden spód:
+hasBase exactly 1 PizzaBase
+To, że stworzone w trakcie ćwiczeń instancje pizzy nie mają bazy jest poprawne, ponieważ mamy zasadę open world i trójwartościową logikę: tak, nie, nie wiem. Dlatego nie zakładamy, że instancje pizzy nie mają spodu, tylko po prostu nie wiemy, czy mają czy nie mają.
+
+MildPizza:
+Pizza and (hasTopping only 
+(PizzaTopping and (hasSpiciness some Mild)))
+Reasoner sklasyfikował MargheritaPizza i SohoPizza jako łagodne.
+
+1d)
+Nie udało mi się zrobić tego zadania, ponieważ SPARQL mi szwankuje.
+
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX owl: <http://www.w3.org/2002/07/owl#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+PREFIX : <http://www.pizza.com/ontologies/pizza.owl#>
+
+SELECT ?pizza 
+WHERE {
+		?pizza :hasTopping ?hotTopping .
+		?hotTopping :hasSpiciness :Hot .
+		?pizza :hasTopping ?mildTopping .
+		?mildTopping :hasSpiciness :Mild .
+}
+
+To proste zapytanie powinno zwrócić listę pizz, które mają ostry dodatek i łagodny dodatek. Natomiast nie zwraca nic. Gdybym po prostu wpisał zapytanie " ?pizza :hasTopping ?topping", to też nic by się nie pojawiło.
+
+###############
+## ZADANIE 2 ##
+###############
+
+Zmodyfikowałem oryginalną ontologię foaf i dodałem do niej własną właśność:
+money, która określa, ile pieniędzy posiada osoba (foaf:Person).
+Zmodyfikowane ontologię foaf w formatach .rdf i .n3 znajdują się pod adresami:
+dziku1337.github.io/dziku1337/foafNewOntology.rdf
+dziku1337.github.io/dziku1337/foafNewOntology.n3
+
+Natomiast ontologia z moim własnym profilem foaf znajduje się pod poniższymi adresami.
+dziku1337.github.io/dziku1337/foafprofile.rdf
+dziku1337.github.io/dziku1337/foafprofile.n3
+
+Ontologie z rozszerzeniem .rdf zostały sprawdzone walidatorem W3. 
+Tych z rozszeczeniem .n3 nie dało się sprawdzić tym narzędziem.
+
+Co do zapytanie SPARQL, to tradycyjnie nie działało ono. 
+###############
+## ZADANIE 3 ##
+###############
+
+1. Ontologia przedstawia prosty podział królestwa zwierząt. Wykorzystane zostały materiały źródłowe takie jak wikipedia oraz wiedza ze szkoły.
+Uwzględnione są także właściwości spełniane przez zwierzęta takie jak posiadane kończyny, środowiska naturalne, pokrycie zewnętrzne (włosy, łuski etc.).
+
+3. Diagram załączony jako pdf.
+
+4. Zapytanie DL:
+
+Zwierzę
+and (żyjeW only Woda or żyjeW some Woda)
+and żywiSię some Zwierzę
+
+Zwrócony wynik: 
+	Superclasses: Mięsożerny, Zwierzę
+	Direct superclasses: Mięsożerny
+	Direct subclasses : Rekin, Żaba
+	Subclasses: Rekin, Żaba
+Wynik jest dziwny, ponieważ nie uwzględniono Krokodyla 
+(krokodyl nie spełnia warunku na życie w wodzie...).
+
+
+5. Zapytanie SPARQL:
+Niestety SPARQL daje mi dziwne wyniki:
+Zapytanie:
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX owl: <http://www.w3.org/2002/07/owl#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+PREFIX : <http://www.semanticweb.org/dziku/ontologies/2016/3/untitled-ontology-9#>
+SELECT ?zwierze 
+WHERE 
+{ 
+		?zwierze :żyjeW :Woda .
+		?zwierze :żywiSię ?czyms .
+		?zwierze rdfs:subClassOf* :Zimnokrwisty .
+		?czyms rdfs:subClassOf* :Zwierzę .
+}
+
+Zapytanie powinno zwrócić zimnokrwiste mięsożerne zwierzęta żyjące w wodziegdzie. Takich zwierząt powinno być parę: Żaba, Krokodyl, Rekin etc, lecz zwracany jest pusty wynik. 
+Gdybym wpisał nawet samo "?zwierze :żyjeW :Woda", to i tak otrzymałbym pusty wynik.

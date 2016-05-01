@@ -1,0 +1,908 @@
+<?xml version="1.0"?>
+<rdf:RDF xmlns="http://www.semanticweb.org/dziku/ontologies/2016/3/untitled-ontology-9#"
+     xml:base="http://www.semanticweb.org/dziku/ontologies/2016/3/untitled-ontology-9"
+     xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+     xmlns:owl="http://www.w3.org/2002/07/owl#"
+     xmlns:xml="http://www.w3.org/XML/1998/namespace"
+     xmlns:xsd="http://www.w3.org/2001/XMLSchema#"
+     xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#">
+    <owl:Ontology rdf:about="http://www.semanticweb.org/dziku/ontologies/2016/3/untitled-ontology-9">
+        <rdfs:comment>Ontologia dotycząca królestwa zwierząt.</rdfs:comment>
+    </owl:Ontology>
+    
+
+
+    <!-- 
+    ///////////////////////////////////////////////////////////////////////////////////////
+    //
+    // Object Properties
+    //
+    ///////////////////////////////////////////////////////////////////////////////////////
+     -->
+
+    
+
+
+    <!-- http://www.semanticweb.org/dziku/ontologies/2016/3/untitled-ontology-9#jestPokryty -->
+
+    <owl:ObjectProperty rdf:about="http://www.semanticweb.org/dziku/ontologies/2016/3/untitled-ontology-9#jestPokryty">
+        <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+        <rdfs:domain rdf:resource="http://www.semanticweb.org/dziku/ontologies/2016/3/untitled-ontology-9#Zwierzę"/>
+        <rdfs:range rdf:resource="http://www.semanticweb.org/dziku/ontologies/2016/3/untitled-ontology-9#Pokrycie"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://www.semanticweb.org/dziku/ontologies/2016/3/untitled-ontology-9#maKończyny -->
+
+    <owl:ObjectProperty rdf:about="http://www.semanticweb.org/dziku/ontologies/2016/3/untitled-ontology-9#maKończyny">
+        <rdfs:domain rdf:resource="http://www.semanticweb.org/dziku/ontologies/2016/3/untitled-ontology-9#Zwierzę"/>
+        <rdfs:range rdf:resource="http://www.semanticweb.org/dziku/ontologies/2016/3/untitled-ontology-9#Kończyny"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://www.semanticweb.org/dziku/ontologies/2016/3/untitled-ontology-9#żyjeW -->
+
+    <owl:ObjectProperty rdf:about="http://www.semanticweb.org/dziku/ontologies/2016/3/untitled-ontology-9#żyjeW">
+        <rdfs:domain rdf:resource="http://www.semanticweb.org/dziku/ontologies/2016/3/untitled-ontology-9#Zwierzę"/>
+        <rdfs:range rdf:resource="http://www.semanticweb.org/dziku/ontologies/2016/3/untitled-ontology-9#Środowisko"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://www.semanticweb.org/dziku/ontologies/2016/3/untitled-ontology-9#żywiSię -->
+
+    <owl:ObjectProperty rdf:about="http://www.semanticweb.org/dziku/ontologies/2016/3/untitled-ontology-9#żywiSię">
+        <rdfs:domain rdf:resource="http://www.semanticweb.org/dziku/ontologies/2016/3/untitled-ontology-9#Zwierzę"/>
+        <rdfs:range>
+            <owl:Class>
+                <owl:unionOf rdf:parseType="Collection">
+                    <rdf:Description rdf:about="http://www.semanticweb.org/dziku/ontologies/2016/3/untitled-ontology-9#Roślina"/>
+                    <rdf:Description rdf:about="http://www.semanticweb.org/dziku/ontologies/2016/3/untitled-ontology-9#Zwierzę"/>
+                </owl:unionOf>
+            </owl:Class>
+        </rdfs:range>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- 
+    ///////////////////////////////////////////////////////////////////////////////////////
+    //
+    // Data properties
+    //
+    ///////////////////////////////////////////////////////////////////////////////////////
+     -->
+
+    
+
+
+    <!-- http://www.semanticweb.org/dziku/ontologies/2016/3/untitled-ontology-9#maPłuca -->
+
+    <owl:DatatypeProperty rdf:about="http://www.semanticweb.org/dziku/ontologies/2016/3/untitled-ontology-9#maPłuca"/>
+    
+
+
+    <!-- http://www.semanticweb.org/dziku/ontologies/2016/3/untitled-ontology-9#maSkrzela -->
+
+    <owl:DatatypeProperty rdf:about="http://www.semanticweb.org/dziku/ontologies/2016/3/untitled-ontology-9#maSkrzela"/>
+    
+
+
+    <!-- http://www.semanticweb.org/dziku/ontologies/2016/3/untitled-ontology-9#maSkrzydła -->
+
+    <owl:DatatypeProperty rdf:about="http://www.semanticweb.org/dziku/ontologies/2016/3/untitled-ontology-9#maSkrzydła"/>
+    
+
+
+    <!-- http://www.semanticweb.org/dziku/ontologies/2016/3/untitled-ontology-9#maWłosy -->
+
+    <owl:DatatypeProperty rdf:about="http://www.semanticweb.org/dziku/ontologies/2016/3/untitled-ontology-9#maWłosy"/>
+    
+
+
+    <!-- http://www.semanticweb.org/dziku/ontologies/2016/3/untitled-ontology-9#maŁuski -->
+
+    <owl:DatatypeProperty rdf:about="http://www.semanticweb.org/dziku/ontologies/2016/3/untitled-ontology-9#maŁuski"/>
+    
+
+
+    <!-- 
+    ///////////////////////////////////////////////////////////////////////////////////////
+    //
+    // Classes
+    //
+    ///////////////////////////////////////////////////////////////////////////////////////
+     -->
+
+    
+
+
+    <!-- http://www.semanticweb.org/dziku/ontologies/2016/3/untitled-ontology-9#Bezkręgowiec -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/dziku/ontologies/2016/3/untitled-ontology-9#Bezkręgowiec">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/dziku/ontologies/2016/3/untitled-ontology-9#Zwierzę"/>
+        <owl:disjointWith rdf:resource="http://www.semanticweb.org/dziku/ontologies/2016/3/untitled-ontology-9#Kręgowiec"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.semanticweb.org/dziku/ontologies/2016/3/untitled-ontology-9#ChodzącyOwad -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/dziku/ontologies/2016/3/untitled-ontology-9#ChodzącyOwad">
+        <owl:equivalentClass>
+            <owl:Class>
+                <owl:intersectionOf rdf:parseType="Collection">
+                    <rdf:Description rdf:about="http://www.semanticweb.org/dziku/ontologies/2016/3/untitled-ontology-9#Owad"/>
+                    <owl:Restriction>
+                        <owl:onProperty rdf:resource="http://www.semanticweb.org/dziku/ontologies/2016/3/untitled-ontology-9#maKończyny"/>
+                        <owl:someValuesFrom rdf:resource="http://www.semanticweb.org/dziku/ontologies/2016/3/untitled-ontology-9#Noga"/>
+                    </owl:Restriction>
+                </owl:intersectionOf>
+            </owl:Class>
+        </owl:equivalentClass>
+    </owl:Class>
+    
+
+
+    <!-- http://www.semanticweb.org/dziku/ontologies/2016/3/untitled-ontology-9#Ciepłokrwisty -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/dziku/ontologies/2016/3/untitled-ontology-9#Ciepłokrwisty">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/dziku/ontologies/2016/3/untitled-ontology-9#Kręgowiec"/>
+        <rdfs:subClassOf>
+            <owl:Class>
+                <owl:unionOf rdf:parseType="Collection">
+                    <rdf:Description rdf:about="http://www.semanticweb.org/dziku/ontologies/2016/3/untitled-ontology-9#Ptak"/>
+                    <rdf:Description rdf:about="http://www.semanticweb.org/dziku/ontologies/2016/3/untitled-ontology-9#Ssak"/>
+                </owl:unionOf>
+            </owl:Class>
+        </rdfs:subClassOf>
+        <owl:disjointWith rdf:resource="http://www.semanticweb.org/dziku/ontologies/2016/3/untitled-ontology-9#Zimnokrwisty"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.semanticweb.org/dziku/ontologies/2016/3/untitled-ontology-9#Dorsz -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/dziku/ontologies/2016/3/untitled-ontology-9#Dorsz">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/dziku/ontologies/2016/3/untitled-ontology-9#Ryba"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.semanticweb.org/dziku/ontologies/2016/3/untitled-ontology-9#Gad -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/dziku/ontologies/2016/3/untitled-ontology-9#Gad">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/dziku/ontologies/2016/3/untitled-ontology-9#Zimnokrwisty"/>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="http://www.semanticweb.org/dziku/ontologies/2016/3/untitled-ontology-9#jestPokryty"/>
+                <owl:someValuesFrom rdf:resource="http://www.semanticweb.org/dziku/ontologies/2016/3/untitled-ontology-9#Łuski"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="http://www.semanticweb.org/dziku/ontologies/2016/3/untitled-ontology-9#maKończyny"/>
+                <owl:someValuesFrom rdf:resource="http://www.semanticweb.org/dziku/ontologies/2016/3/untitled-ontology-9#Noga"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="http://www.semanticweb.org/dziku/ontologies/2016/3/untitled-ontology-9#żyjeW"/>
+                <owl:allValuesFrom>
+                    <owl:Class>
+                        <owl:unionOf rdf:parseType="Collection">
+                            <rdf:Description rdf:about="http://www.semanticweb.org/dziku/ontologies/2016/3/untitled-ontology-9#Ląd"/>
+                            <rdf:Description rdf:about="http://www.semanticweb.org/dziku/ontologies/2016/3/untitled-ontology-9#Woda"/>
+                        </owl:unionOf>
+                    </owl:Class>
+                </owl:allValuesFrom>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+    </owl:Class>
+    
+
+
+    <!-- http://www.semanticweb.org/dziku/ontologies/2016/3/untitled-ontology-9#Gołąb -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/dziku/ontologies/2016/3/untitled-ontology-9#Gołąb">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/dziku/ontologies/2016/3/untitled-ontology-9#Ptak"/>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="http://www.semanticweb.org/dziku/ontologies/2016/3/untitled-ontology-9#żywiSię"/>
+                <owl:someValuesFrom rdf:resource="http://www.semanticweb.org/dziku/ontologies/2016/3/untitled-ontology-9#Owad"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+    </owl:Class>
+    
+
+
+    <!-- http://www.semanticweb.org/dziku/ontologies/2016/3/untitled-ontology-9#Gąsienica -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/dziku/ontologies/2016/3/untitled-ontology-9#Gąsienica">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/dziku/ontologies/2016/3/untitled-ontology-9#Owad"/>
+        <rdfs:subClassOf>
+            <owl:Class>
+                <owl:complementOf>
+                    <owl:Restriction>
+                        <owl:onProperty rdf:resource="http://www.semanticweb.org/dziku/ontologies/2016/3/untitled-ontology-9#maKończyny"/>
+                        <owl:someValuesFrom>
+                            <owl:Class>
+                                <owl:unionOf rdf:parseType="Collection">
+                                    <rdf:Description rdf:about="http://www.semanticweb.org/dziku/ontologies/2016/3/untitled-ontology-9#Noga"/>
+                                    <rdf:Description rdf:about="http://www.semanticweb.org/dziku/ontologies/2016/3/untitled-ontology-9#Skrzydło"/>
+                                </owl:unionOf>
+                            </owl:Class>
+                        </owl:someValuesFrom>
+                    </owl:Restriction>
+                </owl:complementOf>
+            </owl:Class>
+        </rdfs:subClassOf>
+    </owl:Class>
+    
+
+
+    <!-- http://www.semanticweb.org/dziku/ontologies/2016/3/untitled-ontology-9#Kończyny -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/dziku/ontologies/2016/3/untitled-ontology-9#Kończyny"/>
+    
+
+
+    <!-- http://www.semanticweb.org/dziku/ontologies/2016/3/untitled-ontology-9#Krokodyl -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/dziku/ontologies/2016/3/untitled-ontology-9#Krokodyl">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/dziku/ontologies/2016/3/untitled-ontology-9#Gad"/>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="http://www.semanticweb.org/dziku/ontologies/2016/3/untitled-ontology-9#żywiSię"/>
+                <owl:someValuesFrom rdf:resource="http://www.semanticweb.org/dziku/ontologies/2016/3/untitled-ontology-9#Krowa"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+    </owl:Class>
+    
+
+
+    <!-- http://www.semanticweb.org/dziku/ontologies/2016/3/untitled-ontology-9#Krowa -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/dziku/ontologies/2016/3/untitled-ontology-9#Krowa">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/dziku/ontologies/2016/3/untitled-ontology-9#Ssak"/>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="http://www.semanticweb.org/dziku/ontologies/2016/3/untitled-ontology-9#żywiSię"/>
+                <owl:someValuesFrom rdf:resource="http://www.semanticweb.org/dziku/ontologies/2016/3/untitled-ontology-9#Trawa"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+    </owl:Class>
+    
+
+
+    <!-- http://www.semanticweb.org/dziku/ontologies/2016/3/untitled-ontology-9#Kręgowiec -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/dziku/ontologies/2016/3/untitled-ontology-9#Kręgowiec">
+        <owl:equivalentClass>
+            <owl:Class>
+                <owl:intersectionOf rdf:parseType="Collection">
+                    <rdf:Description rdf:about="http://www.semanticweb.org/dziku/ontologies/2016/3/untitled-ontology-9#Zwierzę"/>
+                    <owl:Class>
+                        <owl:unionOf rdf:parseType="Collection">
+                            <rdf:Description rdf:about="http://www.semanticweb.org/dziku/ontologies/2016/3/untitled-ontology-9#Ciepłokrwisty"/>
+                            <rdf:Description rdf:about="http://www.semanticweb.org/dziku/ontologies/2016/3/untitled-ontology-9#Zimnokrwisty"/>
+                        </owl:unionOf>
+                    </owl:Class>
+                </owl:intersectionOf>
+            </owl:Class>
+        </owl:equivalentClass>
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/dziku/ontologies/2016/3/untitled-ontology-9#Zwierzę"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.semanticweb.org/dziku/ontologies/2016/3/untitled-ontology-9#LatającyOwad -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/dziku/ontologies/2016/3/untitled-ontology-9#LatającyOwad">
+        <owl:equivalentClass>
+            <owl:Class>
+                <owl:intersectionOf rdf:parseType="Collection">
+                    <rdf:Description rdf:about="http://www.semanticweb.org/dziku/ontologies/2016/3/untitled-ontology-9#Owad"/>
+                    <owl:Restriction>
+                        <owl:onProperty rdf:resource="http://www.semanticweb.org/dziku/ontologies/2016/3/untitled-ontology-9#maKończyny"/>
+                        <owl:someValuesFrom rdf:resource="http://www.semanticweb.org/dziku/ontologies/2016/3/untitled-ontology-9#Skrzydło"/>
+                    </owl:Restriction>
+                </owl:intersectionOf>
+            </owl:Class>
+        </owl:equivalentClass>
+    </owl:Class>
+    
+
+
+    <!-- http://www.semanticweb.org/dziku/ontologies/2016/3/untitled-ontology-9#Ląd -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/dziku/ontologies/2016/3/untitled-ontology-9#Ląd">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/dziku/ontologies/2016/3/untitled-ontology-9#Środowisko"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.semanticweb.org/dziku/ontologies/2016/3/untitled-ontology-9#Mięsożerny -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/dziku/ontologies/2016/3/untitled-ontology-9#Mięsożerny">
+        <owl:equivalentClass>
+            <owl:Class>
+                <owl:intersectionOf rdf:parseType="Collection">
+                    <rdf:Description rdf:about="http://www.semanticweb.org/dziku/ontologies/2016/3/untitled-ontology-9#Zwierzę"/>
+                    <owl:Restriction>
+                        <owl:onProperty rdf:resource="http://www.semanticweb.org/dziku/ontologies/2016/3/untitled-ontology-9#żywiSię"/>
+                        <owl:someValuesFrom rdf:resource="http://www.semanticweb.org/dziku/ontologies/2016/3/untitled-ontology-9#Zwierzę"/>
+                    </owl:Restriction>
+                </owl:intersectionOf>
+            </owl:Class>
+        </owl:equivalentClass>
+    </owl:Class>
+    
+
+
+    <!-- http://www.semanticweb.org/dziku/ontologies/2016/3/untitled-ontology-9#Noga -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/dziku/ontologies/2016/3/untitled-ontology-9#Noga">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/dziku/ontologies/2016/3/untitled-ontology-9#Kończyny"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.semanticweb.org/dziku/ontologies/2016/3/untitled-ontology-9#Orzeł -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/dziku/ontologies/2016/3/untitled-ontology-9#Orzeł">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/dziku/ontologies/2016/3/untitled-ontology-9#Ptak"/>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="http://www.semanticweb.org/dziku/ontologies/2016/3/untitled-ontology-9#żywiSię"/>
+                <owl:someValuesFrom rdf:resource="http://www.semanticweb.org/dziku/ontologies/2016/3/untitled-ontology-9#Gołąb"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="http://www.semanticweb.org/dziku/ontologies/2016/3/untitled-ontology-9#żywiSię"/>
+                <owl:someValuesFrom rdf:resource="http://www.semanticweb.org/dziku/ontologies/2016/3/untitled-ontology-9#Owad"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+    </owl:Class>
+    
+
+
+    <!-- http://www.semanticweb.org/dziku/ontologies/2016/3/untitled-ontology-9#Owad -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/dziku/ontologies/2016/3/untitled-ontology-9#Owad">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/dziku/ontologies/2016/3/untitled-ontology-9#Bezkręgowiec"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.semanticweb.org/dziku/ontologies/2016/3/untitled-ontology-9#Papuga -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/dziku/ontologies/2016/3/untitled-ontology-9#Papuga">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/dziku/ontologies/2016/3/untitled-ontology-9#Ptak"/>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="http://www.semanticweb.org/dziku/ontologies/2016/3/untitled-ontology-9#żywiSię"/>
+                <owl:someValuesFrom rdf:resource="http://www.semanticweb.org/dziku/ontologies/2016/3/untitled-ontology-9#Owad"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+    </owl:Class>
+    
+
+
+    <!-- http://www.semanticweb.org/dziku/ontologies/2016/3/untitled-ontology-9#PełzającyOwad -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/dziku/ontologies/2016/3/untitled-ontology-9#PełzającyOwad">
+        <owl:equivalentClass>
+            <owl:Class>
+                <owl:intersectionOf rdf:parseType="Collection">
+                    <rdf:Description rdf:about="http://www.semanticweb.org/dziku/ontologies/2016/3/untitled-ontology-9#Owad"/>
+                    <owl:Class>
+                        <owl:complementOf>
+                            <owl:Restriction>
+                                <owl:onProperty rdf:resource="http://www.semanticweb.org/dziku/ontologies/2016/3/untitled-ontology-9#maKończyny"/>
+                                <owl:someValuesFrom>
+                                    <owl:Class>
+                                        <owl:unionOf rdf:parseType="Collection">
+                                            <rdf:Description rdf:about="http://www.semanticweb.org/dziku/ontologies/2016/3/untitled-ontology-9#Noga"/>
+                                            <rdf:Description rdf:about="http://www.semanticweb.org/dziku/ontologies/2016/3/untitled-ontology-9#Skrzydło"/>
+                                        </owl:unionOf>
+                                    </owl:Class>
+                                </owl:someValuesFrom>
+                            </owl:Restriction>
+                        </owl:complementOf>
+                    </owl:Class>
+                </owl:intersectionOf>
+            </owl:Class>
+        </owl:equivalentClass>
+    </owl:Class>
+    
+
+
+    <!-- http://www.semanticweb.org/dziku/ontologies/2016/3/untitled-ontology-9#Pies -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/dziku/ontologies/2016/3/untitled-ontology-9#Pies">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/dziku/ontologies/2016/3/untitled-ontology-9#Ssak"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.semanticweb.org/dziku/ontologies/2016/3/untitled-ontology-9#Pióra -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/dziku/ontologies/2016/3/untitled-ontology-9#Pióra">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/dziku/ontologies/2016/3/untitled-ontology-9#Pokrycie"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.semanticweb.org/dziku/ontologies/2016/3/untitled-ontology-9#Pokrycie -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/dziku/ontologies/2016/3/untitled-ontology-9#Pokrycie"/>
+    
+
+
+    <!-- http://www.semanticweb.org/dziku/ontologies/2016/3/untitled-ontology-9#Powietrze -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/dziku/ontologies/2016/3/untitled-ontology-9#Powietrze">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/dziku/ontologies/2016/3/untitled-ontology-9#Środowisko"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.semanticweb.org/dziku/ontologies/2016/3/untitled-ontology-9#Pszczoła -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/dziku/ontologies/2016/3/untitled-ontology-9#Pszczoła">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/dziku/ontologies/2016/3/untitled-ontology-9#Owad"/>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="http://www.semanticweb.org/dziku/ontologies/2016/3/untitled-ontology-9#maKończyny"/>
+                <owl:someValuesFrom rdf:resource="http://www.semanticweb.org/dziku/ontologies/2016/3/untitled-ontology-9#Noga"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="http://www.semanticweb.org/dziku/ontologies/2016/3/untitled-ontology-9#maKończyny"/>
+                <owl:someValuesFrom rdf:resource="http://www.semanticweb.org/dziku/ontologies/2016/3/untitled-ontology-9#Skrzydło"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+    </owl:Class>
+    
+
+
+    <!-- http://www.semanticweb.org/dziku/ontologies/2016/3/untitled-ontology-9#Ptak -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/dziku/ontologies/2016/3/untitled-ontology-9#Ptak">
+        <owl:equivalentClass>
+            <owl:Class>
+                <owl:intersectionOf rdf:parseType="Collection">
+                    <rdf:Description rdf:about="http://www.semanticweb.org/dziku/ontologies/2016/3/untitled-ontology-9#Ciepłokrwisty"/>
+                    <owl:Restriction>
+                        <owl:onProperty rdf:resource="http://www.semanticweb.org/dziku/ontologies/2016/3/untitled-ontology-9#jestPokryty"/>
+                        <owl:someValuesFrom rdf:resource="http://www.semanticweb.org/dziku/ontologies/2016/3/untitled-ontology-9#Pióra"/>
+                    </owl:Restriction>
+                    <owl:Restriction>
+                        <owl:onProperty rdf:resource="http://www.semanticweb.org/dziku/ontologies/2016/3/untitled-ontology-9#żyjeW"/>
+                        <owl:allValuesFrom>
+                            <owl:Class>
+                                <owl:unionOf rdf:parseType="Collection">
+                                    <rdf:Description rdf:about="http://www.semanticweb.org/dziku/ontologies/2016/3/untitled-ontology-9#Ląd"/>
+                                    <rdf:Description rdf:about="http://www.semanticweb.org/dziku/ontologies/2016/3/untitled-ontology-9#Powietrze"/>
+                                </owl:unionOf>
+                            </owl:Class>
+                        </owl:allValuesFrom>
+                    </owl:Restriction>
+                    <owl:Restriction>
+                        <owl:onProperty rdf:resource="http://www.semanticweb.org/dziku/ontologies/2016/3/untitled-ontology-9#maKończyny"/>
+                        <owl:qualifiedCardinality rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">2</owl:qualifiedCardinality>
+                        <owl:onClass rdf:resource="http://www.semanticweb.org/dziku/ontologies/2016/3/untitled-ontology-9#Noga"/>
+                    </owl:Restriction>
+                    <owl:Restriction>
+                        <owl:onProperty rdf:resource="http://www.semanticweb.org/dziku/ontologies/2016/3/untitled-ontology-9#maKończyny"/>
+                        <owl:qualifiedCardinality rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">2</owl:qualifiedCardinality>
+                        <owl:onClass rdf:resource="http://www.semanticweb.org/dziku/ontologies/2016/3/untitled-ontology-9#Skrzydło"/>
+                    </owl:Restriction>
+                </owl:intersectionOf>
+            </owl:Class>
+        </owl:equivalentClass>
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/dziku/ontologies/2016/3/untitled-ontology-9#Ciepłokrwisty"/>
+        <owl:disjointWith rdf:resource="http://www.semanticweb.org/dziku/ontologies/2016/3/untitled-ontology-9#Ssak"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.semanticweb.org/dziku/ontologies/2016/3/untitled-ontology-9#Płaz -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/dziku/ontologies/2016/3/untitled-ontology-9#Płaz">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/dziku/ontologies/2016/3/untitled-ontology-9#Zimnokrwisty"/>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="http://www.semanticweb.org/dziku/ontologies/2016/3/untitled-ontology-9#maKończyny"/>
+                <owl:allValuesFrom>
+                    <owl:Class>
+                        <owl:unionOf rdf:parseType="Collection">
+                            <rdf:Description rdf:about="http://www.semanticweb.org/dziku/ontologies/2016/3/untitled-ontology-9#Noga"/>
+                            <rdf:Description rdf:about="http://www.semanticweb.org/dziku/ontologies/2016/3/untitled-ontology-9#Płetwa"/>
+                        </owl:unionOf>
+                    </owl:Class>
+                </owl:allValuesFrom>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="http://www.semanticweb.org/dziku/ontologies/2016/3/untitled-ontology-9#żyjeW"/>
+                <owl:allValuesFrom>
+                    <owl:Class>
+                        <owl:unionOf rdf:parseType="Collection">
+                            <rdf:Description rdf:about="http://www.semanticweb.org/dziku/ontologies/2016/3/untitled-ontology-9#Ląd"/>
+                            <rdf:Description rdf:about="http://www.semanticweb.org/dziku/ontologies/2016/3/untitled-ontology-9#Woda"/>
+                        </owl:unionOf>
+                    </owl:Class>
+                </owl:allValuesFrom>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+    </owl:Class>
+    
+
+
+    <!-- http://www.semanticweb.org/dziku/ontologies/2016/3/untitled-ontology-9#Płetwa -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/dziku/ontologies/2016/3/untitled-ontology-9#Płetwa">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/dziku/ontologies/2016/3/untitled-ontology-9#Kończyny"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.semanticweb.org/dziku/ontologies/2016/3/untitled-ontology-9#Rekin -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/dziku/ontologies/2016/3/untitled-ontology-9#Rekin">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/dziku/ontologies/2016/3/untitled-ontology-9#Ryba"/>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="http://www.semanticweb.org/dziku/ontologies/2016/3/untitled-ontology-9#żywiSię"/>
+                <owl:someValuesFrom rdf:resource="http://www.semanticweb.org/dziku/ontologies/2016/3/untitled-ontology-9#Dorsz"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="http://www.semanticweb.org/dziku/ontologies/2016/3/untitled-ontology-9#żywiSię"/>
+                <owl:someValuesFrom rdf:resource="http://www.semanticweb.org/dziku/ontologies/2016/3/untitled-ontology-9#Węgorz"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+    </owl:Class>
+    
+
+
+    <!-- http://www.semanticweb.org/dziku/ontologies/2016/3/untitled-ontology-9#Roślina -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/dziku/ontologies/2016/3/untitled-ontology-9#Roślina"/>
+    
+
+
+    <!-- http://www.semanticweb.org/dziku/ontologies/2016/3/untitled-ontology-9#Roślinożerny -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/dziku/ontologies/2016/3/untitled-ontology-9#Roślinożerny">
+        <owl:equivalentClass>
+            <owl:Class>
+                <owl:intersectionOf rdf:parseType="Collection">
+                    <rdf:Description rdf:about="http://www.semanticweb.org/dziku/ontologies/2016/3/untitled-ontology-9#Zwierzę"/>
+                    <owl:Restriction>
+                        <owl:onProperty rdf:resource="http://www.semanticweb.org/dziku/ontologies/2016/3/untitled-ontology-9#żywiSię"/>
+                        <owl:someValuesFrom rdf:resource="http://www.semanticweb.org/dziku/ontologies/2016/3/untitled-ontology-9#Roślina"/>
+                    </owl:Restriction>
+                </owl:intersectionOf>
+            </owl:Class>
+        </owl:equivalentClass>
+    </owl:Class>
+    
+
+
+    <!-- http://www.semanticweb.org/dziku/ontologies/2016/3/untitled-ontology-9#Ryba -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/dziku/ontologies/2016/3/untitled-ontology-9#Ryba">
+        <owl:equivalentClass>
+            <owl:Class>
+                <owl:intersectionOf rdf:parseType="Collection">
+                    <rdf:Description rdf:about="http://www.semanticweb.org/dziku/ontologies/2016/3/untitled-ontology-9#Zimnokrwisty"/>
+                    <owl:Restriction>
+                        <owl:onProperty rdf:resource="http://www.semanticweb.org/dziku/ontologies/2016/3/untitled-ontology-9#jestPokryty"/>
+                        <owl:someValuesFrom rdf:resource="http://www.semanticweb.org/dziku/ontologies/2016/3/untitled-ontology-9#Łuski"/>
+                    </owl:Restriction>
+                    <owl:Restriction>
+                        <owl:onProperty rdf:resource="http://www.semanticweb.org/dziku/ontologies/2016/3/untitled-ontology-9#maKończyny"/>
+                        <owl:someValuesFrom rdf:resource="http://www.semanticweb.org/dziku/ontologies/2016/3/untitled-ontology-9#Płetwa"/>
+                    </owl:Restriction>
+                    <owl:Restriction>
+                        <owl:onProperty rdf:resource="http://www.semanticweb.org/dziku/ontologies/2016/3/untitled-ontology-9#żyjeW"/>
+                        <owl:allValuesFrom rdf:resource="http://www.semanticweb.org/dziku/ontologies/2016/3/untitled-ontology-9#Woda"/>
+                    </owl:Restriction>
+                </owl:intersectionOf>
+            </owl:Class>
+        </owl:equivalentClass>
+    </owl:Class>
+    
+
+
+    <!-- http://www.semanticweb.org/dziku/ontologies/2016/3/untitled-ontology-9#Salamandra -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/dziku/ontologies/2016/3/untitled-ontology-9#Salamandra">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/dziku/ontologies/2016/3/untitled-ontology-9#Płaz"/>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="http://www.semanticweb.org/dziku/ontologies/2016/3/untitled-ontology-9#żywiSię"/>
+                <owl:someValuesFrom>
+                    <owl:Class>
+                        <owl:unionOf rdf:parseType="Collection">
+                            <rdf:Description rdf:about="http://www.semanticweb.org/dziku/ontologies/2016/3/untitled-ontology-9#Owad"/>
+                            <rdf:Description rdf:about="http://www.semanticweb.org/dziku/ontologies/2016/3/untitled-ontology-9#Roślina"/>
+                        </owl:unionOf>
+                    </owl:Class>
+                </owl:someValuesFrom>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+    </owl:Class>
+    
+
+
+    <!-- http://www.semanticweb.org/dziku/ontologies/2016/3/untitled-ontology-9#Skrzydło -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/dziku/ontologies/2016/3/untitled-ontology-9#Skrzydło">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/dziku/ontologies/2016/3/untitled-ontology-9#Kończyny"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.semanticweb.org/dziku/ontologies/2016/3/untitled-ontology-9#Ssak -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/dziku/ontologies/2016/3/untitled-ontology-9#Ssak">
+        <owl:equivalentClass>
+            <owl:Class>
+                <owl:intersectionOf rdf:parseType="Collection">
+                    <rdf:Description rdf:about="http://www.semanticweb.org/dziku/ontologies/2016/3/untitled-ontology-9#Ciepłokrwisty"/>
+                    <owl:Restriction>
+                        <owl:onProperty rdf:resource="http://www.semanticweb.org/dziku/ontologies/2016/3/untitled-ontology-9#jestPokryty"/>
+                        <owl:someValuesFrom rdf:resource="http://www.semanticweb.org/dziku/ontologies/2016/3/untitled-ontology-9#Włosy"/>
+                    </owl:Restriction>
+                    <owl:Restriction>
+                        <owl:onProperty rdf:resource="http://www.semanticweb.org/dziku/ontologies/2016/3/untitled-ontology-9#maKończyny"/>
+                        <owl:someValuesFrom rdf:resource="http://www.semanticweb.org/dziku/ontologies/2016/3/untitled-ontology-9#Noga"/>
+                    </owl:Restriction>
+                    <owl:Restriction>
+                        <owl:onProperty rdf:resource="http://www.semanticweb.org/dziku/ontologies/2016/3/untitled-ontology-9#żyjeW"/>
+                        <owl:allValuesFrom rdf:resource="http://www.semanticweb.org/dziku/ontologies/2016/3/untitled-ontology-9#Ląd"/>
+                    </owl:Restriction>
+                </owl:intersectionOf>
+            </owl:Class>
+        </owl:equivalentClass>
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/dziku/ontologies/2016/3/untitled-ontology-9#Ciepłokrwisty"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.semanticweb.org/dziku/ontologies/2016/3/untitled-ontology-9#Słoń -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/dziku/ontologies/2016/3/untitled-ontology-9#Słoń">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/dziku/ontologies/2016/3/untitled-ontology-9#Ssak"/>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="http://www.semanticweb.org/dziku/ontologies/2016/3/untitled-ontology-9#żywiSię"/>
+                <owl:someValuesFrom rdf:resource="http://www.semanticweb.org/dziku/ontologies/2016/3/untitled-ontology-9#Trawa"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+    </owl:Class>
+    
+
+
+    <!-- http://www.semanticweb.org/dziku/ontologies/2016/3/untitled-ontology-9#Tramwaj -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/dziku/ontologies/2016/3/untitled-ontology-9#Tramwaj">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/dziku/ontologies/2016/3/untitled-ontology-9#Owad"/>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="http://www.semanticweb.org/dziku/ontologies/2016/3/untitled-ontology-9#maKończyny"/>
+                <owl:someValuesFrom rdf:resource="http://www.semanticweb.org/dziku/ontologies/2016/3/untitled-ontology-9#Noga"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+    </owl:Class>
+    
+
+
+    <!-- http://www.semanticweb.org/dziku/ontologies/2016/3/untitled-ontology-9#Trawa -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/dziku/ontologies/2016/3/untitled-ontology-9#Trawa">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/dziku/ontologies/2016/3/untitled-ontology-9#Roślina"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.semanticweb.org/dziku/ontologies/2016/3/untitled-ontology-9#Woda -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/dziku/ontologies/2016/3/untitled-ontology-9#Woda">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/dziku/ontologies/2016/3/untitled-ontology-9#Środowisko"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.semanticweb.org/dziku/ontologies/2016/3/untitled-ontology-9#Wąż -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/dziku/ontologies/2016/3/untitled-ontology-9#Wąż">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/dziku/ontologies/2016/3/untitled-ontology-9#Gad"/>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="http://www.semanticweb.org/dziku/ontologies/2016/3/untitled-ontology-9#żywiSię"/>
+                <owl:someValuesFrom rdf:resource="http://www.semanticweb.org/dziku/ontologies/2016/3/untitled-ontology-9#Ptak"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="http://www.semanticweb.org/dziku/ontologies/2016/3/untitled-ontology-9#żywiSię"/>
+                <owl:someValuesFrom rdf:resource="http://www.semanticweb.org/dziku/ontologies/2016/3/untitled-ontology-9#Żółw"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+    </owl:Class>
+    
+
+
+    <!-- http://www.semanticweb.org/dziku/ontologies/2016/3/untitled-ontology-9#Węgorz -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/dziku/ontologies/2016/3/untitled-ontology-9#Węgorz">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/dziku/ontologies/2016/3/untitled-ontology-9#Ryba"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.semanticweb.org/dziku/ontologies/2016/3/untitled-ontology-9#Włosy -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/dziku/ontologies/2016/3/untitled-ontology-9#Włosy">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/dziku/ontologies/2016/3/untitled-ontology-9#Pokrycie"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.semanticweb.org/dziku/ontologies/2016/3/untitled-ontology-9#Zimnokrwisty -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/dziku/ontologies/2016/3/untitled-ontology-9#Zimnokrwisty">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/dziku/ontologies/2016/3/untitled-ontology-9#Kręgowiec"/>
+        <rdfs:subClassOf>
+            <owl:Class>
+                <owl:unionOf rdf:parseType="Collection">
+                    <rdf:Description rdf:about="http://www.semanticweb.org/dziku/ontologies/2016/3/untitled-ontology-9#Gad"/>
+                    <rdf:Description rdf:about="http://www.semanticweb.org/dziku/ontologies/2016/3/untitled-ontology-9#Płaz"/>
+                    <rdf:Description rdf:about="http://www.semanticweb.org/dziku/ontologies/2016/3/untitled-ontology-9#Ryba"/>
+                </owl:unionOf>
+            </owl:Class>
+        </rdfs:subClassOf>
+    </owl:Class>
+    
+
+
+    <!-- http://www.semanticweb.org/dziku/ontologies/2016/3/untitled-ontology-9#Zwierzę -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/dziku/ontologies/2016/3/untitled-ontology-9#Zwierzę">
+        <owl:equivalentClass>
+            <owl:Class>
+                <owl:unionOf rdf:parseType="Collection">
+                    <rdf:Description rdf:about="http://www.semanticweb.org/dziku/ontologies/2016/3/untitled-ontology-9#Bezkręgowiec"/>
+                    <rdf:Description rdf:about="http://www.semanticweb.org/dziku/ontologies/2016/3/untitled-ontology-9#Kręgowiec"/>
+                </owl:unionOf>
+            </owl:Class>
+        </owl:equivalentClass>
+    </owl:Class>
+    
+
+
+    <!-- http://www.semanticweb.org/dziku/ontologies/2016/3/untitled-ontology-9#Łuski -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/dziku/ontologies/2016/3/untitled-ontology-9#Łuski">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/dziku/ontologies/2016/3/untitled-ontology-9#Pokrycie"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.semanticweb.org/dziku/ontologies/2016/3/untitled-ontology-9#Środowisko -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/dziku/ontologies/2016/3/untitled-ontology-9#Środowisko">
+        <rdfs:subClassOf>
+            <owl:Class>
+                <owl:unionOf rdf:parseType="Collection">
+                    <rdf:Description rdf:about="http://www.semanticweb.org/dziku/ontologies/2016/3/untitled-ontology-9#Ląd"/>
+                    <rdf:Description rdf:about="http://www.semanticweb.org/dziku/ontologies/2016/3/untitled-ontology-9#Powietrze"/>
+                    <rdf:Description rdf:about="http://www.semanticweb.org/dziku/ontologies/2016/3/untitled-ontology-9#Woda"/>
+                </owl:unionOf>
+            </owl:Class>
+        </rdfs:subClassOf>
+    </owl:Class>
+    
+
+
+    <!-- http://www.semanticweb.org/dziku/ontologies/2016/3/untitled-ontology-9#Żaba -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/dziku/ontologies/2016/3/untitled-ontology-9#Żaba">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/dziku/ontologies/2016/3/untitled-ontology-9#Płaz"/>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="http://www.semanticweb.org/dziku/ontologies/2016/3/untitled-ontology-9#maKończyny"/>
+                <owl:someValuesFrom rdf:resource="http://www.semanticweb.org/dziku/ontologies/2016/3/untitled-ontology-9#Noga"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="http://www.semanticweb.org/dziku/ontologies/2016/3/untitled-ontology-9#żyjeW"/>
+                <owl:someValuesFrom rdf:resource="http://www.semanticweb.org/dziku/ontologies/2016/3/untitled-ontology-9#Woda"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="http://www.semanticweb.org/dziku/ontologies/2016/3/untitled-ontology-9#żywiSię"/>
+                <owl:someValuesFrom rdf:resource="http://www.semanticweb.org/dziku/ontologies/2016/3/untitled-ontology-9#Owad"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+    </owl:Class>
+    
+
+
+    <!-- http://www.semanticweb.org/dziku/ontologies/2016/3/untitled-ontology-9#Żółw -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/dziku/ontologies/2016/3/untitled-ontology-9#Żółw">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/dziku/ontologies/2016/3/untitled-ontology-9#Gad"/>
+    </owl:Class>
+    
+
+
+    <!-- 
+    ///////////////////////////////////////////////////////////////////////////////////////
+    //
+    // General axioms
+    //
+    ///////////////////////////////////////////////////////////////////////////////////////
+     -->
+
+    <rdf:Description>
+        <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#AllDisjointClasses"/>
+        <owl:members rdf:parseType="Collection">
+            <rdf:Description rdf:about="http://www.semanticweb.org/dziku/ontologies/2016/3/untitled-ontology-9#Gad"/>
+            <rdf:Description rdf:about="http://www.semanticweb.org/dziku/ontologies/2016/3/untitled-ontology-9#Płaz"/>
+            <rdf:Description rdf:about="http://www.semanticweb.org/dziku/ontologies/2016/3/untitled-ontology-9#Ryba"/>
+        </owl:members>
+    </rdf:Description>
+    <rdf:Description>
+        <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#AllDisjointClasses"/>
+        <owl:members rdf:parseType="Collection">
+            <rdf:Description rdf:about="http://www.semanticweb.org/dziku/ontologies/2016/3/untitled-ontology-9#Kończyny"/>
+            <rdf:Description rdf:about="http://www.semanticweb.org/dziku/ontologies/2016/3/untitled-ontology-9#Pokrycie"/>
+            <rdf:Description rdf:about="http://www.semanticweb.org/dziku/ontologies/2016/3/untitled-ontology-9#Roślina"/>
+            <rdf:Description rdf:about="http://www.semanticweb.org/dziku/ontologies/2016/3/untitled-ontology-9#Zwierzę"/>
+            <rdf:Description rdf:about="http://www.semanticweb.org/dziku/ontologies/2016/3/untitled-ontology-9#Środowisko"/>
+        </owl:members>
+    </rdf:Description>
+    <rdf:Description>
+        <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#AllDisjointClasses"/>
+        <owl:members rdf:parseType="Collection">
+            <rdf:Description rdf:about="http://www.semanticweb.org/dziku/ontologies/2016/3/untitled-ontology-9#Ląd"/>
+            <rdf:Description rdf:about="http://www.semanticweb.org/dziku/ontologies/2016/3/untitled-ontology-9#Powietrze"/>
+            <rdf:Description rdf:about="http://www.semanticweb.org/dziku/ontologies/2016/3/untitled-ontology-9#Woda"/>
+        </owl:members>
+    </rdf:Description>
+    <rdf:Description>
+        <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#AllDisjointClasses"/>
+        <owl:members rdf:parseType="Collection">
+            <rdf:Description rdf:about="http://www.semanticweb.org/dziku/ontologies/2016/3/untitled-ontology-9#Noga"/>
+            <rdf:Description rdf:about="http://www.semanticweb.org/dziku/ontologies/2016/3/untitled-ontology-9#Płetwa"/>
+            <rdf:Description rdf:about="http://www.semanticweb.org/dziku/ontologies/2016/3/untitled-ontology-9#Skrzydło"/>
+        </owl:members>
+    </rdf:Description>
+    <rdf:Description>
+        <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#AllDisjointClasses"/>
+        <owl:members rdf:parseType="Collection">
+            <rdf:Description rdf:about="http://www.semanticweb.org/dziku/ontologies/2016/3/untitled-ontology-9#Pióra"/>
+            <rdf:Description rdf:about="http://www.semanticweb.org/dziku/ontologies/2016/3/untitled-ontology-9#Włosy"/>
+            <rdf:Description rdf:about="http://www.semanticweb.org/dziku/ontologies/2016/3/untitled-ontology-9#Łuski"/>
+        </owl:members>
+    </rdf:Description>
+</rdf:RDF>
+
+
+
+<!-- Generated by the OWL API (version 4.2.1.20160306-0033) https://github.com/owlcs/owlapi -->
+
