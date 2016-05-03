@@ -287,3 +287,40 @@ WHERE firma.kod_firmy IN (SELECT f1.kod_firmy FROM oferta_praktyki f1 EXCEPT
         SELECT f2.kod_firmy FROM praktyki NATURAL JOIN oferta_praktyki f2);
 
 -- Zadanie 6
+
+CREATE VIEW plan_zajec(
+    student,
+    semestr_id,
+    przed_kod,
+    termin,
+    sala
+)
+AS
+SELECT student.kod_uz, przedmiot_semestr.semestr_id,
+    przedmiot_semestr.kod_przed, grupa.termin, grupa.sala
+FROM wybor NATURAL JOIN student
+    JOIN grupa USING(kod_grupy)
+    JOIN przedmiot_semestr USING(kod_przed_sem);
+
+SELECT plan_zajec.*
+FROM plan_zajec JOIN semestr USING(semestr_id)
+WHERE plan_zajec.student = 3298
+    AND semestr.semestr='letni'
+    AND semestr.rok='2009/2010';
+
+SELECT DISTINCT 162 AS pracownik, pz.przed_kod, pz.termin, pz.sala
+FROM plan_zajec pz JOIN przedmiot_semestr ps ON (pz.przed_kod=ps.kod_przed
+                                    AND pz.semestr_id=ps.semestr_id)
+    JOIN grupa USING(sala, termin, kod_przed_sem)
+    JOIN semestr ON(pz.semestr_id = semestr.semestr_id)
+WHERE grupa.kod_uz = 162
+    AND semestr.semestr='letni'
+    AND semestr.rok='2009/2010';
+
+SELECT DISTINCT pz.sala, pz.termin, przedmiot.nazwa
+FROM plan_zajec pz NATURAL JOIN semestr
+    JOIN przedmiot ON pz.przed_kod = przedmiot.kod_przed
+WHERE pz.sala = '25'
+    AND semestr.semestr='letni'
+    AND semestr.rok='2009/2010'
+ORDER BY termin ASC;
