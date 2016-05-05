@@ -1,0 +1,8 @@
+Program router nasłuchuje na porcie 9876.
+
+W pakiecie nie ma określonej liczby wpisów wektora odległości.
+Pakiet składa się z tablicy struktur PacketDVEntry składających się z czterech unsigned intów - network, netmask, distance, via - oznaczających odpowiednio - adres sieci, maska sieci (np. 24), odległość do tej sieci oraz adres następnika na ścieżce do sieci. W przypadku bezpośredniego połączenia mamy via = 0.
+
+Tura trwa 10 sekund. Po 4 turach trasy stają sie nieosiągalne i po takim samym czasie zostają one usunięte.
+
+Odległość 24 uznajemy na nieskończoną.

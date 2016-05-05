@@ -4,11 +4,13 @@
 #include <sys/socket.h>
 #include <errno.h>
 #include <unistd.h>
+#include <algorithm>
 #include <cstdio>
 #include "networking.h"
 #include "utils.h"
 using namespace std;
 
+const unsigned int RECV_BUF_LENGTH = 512;
 
 DVEntry::DVEntry()  
 {
@@ -19,6 +21,10 @@ DVEntry::DVEntry(const NetworkData& network) :
 {
 	via = "";
 	timeout = TIMEOUT;
+}
+
+PacketDVEntry::PacketDVEntry()
+{
 }
 
 PacketDVEntry::PacketDVEntry(const DVEntry& dventry)
@@ -72,10 +78,19 @@ bool Initialize()
 			return false;
 		}
 
+		int broadcast = 1;
+		if(setsockopt(network.socket, SOL_SOCKET, 
+			SO_BROADCAST, &broadcast, sizeof(broadcast)) < 0)
+		{
+			perror("Setsockopt SO_BROADCAST: ");
+			return false;
+		}
+
 		sockaddr_in addrInfo;
 		addrInfo.sin_family = AF_INET;
 		addrInfo.sin_port = htons(PORT);
-		if(inet_pton(AF_INET, network.address.c_str(), &addrInfo.sin_addr.s_addr) < 0)
+		//if(inet_pton(AF_INET, network.address.c_str(), &addrInfo.sin_addr.s_addr) < 0)
+		if(inet_pton(AF_INET, network.broadcast.c_str(), &addrInfo.sin_addr.s_addr) < 0)
 		{
 			perror("Inet_pton: ");
 			return false;
@@ -115,18 +130,21 @@ void PrintDV()
 			printf("distance %d ", entry.distance);
 			if(entry.via == "")
 			{
-				printf("connected directly\n");
+				printf("connected directly");
 			}
 			else
 			{
-				printf("via %s\n", entry.via.c_str());
+				printf("via %s", entry.via.c_str());
 			}
 		}
 		else
 		{
-			printf("unreachable\n");
+			printf("unreachable");
 		}
+		printf(" timeout %u", entry.timeout);
+		printf("\n");
 	}
+	printf("\n");
 }
 
 bool BroadcastDV()
@@ -146,44 +164,149 @@ bool BroadcastDV()
 	//Uwzględnienie, że sendto() może się nie udać
 	for(auto& network : networks)
 	{
-		if(sendto(network.socket, packet, sizeof(packet), &destination, sizeof(destination)) < 0)
+		sockaddr_in destination;
+		destination.sin_family = AF_INET;
+		destination.sin_port = htons(PORT);
+		if(inet_pton(AF_INET, network.broadcast.c_str(), 
+					&destination.sin_addr.s_addr) < 0)
 		{
-			//To jest do zmiany!!!!!!
+			perror("Inet_pton in BroadcastDV: ");
+			return false;
+		}
+
+		if(sendto(network.socket, packet, sizeof(packet), 0,
+			(sockaddr*) &destination, sizeof(destination)) < 0)
+		{
+			//TODO jest do zmiany!!!!!!
 			if(errno != EAGAIN && errno != EWOULDBLOCK)
 			{
+				fprintf(stderr, "Broadcasting to %s/%u ", 
+						network.network.c_str(), network.netmask);
 				perror("Sendto error: ");
-				return false;
+				//Czas zaznaczyć, że sieć jest nieosiągalna
+				if(DV[network.network].distance != UNREACHABLE)
+				{
+					DV[network.network].distance = UNREACHABLE;
+					DV[network.network].timeout = TIMEOUT;
+				}
 			}
+		}
+		else
+		{
+			//Skoro przeysłanie sie powiodło, to w takim wypadku mogę podtrzymać timeout
+			auto it = DV.find(network.network);
+			if(it != DV.end())
+			{
+				//Aktualizujemy timeout etc
+				auto& entry = it->second;
+				if(entry.distance >= network.distance)
+				{
+					entry.distance = network.distance;
+					entry.timeout = TIMEOUT;
+					entry.via = "";
+				}
+			}
+			else
+			{
+				//Musimy dodać info do DV o bezposrednim poloczeniu
+				DVEntry entry;
+				entry.network = network.network;
+				entry.netmask = network.netmask;
+				entry.distance = network.distance;
+				entry.via = "";
+				entry.timeout = TIMEOUT;
+			}
+			DV[network.network].timeout = TIMEOUT;
 		}
 	}
 
 	return true;
 }
 
+void UpdateDV(NetworkData& network, string senderAddress, 
+			PacketDVEntry* entry, size_t entriesCount)
+{
+	for(unsigned int i = 0; i < entriesCount; i++, entry++)
+	{
+		string networkAddress = UIntToIp(entry->network);
+		unsigned int netmask = entry->netmask;
+		unsigned int distance = entry->distance;
+		//unsigned int via = entry->via;
+
+		auto it = DV.find(networkAddress);
+		if(it != DV.end())
+		{
+			auto& dventry = it->second;
+			if(senderAddress == dventry.via  
+				|| distance + network.distance < dventry.distance)	
+			{
+				dventry.distance = min(distance + network.distance, UNREACHABLE);
+				dventry.via = dventry.distance < UNREACHABLE ? senderAddress : "";
+				dventry.timeout = TIMEOUT;
+			}
+		}
+		else if(distance != UNREACHABLE)
+		{
+			DVEntry dventry;
+			dventry.network = networkAddress;
+			dventry.distance = distance + network.distance;
+			dventry.netmask = netmask;
+			dventry.via = networkAddress == network.network ? "" : senderAddress;
+			dventry.timeout = TIMEOUT;
+			DV[networkAddress] = dventry;
+		}
+	}
+
+	//TODO niepodtrzymuje timeoutow od innych komputerow z wlasnej sieci
+	DV[network.network].timeout = TIMEOUT;
+}
+
 bool ReceiveDVs()
 {
-	uint8_t buf[512];
+	uint8_t buf[RECV_BUF_LENGTH];
+	size_t packetLength;
+	socklen_t srclength;
+	sockaddr_in source;
 	//Dla każdej sieci, odbieraj z socketów wszystkie pakiety i każdy z osobna analizuj
 	for(auto& network : networks)
 	{
 		int retVal;
 		do
 		{
-			retVal = recvfrom(network.socket, buf, length, 0, (sockaddr*) &source, srclength);
+			srclength = sizeof(source);
+			retVal = recvfrom(network.socket, buf, RECV_BUF_LENGTH, 0, 
+							(sockaddr*) &source, &srclength);
 			if(retVal < 0)
 			{
 				if(errno != EAGAIN && errno != EWOULDBLOCK)
 				{
 					perror("Recvfrom error: ");
-					return false;
 				}
-				else 
-				{
-					break;
-				}
+				break;
 			}
 
+			packetLength = retVal;
+
 			//Przeanalizuj otrzymany wektor odl wraz z adresem otrzymanym
+			char str[32];
+			inet_ntop(AF_INET, &source.sin_addr.s_addr, str, sizeof(str));
+			string senderAddress = str;
+
+			//Jesli dostalem od siebie samego, to ignoruje
+			if(senderAddress == network.address)
+			{
+				continue;
+			}
+
+			size_t entriesCount = packetLength / sizeof(PacketDVEntry);
+
+			PacketDVEntry* entry = (PacketDVEntry*) buf;
+
+			debug("Odebrałem wektor odległości od adresu %s w sieci %s/%u\n", 
+						senderAddress.c_str(), network.network.c_str(), network.netmask);
+
+			UpdateDV(network, senderAddress, entry, entriesCount);
+
 		} while(retVal >= 0);
 	}
 
@@ -193,4 +316,34 @@ bool ReceiveDVs()
 void CheckTimeouts()
 {
 	//Przeglądnij wektor odległości w poszukiwaniu niespójności / wyczerpanych timeoutów
+	for(auto it = DV.begin(); it != DV.end();)
+	{
+		DVEntry& entry = it->second;
+		
+		if(entry.timeout == 0)
+		{
+			if(entry.distance == UNREACHABLE)
+			{
+				//Czas usunąć z wektora odleglosci it to nastepny iterator
+				it = DV.erase(it);
+			}
+			else 
+			{
+				//Dawno nie dostalismy pakietu
+				entry.distance = UNREACHABLE;
+				entry.timeout = TIMEOUT;
+				entry.via = "";
+				it++;
+			}
+		}
+		else
+		{
+			it++;
+		}
+	}
+
+	for(auto& pair : DV)
+	{
+		pair.second.timeout--;
+	}
 }
