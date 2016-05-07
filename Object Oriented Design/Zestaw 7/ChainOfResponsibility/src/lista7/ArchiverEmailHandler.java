@@ -1,7 +1,9 @@
-package lista7;
+//package lista7;
 
-import javafx.util.Pair;
+//import javafx.util.Pair;
 
+import java.util.Map;
+import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.Date;
 
@@ -10,9 +12,11 @@ import java.util.Date;
  */
 public class ArchiverEmailHandler extends EmailHandler
 {
-    private ArrayList<Pair<Date, Email>> history;
+    //private ArrayList<Pair<Date, Email>> history;
+	private ArrayList<Map.Entry<Date, Email>> history;
 
-    public ArchiverEmailHandler(ArrayList<Pair<Date, Email>> history)
+    //public ArchiverEmailHandler(ArrayList<Pair<Date, Email>> history)
+    public ArchiverEmailHandler(ArrayList<Map.Entry<Date, Email>> history)
     {
         this.history = history;
     }
@@ -20,7 +24,9 @@ public class ArchiverEmailHandler extends EmailHandler
     @Override
     public void HandleEmail(Email email)
     {
-        history.add(new Pair<>(new Date(), email));
+        //history.add(new Pair<>(new Date(), email));
+        //history.add(new Map.Entry<>(new Date(), email));
+        history.add(new AbstractMap.SimpleEntry<>(new Date(), email));
         if(next != null)
         {
             next.HandleEmail(email);

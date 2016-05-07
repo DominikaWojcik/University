@@ -1,15 +1,17 @@
-package lista7;
+//package lista7;
 
-import javafx.util.Pair;
+//import javafx.util.Pair;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.Map;
 
 public class Main {
 
     public static void main(String[] args)
     {
-        ArrayList<Pair<Date, Email>> history = new ArrayList<>();
+		//ArrayList<Pair<Date, Email>> history = new ArrayList<>();
+        ArrayList<Map.Entry<Date, Email>> history = new ArrayList<>();
 
         EmailHandler h1 = new ArchiverEmailHandler(history);
         h1.SetNext(new PraiseEmailHandler());
@@ -27,7 +29,8 @@ public class Main {
         h1.HandleEmail(misc);
 
         System.out.println("Historia emaili:");
-        for (Pair<Date, Email> p : history)
+        //for (Pair<Date, Email> p : history)
+        for (Map.Entry<Date, Email> p : history)
         {
             System.out.println(p.getKey().toString() + " : " + p.getValue().GetContent());
         }

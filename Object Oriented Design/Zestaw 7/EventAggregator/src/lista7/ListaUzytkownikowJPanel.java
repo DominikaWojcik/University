@@ -92,6 +92,7 @@ public class ListaUzytkownikowJPanel extends JPanel implements ISubscriber
                 setVisible(false);
                 remove(scrollPane);
                 dataTable = new JTable(DataBank.Instance().GetData(), DataBank.columns);
+				dataTable.setEnabled(false);
                 scrollPane = new JScrollPane(dataTable);
                 add(scrollPane);
                 setVisible(true);
@@ -103,6 +104,7 @@ public class ListaUzytkownikowJPanel extends JPanel implements ISubscriber
                 setVisible(false);
                 remove(scrollPane);
                 dataTable = new JTable(DataBank.Instance().GetData(User.Type.Student), DataBank.columns);
+				dataTable.setEnabled(false);
                 scrollPane = new JScrollPane(dataTable);
                 add(scrollPane);
                 setVisible(true);
@@ -114,6 +116,7 @@ public class ListaUzytkownikowJPanel extends JPanel implements ISubscriber
                 setVisible(false);
                 remove(scrollPane);
                 dataTable = new JTable(DataBank.Instance().GetData(User.Type.Teacher), DataBank.columns);
+				dataTable.setEnabled(false);
                 scrollPane = new JScrollPane(dataTable);
                 add(scrollPane);
                 setVisible(true);
@@ -140,6 +143,7 @@ public class ListaUzytkownikowJPanel extends JPanel implements ISubscriber
         {
             dataTable = new JTable(DataBank.Instance().GetData(state), DataBank.columns);
         }
+		dataTable.setEnabled(false);
         scrollPane = new JScrollPane(dataTable);
         add(scrollPane);
         setVisible(true);

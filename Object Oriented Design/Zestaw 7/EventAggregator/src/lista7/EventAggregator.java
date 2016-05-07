@@ -31,7 +31,7 @@ public class EventAggregator implements IEventAggregator
     {
         if(!subscribers.containsKey(type))
         {
-            subscribers.put(type, new ArrayList<>());
+            subscribers.put(type, new ArrayList<ISubscriber>());
         }
         subscribers.get(type).add(subscriber);
     }

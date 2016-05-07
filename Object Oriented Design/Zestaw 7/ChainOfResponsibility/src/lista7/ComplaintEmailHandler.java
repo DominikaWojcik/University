@@ -1,4 +1,4 @@
-package lista7;
+//package lista7;
 
 /**
  * Created by Dziku on 2016-05-04.
