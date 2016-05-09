@@ -182,15 +182,16 @@ SELECT kod_uz, kod_grupy
 FROM wybor
 WHERE wybor.data_wyp IS NULL;
 
-CREATE RULE usun_akt_wybor AS
+CREATE OR REPLACE RULE usun_akt_wybor AS
 ON DELETE TO akt_wybor
 DO ALSO (UPDATE wybor SET data_wyp = CURRENT_TIMESTAMP
     WHERE kod_uz = OLD.kod_uz AND kod_grupy = OLD.kod_grupy);
 
-CREATE RULE dodaj_akt_wybor AS
+CREATE OR REPLACE RULE dodaj_akt_wybor AS
 ON INSERT TO akt_wybor
 DO INSTEAD (
-    DELETE FROM akt_wybor WHERE kod_uz = NEW.kod_uz
+    UPDATE wybor SET data_wyp = CURRENT_TIMESTAMP
+    WHERE kod_uz = NEW.kod_uz
         AND kod_grupy IN (SELECT grupa.kod_grupy
             FROM wybor JOIN grupa USING(kod_grupy)
             WHERE wybor.kod_uz = NEW.kod_uz
