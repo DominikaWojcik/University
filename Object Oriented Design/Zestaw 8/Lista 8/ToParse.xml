@@ -1,0 +1,12 @@
+<?xml version="1.0"?>
+<kappa>
+    <someName>
+        <EvenLongerName dadsadas="dasdasd" />
+        <sadasd dasd="das"/>
+    </someName>
+    <other path="sadtasaasd">
+        <branch>
+            CONTENT
+        </branch>
+    </other>
+</kappa>

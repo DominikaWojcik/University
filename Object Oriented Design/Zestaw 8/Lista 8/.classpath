@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry exported="true" kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="src" path="src"/>
+	<classpathentry exported="true" kind="var" path="APPLICATION_HOME_DIR/lib/postgresql-9.4.1208.jre7.jar"/>
+	<classpathentry kind="output" path="out/production/Lista 8"/>
+</classpath>

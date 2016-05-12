@@ -1,0 +1,2 @@
+INDEX VERSION 1.126+/home/dziku/University/Object Oriented Design/Zestaw 8/.metadata/.plugins/org.eclipse.jdt.core
+1201176307.index
