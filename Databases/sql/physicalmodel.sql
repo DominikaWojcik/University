@@ -185,13 +185,60 @@ CREATE TABLE wypozyczenie(
     CHECK (data_zwrotu IS NULL OR data_zwrotu >= data_wypozyczenia)
 );
 
+CREATE OR REPLACE FUNCTION aktualizacja_lokalizacji_po_zwrocie_procedura()
+RETURNS TRIGGER AS
+$X$
+BEGIN
+    UPDATE rower_miejsce
+    SET miejsce_id = NEW.dokad,
+        stanowisko = NEW.dokad_stanowisko,
+        od_kiedy = NEW.czas_zwrotu
+    WHERE rower_id = NEW.rower_id;
+    RETURN NEW;
+END
+$X$
+LANGUAGE PLpgSQL;
+
+CREATE TRIGGER aktualizacja_lokalizacji_po_zwrocie
+AFTER UPDATE ON wypozyczenie FOR EACH ROW
+WHEN (OLD.dokad IS NULL AND NEW.dokad IS NOT NULL)
+EXECUTE PROCEDURE aktualizacja_lokalizacji_po_zwrocie_procedura();
+
+CREATE OR REPLACE FUNCTION aktualizacja_lokalizacji_po_wypozyczeniu_procedura()
+RETURNS TRIGGER AS
+$X$
+BEGIN
+    UPDATE rower_miejsce
+    SET miejsce_id = NULL,
+        stanowisko = NULL,
+        od_kiedy = NULL
+    WHERE rower_id = NEW.rower_id;
+    RETURN NEW;
+END
+$X$
+LANGUAGE PLpgSQL;
+
+CREATE TRIGGER aktualizacja_lokalizacji_po_wypozyczeniu
+AFTER INSERT ON wypozyczenie FOR EACH ROW
+EXECUTE PROCEDURE aktualizacja_lokalizacji_po_wypozyczeniu_procedura();
+
 CREATE DOMAIN rodzaj_platnosci AS VARCHAR(16)
 NOT NULL
 CHECK (VALUE IN ('wypozyczenie', 'rejestracja', 'kara'));
 
 CREATE DOMAIN kod_waluty AS VARCHAR(3)
-NOT NULL
-CHECK (VALUE IN ('USD', 'PLN', 'EUR'));
+NOT NULL;
+
+CREATE TABLE waluta_kraj(
+    kod kod_waluty UNIQUE,
+    kraj VARCHAR(32) UNIQUE
+);
+
+INSERT INTO waluta_kraj VALUES
+    ('PLN', 'Polska'),
+    ('USD', 'USA'),
+    ('EUR', 'Niemcy'),
+    ('GBP', 'Anglia');
 
 -- Ponoć najlepszym sposobem reprezenacji pieniędzy nie jest
 -- typ MONEY, lecz typ numeryczny (N cyfr znaczących, M cyfr po przecinku)
@@ -209,6 +256,47 @@ CREATE TABLE platnosc(
     CHECK (kwota >= 0.0),
     CHECK (data_zaplacenia IS NULL OR data_zaplacenia >= data_wystawienia)
 );
+
+CREATE OR REPLACE FUNCTION zaokraglij_godziny(TIMESTAMP WITH TIME ZONE)
+RETURNS INTEGER AS
+$X$
+BEGIN
+    RETURN EXTRACT (HOUR FROM
+        date_trunc('hour', $1 + interval '30 minutes'));
+END
+$X$
+LANGUAGE PLpgSQL;
+
+CREATE OR REPLACE FUNCTION platnosc_za_wypozyczenie_procedura()
+RETURNS TRIGGER AS
+$X$
+DECLARE
+    czas_wypozyczenia TIMESTAMP WITH TIME ZONE;
+    naleznosc NUMERIC(10,2);
+    waluta kod_waluty;
+BEGIN
+    SELECT NEW.data_zwrotu - NEW.data_wypozyczenia INTO czas_wypozyczenia;
+    CASE
+        WHEN czas_wypozyczenia > interval '1 hour' THEN
+            SELECT zaokraglij_godziny(czas_wypozyczenia) * 4 INTO naleznosc;
+        WHEN czas_wypozyczenia > interval '20 minute' THEN
+            SELECT 2 INTO naleznosc;
+    END CASE;
+
+    SELECT kod INTO waluta FROM waluta_kraj
+        WHERE kraj IN (SELECT kraj FROM miejsce WHERE id = NEW.skad);
+
+    INSERT INTO platnosc VALUES
+        ('wypozyczenie', naleznosc, waluta, CURRENT_DATE, NULL);
+    RETURN NEW;
+END
+$X$
+LANGUAGE PLpgSQL;
+
+CREATE TRIGGER platnosc_za_wypozyczenie_procedura
+AFTER UPDATE ON wypozyczenie FOR EACH ROW
+WHEN (OLD.dokad IS NULL AND NEW.dokad IS NOT NULL)
+EXECUTE PROCEDURE platnosc_za_wypozyczenie_procedura();
 
 CREATE TABLE usterka(
     rower_id INTEGER NOT NULL,
