@@ -11,8 +11,8 @@
 DROP DATABASE IF EXISTS rowery_miejskie;
 DROP ROLE IF EXISTS serwisant;
 DROP ROLE IF EXISTS klient;
-DROP ROLE IF EXISTS administrator;
 DROP ROLE IF EXISTS ksiegowy;
+DROP ROLE IF EXISTS administrator;
 
 /* TWORZYMY BAZĘ I ŁĄCZYMY SIE DO NIEJ*/
 
@@ -394,7 +394,7 @@ CREATE ROLE serwisant
 
 GRANT CONNECT ON DATABASE rowery_miejskie TO serwisant;
 GRANT EXECUTE ON FUNCTION sprawdz_pin(VARCHAR(16), TEXT) TO serwisant;
-GRANT SELECT, INSERT ON rower TO serwisant;
+GRANT SELECT, INSERT, UPDATE ON rower TO serwisant;
 GRANT SELECT, INSERT, UPDATE ON wypozyczenie TO serwisant;
 GRANT SELECT, INSERT, UPDATE ON rower_miejsce TO serwisant;
 GRANT SELECT, INSERT, UPDATE ON usterka TO serwisant;
