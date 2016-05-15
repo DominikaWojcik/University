@@ -1,6 +1,6 @@
 /*
     MODEL FIZYCZNY - ROWERY MIEJSKIE
-    
+
     Autor:      Jarosław Dzikowski
     Indeks:     273233
     Grupa:      JMI
@@ -12,6 +12,7 @@ DROP DATABASE IF EXISTS rowery_miejskie;
 DROP ROLE IF EXISTS serwisant;
 DROP ROLE IF EXISTS klient;
 DROP ROLE IF EXISTS administrator;
+DROP ROLE IF EXISTS ksiegowy;
 
 /* TWORZYMY BAZĘ I ŁĄCZYMY SIE DO NIEJ*/
 
@@ -360,11 +361,14 @@ EXECUTE PROCEDURE platnosc_za_wypozyczenie_procedura();
 
 -- Administrator może robić wszystko
 CREATE ROLE administrator
-    SUPERUSER
+    LOGIN
     PASSWORD 'admin';
+
+GRANT ALL PRIVILEGES ON DATABASE rowery_miejskie TO administrator;
 
 -- Ustawiamy role klienta
 CREATE ROLE klient
+    LOGIN
     PASSWORD 'klient'
     ADMIN administrator;
 
@@ -384,6 +388,7 @@ GRANT INSERT ON usterka TO klient;
 
 -- Ustawiamy role serwisanta
 CREATE ROLE serwisant
+    LOGIN
     PASSWORD 'serwisant'
     ADMIN administrator;
 
@@ -396,3 +401,14 @@ GRANT SELECT, INSERT, UPDATE ON usterka TO serwisant;
 GRANT SELECT ON miejsce TO serwisant;
 GRANT SELECT, UPDATE ON stacja TO serwisant;
 GRANT SELECT ON stan_stacji TO serwisant;
+
+-- Ustawiamy role księgowego
+CREATE ROLE ksiegowy
+    LOGIN
+    PASSWORD 'ksiegowy'
+    ADMIN administrator;
+
+GRANT CONNECT ON DATABASE rowery_miejskie TO ksiegowy;
+GRANT SELECT, INSERT, UPDATE ON platnosc TO ksiegowy;
+GRANT SELECT ON wypozyczenie TO ksiegowy;
+GRANT SELECT, UPDATE (aktywowany) ON uzytkownik TO ksiegowy;
