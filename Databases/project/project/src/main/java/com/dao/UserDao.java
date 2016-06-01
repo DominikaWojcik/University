@@ -7,13 +7,17 @@ import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.procedure.ProcedureCall;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.entities.User;
+import com.entities.UserRegistration;
 
+@Repository
 public class UserDao implements IUserDao
 {
 	@Autowired
-	private SessionFactory sessionFactory;
+	SessionFactory sessionFactory;
 
 	public User getUser()
 	{
@@ -21,21 +25,23 @@ public class UserDao implements IUserDao
 		return null;
 	}
 
-	public void registerUser(User u, String pin)
+	public void registerUser(UserRegistration data)
 	{
-		// TODO Auto-generated method stub
+		if(sessionFactory == null)
+			System.out.println("SessionFactory null");
+		
 		Session session = sessionFactory.getCurrentSession();
 		ProcedureCall call = session.createStoredProcedureCall("zarejestruj_uzytkownika");
 		
-		call.registerParameter(1, String.class, ParameterMode.IN).bindValue(u.getName());
-		call.registerParameter(2, String.class, ParameterMode.IN).bindValue(u.getLastName());
-		call.registerParameter(3, String.class, ParameterMode.IN).bindValue(u.getAddress());
-		call.registerParameter(4, String.class, ParameterMode.IN).bindValue(u.getPostalCode());
-		call.registerParameter(5, String.class, ParameterMode.IN).bindValue(u.getCity());
-		call.registerParameter(6, String.class, ParameterMode.IN).bindValue(u.getCountry());
-		call.registerParameter(7, String.class, ParameterMode.IN).bindValue(u.getEmail());
-		call.registerParameter(8, String.class, ParameterMode.IN).bindValue(u.getTel());
-		call.registerParameter(9, String.class, ParameterMode.IN).bindValue(pin);
+		call.registerParameter(1, String.class, ParameterMode.IN).bindValue(data.getName());
+		call.registerParameter(2, String.class, ParameterMode.IN).bindValue(data.getLastName());
+		call.registerParameter(3, String.class, ParameterMode.IN).bindValue(data.getAddress());
+		call.registerParameter(4, String.class, ParameterMode.IN).bindValue(data.getPostalCode());
+		call.registerParameter(5, String.class, ParameterMode.IN).bindValue(data.getCity());
+		call.registerParameter(6, String.class, ParameterMode.IN).bindValue(data.getCountry());
+		call.registerParameter(7, String.class, ParameterMode.IN).bindValue(data.getEmail());
+		call.registerParameter(8, String.class, ParameterMode.IN).bindValue(data.getTel());
+		call.registerParameter(9, String.class, ParameterMode.IN).bindValue(data.getPin());
 		
 		call.getOutputs();
 	}

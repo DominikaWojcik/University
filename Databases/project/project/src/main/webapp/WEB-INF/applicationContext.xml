@@ -22,6 +22,7 @@
 	<mvc:annotation-driven/>
 	
 	<mvc:resources location="/resources/" mapping="/resources/**"/>
+	<mvc:resources location="classpath:/META-INF/resources/webjars/" mapping="/webjars/**"/>
 	
 	<!--  <bean id="dataSource" class="org.apache.commons.dbcp2.BasicDataSource"> -->
 	<bean id="dataSource" class="org.springframework.jdbc.datasource.DriverManagerDataSource">
