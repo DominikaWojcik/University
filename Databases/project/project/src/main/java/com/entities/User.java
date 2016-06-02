@@ -17,7 +17,7 @@ public class User
 	@Id
 	@SequenceGenerator(name="uzytkownik_id_seq", sequenceName="uzytkownik_id_seq", allocationSize=1)
 	@GeneratedValue(strategy=GenerationType.SEQUENCE, generator="uzytkownik_id_seq")
-	@Column(name="uzytkownik", nullable=false)
+	@Column(name="id", nullable=false)
 	private int id;
 
 	@Column(name="imie", nullable=false, length=16)
@@ -171,5 +171,16 @@ public class User
 	public void setRegistrationDate(Timestamp registrationDate)
 	{
 		this.registrationDate = registrationDate;
+	}
+
+	public void update(User newInfo)
+	{
+		name = newInfo.getName();
+		lastName = newInfo.getLastName();
+		address = newInfo.getAddress();
+		postalCode = newInfo.getPostalCode();
+		city = newInfo.getCity();
+		country = newInfo.getCountry();
+		email = newInfo.getEmail();
 	}
 }

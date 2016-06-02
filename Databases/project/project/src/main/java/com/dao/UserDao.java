@@ -3,13 +3,15 @@ package com.dao;
 import java.util.List;
 
 import javax.persistence.ParameterMode;
+
+import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.procedure.ProcedureCall;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
-import org.springframework.transaction.annotation.Transactional;
 
+import com.entities.LoginData;
 import com.entities.User;
 import com.entities.UserRegistration;
 
@@ -24,12 +26,19 @@ public class UserDao implements IUserDao
 		// TODO Auto-generated method stub
 		return null;
 	}
+	
+	public User getUserByTel(String tel)
+	{
+		Query query = sessionFactory.getCurrentSession()
+				.createQuery("FROM User WHERE tel = :tel");
+		query.setParameter("tel", tel);
+		
+		User user = (User) query.list().get(0);
+		return user;
+	}
 
 	public void registerUser(UserRegistration data)
 	{
-		if(sessionFactory == null)
-			System.out.println("SessionFactory null");
-		
 		Session session = sessionFactory.getCurrentSession();
 		ProcedureCall call = session.createStoredProcedureCall("zarejestruj_uzytkownika");
 		
@@ -54,8 +63,24 @@ public class UserDao implements IUserDao
 
 	public void saveUser(User user)
 	{
-		// TODO Auto-generated method stub
-
+		sessionFactory.getCurrentSession().update(user);
+	}
+	
+	public boolean authentication(LoginData data)
+	{
+		Boolean result = null;
+		Session session = sessionFactory.getCurrentSession();
+		ProcedureCall call = session.createStoredProcedureCall("sprawdz_pin");
+		
+		call.registerParameter(1, String.class, ParameterMode.IN).bindValue(data.getTel());
+		call.registerParameter(2, String.class, ParameterMode.IN).bindValue(data.getPin());
+		call.registerParameter(3, Boolean.class, ParameterMode.OUT);
+		result = (Boolean) call.getOutputs().getOutputParameterValue(3);
+		
+		if(result == null) System.out.println("Nie udało się uzyskać wyniku");
+		else System.out.println("Wynik = " + Boolean.toString(result));
+		
+		return result;
 	}
 
 }
