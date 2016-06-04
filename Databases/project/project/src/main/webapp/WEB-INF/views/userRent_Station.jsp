@@ -14,10 +14,10 @@
 <nav class="navbar navbar-default">
 	<div class="container-fluid">
 		<ul class="nav navbar-nav">
-			<li class="active"><a href="/project">Dashboard</a></li>
+			<li><a href="/project">Dashboard</a></li>
 			<li><a href="/project/account">Account</a></li>
 			<li><a href="/project/userHistory">Rental history</a></li>
-            <li><a href="/project/userRent">Rent a bike</a></li>
+            <li class="active"><a href="/project/userRent">Rent a bike</a></li>
 		</ul>
 		<ul class="nav navbar-nav navbar-right">
         	<li><a href="/project/logout">Logout</a></li>
@@ -27,43 +27,23 @@
 
 <div class="container">
 
-		<h1>User dashboard</h1>
+		<h1>Rent a bike</h1>
 		
-		<h2>Latest rentals</h2>
-		<table class="table table-striped">
-			<tr>
-				<th>Bike id</th>
-				<th>Start station</th>
-				<th>Start date</th>
-				<th>End station</th>
-				<th>End date</th>
-			</tr>
-		
-			<c:forEach var="rental" items="${latestRentals}">
+		<h2>Select stations</h2>
+		<form:form method="POST" commandName="chosenStation">
+			<table class="table">
 				<tr>
-					<td>${rental.getBike().getId()}</td>
-					<td>${rental.getStartPlace().getAddress()}</td>
-					<td>${rental.getRentalDate().toString()}</td>
-					<td>${rental.getEndPlace().getAddress()}</td>
+					<td><h4>Select station:</h4></td>
 					<td>
-						<c:choose>
-							<c:when test="${rental.getReturnDate() == null}">
-								<button class="btn btn-warning" name="chosenRental" value="${rental}"
-								onclick="window.location.href='/project/returnBike'">Return the bike</button>
-							</c:when>
-							<c:otherwise>
-								${rental.getReturnDate().toString()}
-							</c:otherwise>
-						</c:choose>
+						<form:select class="form-control" path="address">
+							<form:option value="" label="...." />
+							<form:options items="${stations}" />
+						</form:select>
 					</td>
+					<td><input class="btn btn-primary" type="submit" value="Next"/></td>
 				</tr>
-			</c:forEach>
-		</table>
-		
-		<button class="btn btn-primary" 
-			onclick="window.location.href='/project/userRent'">Rent a bike</button>
-		
-	
+			</table>
+		</form:form>
 	</div> 
 	
 	<script type="text/javascript" src="webjars/jquery/2.2.4/jquery.min.js"></script>

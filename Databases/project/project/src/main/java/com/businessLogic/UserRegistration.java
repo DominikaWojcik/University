@@ -1,4 +1,4 @@
-package com.entities;
+package com.businessLogic;
 
 public class UserRegistration
 {

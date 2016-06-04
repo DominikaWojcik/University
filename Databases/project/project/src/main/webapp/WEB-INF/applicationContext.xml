@@ -28,8 +28,8 @@
 	<bean id="dataSource" class="org.springframework.jdbc.datasource.DriverManagerDataSource">
 		<property name="driverClassName" value="org.postgresql.Driver" />
 		<property name="url" value="jdbc:postgresql://localhost:5432/rowery_miejskie"/>
-		<property name="username" value="dziku"/>
-		<property name="password" value="a"/>
+		<property name="username" value="rowery_user"/>
+		<property name="password" value="user"/>
 	</bean>
 	
 	<!-- Session factory declaration -->

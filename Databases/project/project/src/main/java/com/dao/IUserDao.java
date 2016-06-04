@@ -2,9 +2,9 @@ package com.dao;
 
 import java.util.List;
 
-import com.entities.LoginData;
+import com.businessLogic.LoginData;
+import com.businessLogic.UserRegistration;
 import com.entities.User;
-import com.entities.UserRegistration;
 
 public interface IUserDao 
 {

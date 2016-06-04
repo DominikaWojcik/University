@@ -9,10 +9,8 @@
 /* CZYSCIMY */
 
 DROP DATABASE IF EXISTS rowery_miejskie;
-DROP ROLE IF EXISTS serwisant;
-DROP ROLE IF EXISTS klient;
-DROP ROLE IF EXISTS ksiegowy;
-DROP ROLE IF EXISTS administrator;
+DROP ROLE IF EXISTS rowery_user;
+DROP ROLE IF EXISTS rowery_administrator;
 
 /* TWORZYMY BAZĘ I ŁĄCZYMY SIE DO NIEJ*/
 
@@ -30,7 +28,7 @@ CREATE EXTENSION pgcrypto;
 
 CREATE DOMAIN rodzaj_uzytkownika AS VARCHAR(16)
 NOT NULL
-CHECK (VALUE IN ('klient', 'serwisant'));
+CHECK (VALUE IN ('klient', 'serwisant', 'ksiegowy'));
 
 CREATE DOMAIN rodzaj_miejsca AS VARCHAR(16)
 NOT NULL
@@ -39,9 +37,6 @@ CHECK (VALUE IN ('stacja', 'serwis'));
 CREATE DOMAIN rodzaj_platnosci AS VARCHAR(16)
 NOT NULL
 CHECK (VALUE IN ('wypozyczenie', 'rejestracja', 'kara'));
-
-CREATE DOMAIN kod_waluty AS VARCHAR(3)
-NOT NULL;
 
 /* TABELE */
 
@@ -125,6 +120,7 @@ CREATE TABLE rower_miejsce(
     stanowisko INTEGER,
     od_kiedy TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
 
+    PRIMARY KEY (rower_id),
     FOREIGN KEY (rower_id) REFERENCES rower(id) DEFERRABLE,
     FOREIGN KEY (miejsce_id) REFERENCES miejsce(id) DEFERRABLE,
 
@@ -134,7 +130,7 @@ CREATE TABLE rower_miejsce(
 CREATE TABLE wypozyczenie(
     id SERIAL NOT NULL,
     rower_id INTEGER NOT NULL,
-    uzytownik_id INTEGER NOT NULL,
+    uzytkownik_id INTEGER NOT NULL,
     skad INTEGER NOT NULL,
     skad_stanowisko INTEGER,
     dokad INTEGER,
@@ -144,7 +140,7 @@ CREATE TABLE wypozyczenie(
 
     PRIMARY KEY (id),
     FOREIGN KEY (rower_id) REFERENCES rower(id) DEFERRABLE,
-    FOREIGN KEY (uzytownik_id) REFERENCES uzytkownik(id) DEFERRABLE,
+    FOREIGN KEY (uzytkownik_id) REFERENCES uzytkownik(id) DEFERRABLE,
     FOREIGN KEY (skad) REFERENCES miejsce(id) DEFERRABLE,
     FOREIGN KEY (dokad) REFERENCES miejsce(id) DEFERRABLE,
 
@@ -153,24 +149,22 @@ CREATE TABLE wypozyczenie(
     CHECK (data_zwrotu IS NULL OR data_zwrotu >= data_wypozyczenia)
 );
 
--- Kody iso walut w przełożeniu na kraj (1 kraj - 1 waluta)
-CREATE TABLE waluta_kraj(
-    kod kod_waluty UNIQUE,
-    kraj VARCHAR(32) UNIQUE
-);
 
 -- Ponoć najlepszym sposobem reprezenacji pieniędzy nie jest
 -- typ MONEY, lecz typ numeryczny (N cyfr znaczących, M cyfr po przecinku)
 -- jako, że użytkownicy nie będą płacić milionów, to starczy NUMERIC(10,2)
 CREATE TABLE platnosc(
+    id SERIAL NOT NULL,
     rodzaj rodzaj_platnosci,
+    uzytkownik_id INTEGER,
     wypozyczenie_id INTEGER,
     kwota NUMERIC(10,2) NOT NULL,
-    waluta kod_waluty NOT NULL DEFAULT 'PLN',
     data_wystawienia DATE NOT NULL,
     data_zaplacenia DATE,
 
+    PRIMARY KEY (id),
     FOREIGN KEY (wypozyczenie_id) REFERENCES wypozyczenie(id) DEFERRABLE,
+    FOREIGN KEY (uzytkownik_id) REFERENCES uzytkownik(id) DEFERRABLE,
 
     CHECK (kwota >= 0.0),
     CHECK (data_zaplacenia IS NULL OR data_zaplacenia >= data_wystawienia)
@@ -216,12 +210,6 @@ INSERT INTO uzytkownik(imie, nazwisko, adres, kod_pocztowy,
     CURRENT_TIMESTAMP, false, 'klient',
     'jarekdzikowski1337@gmail.com', '+48792247908');
 
-INSERT INTO waluta_kraj VALUES
-    ('PLN', 'Polska'),
-    ('USD', 'USA'),
-    ('EUR', 'Niemcy'),
-    ('GBP', 'Anglia');
-
 /* FUNKCJE */
 
 CREATE OR REPLACE FUNCTION zaokraglij_godziny(TIMESTAMP WITH TIME ZONE)
@@ -251,6 +239,8 @@ BEGIN
         INTO salt, correct_hash
         FROM uzytkownik_auth u
         WHERE u.id = znalezione_id;
+    IF correct_hash IS NULL THEN RETURN FALSE; END IF;
+
     RETURN (digest(salt || pin,'sha256') = correct_hash);
 END
 $X$
@@ -329,7 +319,6 @@ DECLARE
     kto rodzaj_uzytkownika;
     czas_wypozyczenia TIMESTAMP WITH TIME ZONE;
     naleznosc NUMERIC(10,2);
-    waluta kod_waluty;
 BEGIN
     SELECT uzytkownik.rodzaj INTO kto FROM uzytkownik WHERE id = NEW.uzytownik_id;
     IF kto != 'klient' THEN RETURN NEW; END IF;
@@ -342,11 +331,9 @@ BEGIN
             SELECT 2 INTO naleznosc;
     END CASE;
 
-    SELECT kod INTO waluta FROM waluta_kraj
-        WHERE kraj IN (SELECT kraj FROM miejsce WHERE id = NEW.skad);
-
-    INSERT INTO platnosc VALUES
-        ('wypozyczenie', naleznosc, waluta, CURRENT_DATE, NULL);
+    INSERT INTO platnosc(rodzaj, uzytkownik_id, wypozyczenie_id, kwota,
+        data_wystawienia, data_zaplacenia)
+    VALUES ('wypozyczenie', NEW.uzytkownik_id, NEW.id, naleznosc, CURRENT_DATE, NULL);
     RETURN NEW;
 END
 $X$
@@ -360,12 +347,37 @@ EXECUTE PROCEDURE platnosc_za_wypozyczenie_procedura();
 /*UZYTKOWNICY*/
 
 -- Administrator może robić wszystko
-CREATE ROLE administrator
+CREATE ROLE rowery_administrator
+    SUPERUSER
     LOGIN
     PASSWORD 'admin';
 
-GRANT ALL PRIVILEGES ON DATABASE rowery_miejskie TO administrator;
+GRANT ALL PRIVILEGES ON DATABASE rowery_miejskie TO rowery_administrator;
 
+CREATE ROLE rowery_user
+    LOGIN
+    PASSWORD 'user';
+
+GRANT CONNECT ON DATABASE rowery_miejskie TO rowery_user;
+GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA public TO rowery_user;
+GRANT ALL PRIVILEGES ON ALL SEQUENCES IN SCHEMA public TO rowery_user;
+/*
+GRANT ALL PRIVILEGES ON uzytkownik TO rowery_user;
+GRANT ALL PRIVILEGES ON rower TO rowery_user;
+GRANT ALL PRIVILEGES ON rower_miejsce TO rowery_user;
+GRANT ALL PRIVILEGES ON miejsce TO rowery_user;
+GRANT ALL PRIVILEGES ON stacja TO rowery_user;
+GRANT ALL PRIVILEGES ON serwis TO rowery_user;
+GRANT ALL PRIVILEGES ON zatrudnienie TO rowery_user;
+GRANT ALL PRIVILEGES ON usterka TO rowery_user;
+GRANT ALL PRIVILEGES ON wypozyczenie TO rowery_user;
+GRANT ALL PRIVILEGES ON platnosc TO rowery_user; */
+GRANT EXECUTE ON FUNCTION sprawdz_pin(VARCHAR(16), TEXT) TO rowery_user;
+GRANT EXECUTE ON FUNCTION zarejestruj_uzytkownika(VARCHAR(16),
+    VARCHAR(32), TEXT, VARCHAR(8), VARCHAR(32), VARCHAR(32),
+    TEXT, VARCHAR(16), TEXT) TO rowery_user;
+GRANT ALL PRIVILEGES ON stan_stacji TO rowery_user;
+/*
 -- Ustawiamy role klienta
 CREATE ROLE klient
     LOGIN
@@ -412,3 +424,4 @@ GRANT CONNECT ON DATABASE rowery_miejskie TO ksiegowy;
 GRANT SELECT, INSERT, UPDATE ON platnosc TO ksiegowy;
 GRANT SELECT ON wypozyczenie TO ksiegowy;
 GRANT SELECT, UPDATE (aktywowany) ON uzytkownik TO ksiegowy;
+*/

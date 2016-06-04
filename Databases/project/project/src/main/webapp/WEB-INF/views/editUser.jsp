@@ -10,6 +10,20 @@
 </head>
 <body>
 
+<nav class="navbar navbar-default">
+	<div class="container-fluid">
+		<ul class="nav navbar-nav">
+			<li><a href="/project">Dashboard</a></li>
+			<li class="active"><a href="/project/account">Account</a></li>
+			<li><a href="/project/userHistory">Rental history</a></li>
+            <li><a href="/project/userRent">Rent a bike</a></li>
+		</ul>
+		<ul class="nav navbar-nav navbar-right">
+        	<li><a href="/project/logout">Logout</a></li>
+        </ul>
+	</div>
+</nav>
+
 <div class="container">
 	
 	<h2>Edit personal information</h2>
