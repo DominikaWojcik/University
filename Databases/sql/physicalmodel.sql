@@ -27,15 +27,12 @@ CREATE EXTENSION pgcrypto;
 /* TYPY DANYCH */
 
 CREATE DOMAIN rodzaj_uzytkownika AS VARCHAR(16)
-NOT NULL
 CHECK (VALUE IN ('klient', 'serwisant', 'ksiegowy'));
 
 CREATE DOMAIN rodzaj_miejsca AS VARCHAR(16)
-NOT NULL
 CHECK (VALUE IN ('stacja', 'serwis'));
 
 CREATE DOMAIN rodzaj_platnosci AS VARCHAR(16)
-NOT NULL
 CHECK (VALUE IN ('wypozyczenie', 'rejestracja', 'kara'));
 
 /* TABELE */
@@ -212,7 +209,7 @@ INSERT INTO uzytkownik(imie, nazwisko, adres, kod_pocztowy,
 
 /* FUNKCJE */
 
-CREATE OR REPLACE FUNCTION zaokraglij_godziny(TIMESTAMP WITH TIME ZONE)
+CREATE OR REPLACE FUNCTION zaokraglij_godziny(INTERVAL)
 RETURNS INTEGER AS
 $X$
 BEGIN
@@ -280,7 +277,7 @@ BEGIN
     UPDATE rower_miejsce
     SET miejsce_id = NEW.dokad,
         stanowisko = NEW.dokad_stanowisko,
-        od_kiedy = NEW.czas_zwrotu
+        od_kiedy = NEW.data_zwrotu
     WHERE rower_id = NEW.rower_id;
     RETURN NEW;
 END
@@ -317,18 +314,21 @@ RETURNS TRIGGER AS
 $X$
 DECLARE
     kto rodzaj_uzytkownika;
-    czas_wypozyczenia TIMESTAMP WITH TIME ZONE;
+    czas_wypozyczenia INTERVAL;
     naleznosc NUMERIC(10,2);
 BEGIN
-    SELECT uzytkownik.rodzaj INTO kto FROM uzytkownik WHERE id = NEW.uzytownik_id;
+    SELECT uzytkownik.rodzaj INTO kto FROM uzytkownik WHERE uzytkownik.id = NEW.uzytkownik_id;
     IF kto != 'klient' THEN RETURN NEW; END IF;
 
-    SELECT NEW.data_zwrotu - NEW.data_wypozyczenia INTO czas_wypozyczenia;
+    --SELECT NEW.data_zwrotu - NEW.data_wypozyczenia INTO czas_wypozyczenia;
+    SELECT CURRENT_TIMESTAMP- NEW.data_wypozyczenia INTO czas_wypozyczenia;
     CASE
         WHEN czas_wypozyczenia > interval '1 hour' THEN
             SELECT zaokraglij_godziny(czas_wypozyczenia) * 4 INTO naleznosc;
         WHEN czas_wypozyczenia > interval '20 minute' THEN
             SELECT 2 INTO naleznosc;
+        ELSE
+            RETURN NEW;
     END CASE;
 
     INSERT INTO platnosc(rodzaj, uzytkownik_id, wypozyczenie_id, kwota,
