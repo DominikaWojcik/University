@@ -1,18 +1,25 @@
 package com.services;
 
 import java.math.BigDecimal;
+
 import java.sql.Timestamp;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.businessLogic.BikeAlreadyTakenException;
+import com.businessLogic.StationFullException;
 import com.dao.IRentalDao;
+import com.entities.Bike;
 import com.entities.Payment;
+import com.entities.Place;
 import com.entities.Rental;
+import com.entities.Station;
 import com.entities.User;
 
 @Service
@@ -22,6 +29,11 @@ public class RentalService implements IRentalService
 	private final int LATEST_RENTALS = 5;
 	@Autowired
 	IRentalDao rentalDao;
+	
+	public Rental getRental(int id)
+	{
+		return rentalDao.getRental(id);
+	}
 	
 	public List<Rental> getRentals()
 	{
@@ -70,5 +82,32 @@ public class RentalService implements IRentalService
 		}
 		return amountDue;
 	}
+	
+	public void rentABike(User user, Bike bike, Place place) throws BikeAlreadyTakenException
+	{
+		Place bikePlace = bike.getPlace().getPlace();
+			
+		if(bikePlace == null || bikePlace.getId() != place.getId()) 
+			throw new BikeAlreadyTakenException("Wybrany rower został wcześniej wypożyczony");
+		
+		Rental rental = new Rental(user, bike, place, bike.getPlace().getPosition(), 
+				new Timestamp(new Date().getTime()));
+		
+		rentalDao.saveRental(rental);
+	}
+	
+	public void returnBike(Rental rental, Place chosenPlace, Integer endPosition) throws StationFullException
+	{
+		if(chosenPlace instanceof Station && 
+				chosenPlace.getBikes().size() >= ((Station)chosenPlace).getPositionCount())
+			throw new StationFullException("Wybrana stacja jest już pełna");
+		
+		System.out.println("uzytkownik_id = " + Integer.toString(rental.getUser().getId()));
+		rental.setEndPlace(chosenPlace);
+		rental.setEndPosition(endPosition);
+		rental.setReturnDate(new Timestamp(new Date().getTime()));
+		rentalDao.saveRental(rental);
+	}
+	
 }
 	

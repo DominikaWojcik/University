@@ -17,6 +17,11 @@ public class RentalDao implements IRentalDao
 	@Autowired
 	private SessionFactory sessionFactory;
 	
+	public Rental getRental(int id)
+	{
+		return sessionFactory.getCurrentSession().get(Rental.class, id);
+	}
+	
 	@SuppressWarnings("unchecked")
 	public List<Rental> getRentals()
 	{
@@ -46,5 +51,9 @@ public class RentalDao implements IRentalDao
 		query.setParameter("user", user);
 		return (List<Payment>) query.list();
 	}
-
+	
+	public void saveRental(Rental rental)
+	{
+		sessionFactory.getCurrentSession().saveOrUpdate(rental);
+	}
 }

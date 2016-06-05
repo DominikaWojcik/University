@@ -7,7 +7,7 @@
 <head>
 	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 	<link rel='stylesheet' href='webjars/bootstrap/3.3.6/css/bootstrap.min.css'>
-	<title>City bikes - User dashboard</title>
+	<title>City bikes - select a bike</title>
 </head>
 <body>
 
@@ -29,18 +29,19 @@
 
 		<h1>Rent a bike</h1>
 		
-		<h2>Select stations</h2>
-		<form:form method="POST" commandName="chosenStation">
+		<h2>Station: <u><c:out value="${sessionScope.chosenPlace.toString()}"></c:out></u></h2>
+		
+		<h2>Select bike:</h2>
+		<form:form method="POST" modelAttribute	="chosenBike">
 			<table class="table">
 				<tr>
-					<td><h4>Select station:</h4></td>
+					<td><h4>Select bike:</h4></td>
 					<td>
-						<form:select class="form-control" path="address">
-							<form:option value="" label="...." />
-							<form:options items="${stations}" />
+						<form:select class="form-control" path="id">
+							<form:options items="${availableBikes}" />
 						</form:select>
 					</td>
-					<td><input class="btn btn-primary" type="submit" value="Next"/></td>
+					<td><input class="btn btn-success" type="submit" value="Rent"/></td>
 				</tr>
 			</table>
 		</form:form>

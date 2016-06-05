@@ -1,5 +1,7 @@
 package com.services;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,4 +34,31 @@ public class PlaceService implements IPlaceService
 		return placeDao.getServices();
 	}
 
+	public Place getPlace(int id)
+	{
+		return placeDao.getPlace(id);
+	}
+	
+	public List<Place> getNonFullStations()
+	{
+		List<Place> nonFullStations = new ArrayList<Place>();
+		List<Station> stations = getStations();
+		
+		for (Station station : stations)
+		{
+			if(station.getBikes().size() < station.getPositionCount())
+				nonFullStations.add((Place) station);
+		}
+		
+		return nonFullStations;
+	}
+	
+	public List<Place> getNonFullPlaces()
+	{
+		List<Place> nonFullPlaces = getNonFullStations();
+		List<Service> services = getServices();
+		
+		nonFullPlaces.addAll(services);
+		return nonFullPlaces;
+	}
 }

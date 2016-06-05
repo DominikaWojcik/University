@@ -48,8 +48,11 @@
 					<td>
 						<c:choose>
 							<c:when test="${rental.getReturnDate() == null}">
-								<button class="btn btn-warning" name="chosenRental" value="${rental}"
-								onclick="window.location.href='/project/returnBike'">Return the bike</button>
+							<form:form action="/project/returnBike" method="POST">
+								<input type="hidden" name="phase" value="place" />
+								<input type="hidden" name="chosenRental" value="${rental.getId()}" />
+								<input class="btn btn-warning" type="submit" value="Return the bike"/>
+							</form:form>
 							</c:when>
 							<c:otherwise>
 								${rental.getReturnDate().toString()}

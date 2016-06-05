@@ -31,7 +31,7 @@ public class BikePlace
 	
 	@Column(name = "od_kiedy")
 	private Timestamp sinceWhen;
-
+	
 	public Bike getBike()
 	{
 		return pk.getBike();

@@ -46,6 +46,12 @@ public class Place
 	@OneToMany(fetch = FetchType.LAZY, mappedBy = "pk.place", cascade = CascadeType.ALL)
 	private Set<BikePlace> bikes;
 
+	@Override
+	public String toString()
+	{
+		return address + ", " + city + ", " + country;
+	}
+	
 	public int getId()
 	{
 		return id;

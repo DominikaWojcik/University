@@ -10,7 +10,9 @@ public interface IRentalDao
 {
 	List<Rental> getRentals();
 	List<Rental> getRentalsByUser(User user);
+	Rental getRental(int id);
 	
 	List<Payment> getPayments();
 	List<Payment> getPaymentsByUser(User user);
+	void saveRental(Rental rental);
 }

@@ -50,6 +50,17 @@ public class Rental
 	@Column(name = "data_zwrotu")
 	private Timestamp returnDate;
 	
+	public Rental() { }
+	
+	public Rental(User user, Bike bike, Place place, int position, Timestamp timestamp)
+	{
+		this.user = user;
+		this.bike = bike;
+		this.startPlace = place;
+		this.startPosition = position;
+		this.rentalDate = timestamp;
+	}
+
 	public int getId()
 	{
 		return id;

@@ -37,6 +37,12 @@ public class Bike
 	@OneToOne(fetch = FetchType.LAZY, mappedBy = "pk.bike", cascade = CascadeType.ALL)
 	private BikePlace place; 
 
+	@Override
+	public String toString()
+	{
+		return "#" + Integer.toString(id) + ": " + brand + (model == null ? "" : " " + model);
+	}
+	
 	public int getId()
 	{
 		return id;
@@ -75,6 +81,16 @@ public class Bike
 	public void setPurchaseDate(Date purchaseDate)
 	{
 		this.purchaseDate = purchaseDate;
+	}
+
+	public BikePlace getPlace()
+	{
+		return place;
+	}
+
+	public void setPlace(BikePlace place)
+	{
+		this.place = place;
 	}
 
 }

@@ -11,4 +11,7 @@ public interface IPlaceService
 	List<Place> getPlaces();
 	List<Station> getStations();
 	List<Service> getServices();
+	Place getPlace(int id);
+	List<Place> getNonFullPlaces();
+	List<Place> getNonFullStations();
 }

@@ -35,4 +35,8 @@ public class PlaceDao implements IPlaceDao
 		return (List<Service>) query.list();
 	}
 
+	public Place getPlace(int id)
+	{
+		return sessionFactory.getCurrentSession().get(Place.class, id);
+	}
 }
