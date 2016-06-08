@@ -1,12 +1,15 @@
 package com.services;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.businessLogic.LoginData;
+import com.businessLogic.RegistrationException;
 import com.businessLogic.UserRegistration;
-import com.dao.IUserDao;
+import com.dao.interfaces.IUserDao;
 import com.entities.User;
 
 @Service
@@ -16,7 +19,17 @@ public class UserService implements IUserService
 	@Autowired
 	private IUserDao userDao;
 	
-	public void registerUser(UserRegistration data)
+	public List<User> getAllUsers()
+	{
+		return userDao.getAllUsers();
+	}
+	
+	public User getUser(int id)
+	{
+		return userDao.getUser(id);
+	}
+	
+	public void registerUser(UserRegistration data) throws RegistrationException
 	{
 		userDao.registerUser(data);
 	}

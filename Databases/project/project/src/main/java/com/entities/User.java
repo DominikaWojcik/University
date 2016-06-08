@@ -10,8 +10,15 @@ import javax.persistence.Id;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 
+import org.hibernate.annotations.Filter;
+import org.hibernate.annotations.FilterDef;
+import org.hibernate.annotations.FilterDefs;
+import org.hibernate.annotations.Filters;
+
 @Entity
 @Table(name="uzytkownik")
+@FilterDefs({@FilterDef(name = "notDeletedUsers")})
+@Filters({@Filter(name = "notDeletedUsers", condition = "aktywny = true")})
 public class User 
 {
 	@Id
@@ -44,7 +51,7 @@ public class User
 	@Column(name="telefon", nullable=false, length=16, unique=true)
 	private String tel;
 	
-	@Column(name="aktywowany", nullable=false)
+	@Column(name="aktywny", nullable=false)
 	private boolean active;
 	
 	@Column(name="rodzaj")
@@ -147,10 +154,10 @@ public class User
 	{
 		return active;
 	}
-
-	public void setActive(boolean active)
+	
+	public void setActive(boolean b)
 	{
-		this.active = active;
+		active = b;
 	}
 
 	public String getType()

@@ -1,4 +1,4 @@
-package com.dao;
+package com.dao.impl;
 
 import java.util.List;
 
@@ -7,6 +7,7 @@ import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
+import com.dao.interfaces.IRentalDao;
 import com.entities.Payment;
 import com.entities.Rental;
 import com.entities.User;
@@ -55,5 +56,26 @@ public class RentalDao implements IRentalDao
 	public void saveRental(Rental rental)
 	{
 		sessionFactory.getCurrentSession().saveOrUpdate(rental);
+	}
+	
+	@SuppressWarnings("unchecked")
+	public List<Rental> getActiveRentals(User user)
+	{
+		Query query = sessionFactory.getCurrentSession()
+				.createQuery("FROM Rental WHERE user = :user AND returnDate IS NULL");
+		query.setParameter("user", user);
+		
+		return (List<Rental>) query.list();
+	}
+	
+	@SuppressWarnings("unchecked")
+	public List<Rental> getLatestRentals(User user, int count)
+	{
+		Query query = sessionFactory.getCurrentSession()
+				.createQuery("FROM Rental WHERE user = :user ORDER BY rentalDate DESC");
+		query.setParameter("user", user);
+		query.setMaxResults(count);
+		
+		return (List<Rental>) query.list();
 	}
 }

@@ -7,17 +7,19 @@
 <head>
 	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 	<link rel='stylesheet' href='webjars/bootstrap/3.3.6/css/bootstrap.min.css'>
-	<title>City bikes - User history</title>
+	<title>City bikes - Admin dashboard</title>
 </head>
 <body>
 
 <nav class="navbar navbar-default">
 	<div class="container-fluid">
 		<ul class="nav navbar-nav">
-			<li><a href="/project">Dashboard</a></li>
-			<li><a href="/project/account">Account</a></li>
-			<li class="active"><a href="/project/userHistory">Rental history</a></li>
-            <li><a href="/project/userRent">Rent a bike</a></li>
+			<li class="active"><a href="/project">Dashboard</a></li>
+			<li><a href="/project/users">Users</a></li>
+			<li><a href="/project/bikes">Bikes</a></li>
+			<li><a href="/project/places">Places</a></li>
+			<li><a href="/project/activeRentals">Active rentals</a>
+            <li><a href="/project/userRent">Get a bike</a></li>
 		</ul>
 		<ul class="nav navbar-nav navbar-right">
         	<li><a href="/project/logout">Logout</a></li>
@@ -27,30 +29,22 @@
 
 <div class="container">
 
-		<h1>User history</h1>
+		<h1>Administrator dashboard</h1>
 		
-		<h2>Rentals</h2>
+		<h2>My active rentals</h2>
 		<table class="table table-striped">
 			<tr>
-				<th>Rental id</th>
 				<th>Bike id</th>
 				<th>Start station</th>
-				<th>Start position</th>
 				<th>Start date</th>
-				<th>End station</th>
-				<th>End station position</th>
-				<th>End date</th>
+				<th></th>
 			</tr>
 		
-			<c:forEach var="rental" items="${rentals}">
+			<c:forEach var="rental" items="${activeRentals}">
 				<tr>
-					<td>${rental.getId()}</td>
 					<td>${rental.getBike().getId()}</td>
 					<td>${rental.getStartPlace().getAddress()}</td>
-					<td>${rental.getStartPosition()}</td>
 					<td>${rental.getRentalDate().toString()}</td>
-					<td>${rental.getEndPlace().getAddress()}</td>
-					<td>${rental.getEndPosition()}</td>
 					<td>
 						<c:choose>
 							<c:when test="${rental.getReturnDate() == null}">
@@ -69,30 +63,8 @@
 			</c:forEach>
 		</table>
 		
-		<h2>Payments</h2>
-		
-		<h3>Amount due: ${amountDue.toString()}</h3>
-		<table class="table table-striped">
-			<tr>
-				<th>Payment id</th>
-				<th>Type</th>
-				<th>Rental id</th>
-				<th>Amount</th>
-				<th>Issue date</th>
-				<th>Payment date</th>
-			</tr>
-		
-			<c:forEach var="payment" items="${payments}">
-				<tr>
-					<td>${payment.getId()}</td>
-					<td>${payment.getType()}</td>
-					<td>${payment.getRental().getId()}</td>
-					<td>${payment.getAmount()}</td>
-					<td>${payment.getIssueDate().toString()}</td>
-					<td>${payment.getPaymentDate().toString()}</td>
-				</tr>
-			</c:forEach>
-		</table>
+		<button class="btn btn-primary" 
+			onclick="window.location.href='/project/userRent'">Get a bike</button>
 	
 	</div> 
 	

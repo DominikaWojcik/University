@@ -7,7 +7,9 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.dao.IPlaceDao;
+import com.businessLogic.CannotDeletePlaceException;
+import com.businessLogic.PlaceCreationData;
+import com.dao.interfaces.IPlaceDao;
 import com.entities.Place;
 import com.entities.Service;
 import com.entities.Station;
@@ -60,5 +62,37 @@ public class PlaceService implements IPlaceService
 		
 		nonFullPlaces.addAll(services);
 		return nonFullPlaces;
+	}
+	
+	public void addNewPlace(PlaceCreationData data)
+	{
+		Place newPlace;
+		
+		if(data.getType().equals("stacja"))
+			newPlace = new Station(data.getPositionCount());
+		else newPlace = new Service(data.getTel());
+		
+		newPlace.setAddress(data.getAddress());
+		newPlace.setPostalCode(data.getPostalCode());
+		newPlace.setCity(data.getCity());
+		newPlace.setCountry(data.getCountry());
+		newPlace.setType(data.getType());
+		newPlace.setActive(true);
+		
+		placeDao.save(newPlace);
+	}
+	
+	public void save(Place place)
+	{
+		System.out.println("Zapisuje " + Integer.toString(place.getId()));
+		placeDao.save(place);
+	}
+	
+	public void delete(Place place) throws CannotDeletePlaceException
+	{
+		if(place == null) throw new CannotDeletePlaceException("No such place exists");
+		if(place.getBikes() != null && place.getBikes().size() > 0) 
+			throw new CannotDeletePlaceException("The place contains some bikes");
+		placeDao.delete(place);
 	}
 }

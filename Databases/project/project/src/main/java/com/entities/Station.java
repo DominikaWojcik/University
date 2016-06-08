@@ -15,7 +15,14 @@ import javax.persistence.Entity;;
 public class Station extends Place
 {
 	@Column(name = "liczba_stanowisk", nullable = false)
-	private int positionCount;
+	private Integer positionCount;
+
+	public Station() { }
+	
+	public Station(Integer positionCount)
+	{
+		this.positionCount = positionCount;
+	}
 
 	public int getFreePosition()
 	{
@@ -33,12 +40,12 @@ public class Station extends Place
 		return freePosition;
 	}
 	
-	public int getPositionCount()
+	public Integer getPositionCount()
 	{
 		return positionCount;
 	}
 
-	public void setPositionCount(int positionCount)
+	public void setPositionCount(Integer positionCount)
 	{
 		this.positionCount = positionCount;
 	}

@@ -15,11 +15,18 @@ import javax.persistence.OneToMany;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 
+import org.hibernate.annotations.Filter;
+import org.hibernate.annotations.FilterDef;
+import org.hibernate.annotations.FilterDefs;
+import org.hibernate.annotations.Filters;
+
 import java.util.Set;
 
 @Entity
 @Table(name = "miejsce")
 @Inheritance(strategy=InheritanceType.JOINED)
+@FilterDefs({@FilterDef(name = "notDeletedPlaces")})
+@Filters({@Filter(name = "notDeletedPlaces", condition = "aktywny = true")})
 public class Place
 {
 	@Id
@@ -42,6 +49,9 @@ public class Place
 	
 	@Column(name = "rodzaj")
 	private String type;
+	
+	@Column(name = "aktywny")
+	private boolean active;
 	
 	@OneToMany(fetch = FetchType.LAZY, mappedBy = "pk.place", cascade = CascadeType.ALL)
 	private Set<BikePlace> bikes;
@@ -120,5 +130,15 @@ public class Place
 	public void setBikes(Set<BikePlace> bikes)
 	{
 		this.bikes = bikes;
+	}
+
+	public boolean isActive()
+	{
+		return active;
+	}
+	
+	public void setActive(boolean b)
+	{
+		active = b;
 	}
 }

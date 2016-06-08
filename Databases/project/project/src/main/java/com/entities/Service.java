@@ -13,6 +13,13 @@ public class Service extends Place
 	@Column(name = "telefon", nullable = false)
 	public String tel;
 
+	public Service() { }
+	
+	public Service(String tel)
+	{
+		this.tel = tel;
+	}
+
 	public String getTel()
 	{
 		return tel;

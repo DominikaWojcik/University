@@ -1,4 +1,4 @@
-package com.dao;
+package com.dao.impl;
 
 import java.util.List;
 
@@ -7,12 +7,15 @@ import javax.persistence.ParameterMode;
 import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
+import org.hibernate.exception.ConstraintViolationException;
 import org.hibernate.procedure.ProcedureCall;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import com.businessLogic.LoginData;
+import com.businessLogic.RegistrationException;
 import com.businessLogic.UserRegistration;
+import com.dao.interfaces.IUserDao;
 import com.entities.User;
 
 @Repository
@@ -20,16 +23,22 @@ public class UserDao implements IUserDao
 {
 	@Autowired
 	SessionFactory sessionFactory;
-
-	public User getUser()
+	
+	Session session()
 	{
-		// TODO Auto-generated method stub
-		return null;
+		Session session = sessionFactory.getCurrentSession();
+		session.enableFilter("notDeletedUsers");
+		return session;
+	}
+
+	public User getUser(int id)
+	{
+		return session().get(User.class, id);
 	}
 	
 	public User getUserByTel(String tel)
 	{
-		Query query = sessionFactory.getCurrentSession()
+		Query query = session()
 				.createQuery("FROM User WHERE tel = :tel");
 		query.setParameter("tel", tel);
 		
@@ -37,9 +46,9 @@ public class UserDao implements IUserDao
 		return user;
 	}
 
-	public void registerUser(UserRegistration data)
+	public void registerUser(UserRegistration data) throws RegistrationException
 	{
-		Session session = sessionFactory.getCurrentSession();
+		Session session = session();
 		ProcedureCall call = session.createStoredProcedureCall("zarejestruj_uzytkownika");
 		
 		call.registerParameter(1, String.class, ParameterMode.IN).bindValue(data.getName());
@@ -52,24 +61,31 @@ public class UserDao implements IUserDao
 		call.registerParameter(8, String.class, ParameterMode.IN).bindValue(data.getTel());
 		call.registerParameter(9, String.class, ParameterMode.IN).bindValue(data.getPin());
 		
-		call.getOutputs();
+		try
+		{
+			call.getOutputs();
+		}
+		catch(ConstraintViolationException e )
+		{
+			throw new RegistrationException("Phone number/e-mail address already taken");
+		}
 	}
 
+	@SuppressWarnings("unchecked")
 	public List<User> getAllUsers()
 	{
-		// TODO Auto-generated method stub
-		return null;
+		return session().createQuery("FROM User").list();
 	}
 
 	public void saveUser(User user)
 	{
-		sessionFactory.getCurrentSession().update(user);
+		session().update(user);
 	}
 	
 	public boolean authentication(LoginData data)
 	{
 		Boolean result = null;
-		Session session = sessionFactory.getCurrentSession();
+		Session session = session();
 		ProcedureCall call = session.createStoredProcedureCall("sprawdz_pin");
 		
 		call.registerParameter(1, String.class, ParameterMode.IN).bindValue(data.getTel());
@@ -81,6 +97,12 @@ public class UserDao implements IUserDao
 		else System.out.println("Wynik = " + Boolean.toString(result));
 		
 		return result;
+	}
+	
+	public void delete(User user)
+	{
+		user.setActive(false);
+		session().update(user);
 	}
 
 }

@@ -1,4 +1,4 @@
-package com.dao;
+package com.dao.interfaces;
 
 import com.entities.*;
 import java.util.List;
@@ -9,4 +9,6 @@ public interface IPlaceDao
 	List<Station> getStations();
 	List<Service> getServices();
 	Place getPlace(int id);
+	void save(Place newPlace);
+	void delete(Place place);
 }

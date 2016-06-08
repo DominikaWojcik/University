@@ -15,8 +15,15 @@ import javax.persistence.OneToOne;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 
+import org.hibernate.annotations.Filter;
+import org.hibernate.annotations.FilterDef;
+import org.hibernate.annotations.FilterDefs;
+import org.hibernate.annotations.Filters;
+
 @Entity
 @Table(name="rower")
+@FilterDefs({@FilterDef(name = "notDeletedBikes")})
+@Filters({@Filter(name = "notDeletedBikes", condition = "aktywny = true")})
 public class Bike
 {
 	@Id
@@ -33,6 +40,9 @@ public class Bike
 	
 	@Column(name="data_zakupu", nullable=false)
 	private Date purchaseDate;
+	
+	@Column(name="aktywny")
+	private boolean active;
 	
 	@OneToOne(fetch = FetchType.LAZY, mappedBy = "pk.bike", cascade = CascadeType.ALL)
 	private BikePlace place; 
@@ -91,6 +101,16 @@ public class Bike
 	public void setPlace(BikePlace place)
 	{
 		this.place = place;
+	}
+
+	public boolean isActive()
+	{
+		return active;
+	}
+	
+	public void setActive(boolean b)
+	{
+		active = b;
 	}
 
 }

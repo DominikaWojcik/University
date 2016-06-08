@@ -27,7 +27,7 @@ public class BikePlace
 	BikePlaceId pk = new BikePlaceId();
 	 
 	@Column(name = "stanowisko")
-	private int position;
+	private Integer position;
 	
 	@Column(name = "od_kiedy")
 	private Timestamp sinceWhen;
@@ -52,12 +52,12 @@ public class BikePlace
 		pk.setPlace(place);
 	}
 
-	public int getPosition()
+	public Integer getPosition()
 	{
 		return position;
 	}
 
-	public void setPosition(int position)
+	public void setPosition(Integer position)
 	{
 		this.position = position;
 	}

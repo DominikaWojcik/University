@@ -1,4 +1,4 @@
-package com.dao;
+package com.dao.interfaces;
 
 import java.util.List;
 
@@ -15,4 +15,6 @@ public interface IRentalDao
 	List<Payment> getPayments();
 	List<Payment> getPaymentsByUser(User user);
 	void saveRental(Rental rental);
+	List<Rental> getActiveRentals(User user);
+	List<Rental> getLatestRentals(User user, int count);
 }

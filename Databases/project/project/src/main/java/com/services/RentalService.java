@@ -14,7 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.businessLogic.BikeAlreadyTakenException;
 import com.businessLogic.StationFullException;
-import com.dao.IRentalDao;
+import com.dao.interfaces.IRentalDao;
 import com.entities.Bike;
 import com.entities.Payment;
 import com.entities.Place;
@@ -45,21 +45,17 @@ public class RentalService implements IRentalService
 		return rentalDao.getRentalsByUser(user);
 	}
 	
+	public List<Rental> getActiveRentals(User user)
+	{
+		return rentalDao.getActiveRentals(user);
+	}
+	
 	public List<Rental> getLatestRentals(User user)
 	{
-		List<Rental> rentals = rentalDao.getRentalsByUser(user);
 		
-		Collections.sort(rentals, new Comparator<Rental>(){
-			public int compare(Rental a, Rental b)
-			{
-				Timestamp aTime = a.getRentalDate();
-				Timestamp bTime = b.getRentalDate();
-				
-				return aTime.compareTo(bTime);
-			}
-		});
-		
-		return rentals.subList(0, Math.min(LATEST_RENTALS, rentals.size()));
+		List<Rental> rentals = rentalDao.getLatestRentals(user, LATEST_RENTALS);
+
+		return rentals;
 	}
 
 	public List<Payment> getPaymentsByUser(User user)
@@ -108,6 +104,7 @@ public class RentalService implements IRentalService
 		rental.setReturnDate(new Timestamp(new Date().getTime()));
 		rentalDao.saveRental(rental);
 	}
+	
 	
 }
 	

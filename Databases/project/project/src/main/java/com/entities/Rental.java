@@ -35,14 +35,14 @@ public class Rental
 	private Place startPlace;
 	
 	@Column(name = "skad_stanowisko")
-	private int startPosition;
+	private Integer startPosition;
 	
 	@ManyToOne
 	@JoinColumn(name = "dokad")
 	private Place endPlace;
 	
 	@Column(name = "dokad_stanowisko")
-	private int endPosition;
+	private Integer endPosition;
 	
 	@Column(name = "data_wypozyczenia", nullable = false)
 	private Timestamp rentalDate;
@@ -52,7 +52,7 @@ public class Rental
 	
 	public Rental() { }
 	
-	public Rental(User user, Bike bike, Place place, int position, Timestamp timestamp)
+	public Rental(User user, Bike bike, Place place, Integer position, Timestamp timestamp)
 	{
 		this.user = user;
 		this.bike = bike;
@@ -101,12 +101,12 @@ public class Rental
 		this.startPlace = startPlace;
 	}
 
-	public int getStartPosition()
+	public Integer getStartPosition()
 	{
 		return startPosition;
 	}
 
-	public void setStartPosition(int startPosition)
+	public void setStartPosition(Integer startPosition)
 	{
 		this.startPosition = startPosition;
 	}
@@ -121,12 +121,12 @@ public class Rental
 		this.endPlace = endPlace;
 	}
 
-	public int getEndPosition()
+	public Integer getEndPosition()
 	{
 		return endPosition;
 	}
 
-	public void setEndPosition(int endPosition)
+	public void setEndPosition(Integer endPosition)
 	{
 		this.endPosition = endPosition;
 	}

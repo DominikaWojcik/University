@@ -26,6 +26,7 @@ import org.springframework.web.servlet.ModelAndView;
 import com.businessLogic.BikeAlreadyTakenException;
 import com.businessLogic.LoginData;
 import com.businessLogic.PlaceSelection;
+import com.businessLogic.RegistrationException;
 import com.businessLogic.StationFullException;
 import com.businessLogic.UserRegistration;
 import com.entities.Bike;
@@ -65,18 +66,22 @@ public class TestController
 		User user = (User) session.getAttribute("user");
 		if(user != null && user.getTel() != null)
 		{
-			List<Rental> latestRentals = rentalService.getLatestRentals(user);
-			Bike b = new Bike();
-			b.setId(12345678);
-			Rental r = new Rental();
-			r.setBike(b);
-			r.setUser(user);
-			r.setRentalDate(new Timestamp(0));
-			latestRentals.add(r);
-			model.addAttribute("latestRentals", latestRentals);
-			model.addAttribute("chosenRental", new Rental());
-			
-			return new ModelAndView("userdashboard", model.asMap());
+			if(user.getType().equals("serwisant"))
+			{
+				List<Rental> activeRentals = rentalService.getActiveRentals(user);
+				model.addAttribute("activeRentals", activeRentals);
+				model.addAttribute("chosenRental", new Rental());
+				
+				return new ModelAndView("admindashboard", model.asMap());
+			}
+			else
+			{
+				List<Rental> latestRentals = rentalService.getLatestRentals(user);
+				model.addAttribute("latestRentals", latestRentals);
+				model.addAttribute("chosenRental", new Rental());
+				
+				return new ModelAndView("userdashboard", model.asMap());
+			}
 		}
 		
 		ModelAndView view = new ModelAndView("index", "command", new LoginData());
@@ -97,15 +102,23 @@ public class TestController
 	}
 	
 	@RequestMapping(value="/register", method = RequestMethod.GET)
-	public ModelAndView getRegistraton()
+	public ModelAndView getRegistraton(@ModelAttribute("registrationError") String registrationError)
 	{
 		ModelAndView view = new ModelAndView("registration", "command", new UserRegistration());
+		view.getModelMap().addAttribute("registrationError", registrationError);
+		
 		return view;
 	}
 	
-	@RequestMapping(value="/addUser", method=RequestMethod.POST)
+	@RequestMapping(value="/register", method=RequestMethod.POST)
 	public String addUser(@ModelAttribute("data") UserRegistration data, ModelMap model)
 	{
+		if(!data.getPin().equals(data.getPinRep()))
+		{
+			model.addAttribute("registrationError", new String("PIN and repeated PIN do not match"));
+			return "redirect:/register";
+		}
+			
 		model.addAttribute("name", data.getName());
 		model.addAttribute("lastName", data.getLastName());
 		model.addAttribute("tel", data.getTel());
@@ -116,8 +129,16 @@ public class TestController
 		model.addAttribute("postalCode", data.getPostalCode());
 		model.addAttribute("city", data.getCity());
 		model.addAttribute("country", data.getCountry());
-	
-		userService.registerUser(data);
+
+		try
+		{
+			userService.registerUser(data);
+		}
+		catch(RegistrationException e)
+		{
+			model.addAttribute("registrationError", e.getMessage());
+			return "redirect:/register";
+		}
 		
 		return "result";
 	}

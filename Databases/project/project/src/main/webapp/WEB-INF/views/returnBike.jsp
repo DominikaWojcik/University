@@ -14,10 +14,22 @@
 <nav class="navbar navbar-default">
 	<div class="container-fluid">
 		<ul class="nav navbar-nav">
-			<li><a href="/project">Dashboard</a></li>
-			<li><a href="/project/account">Account</a></li>
-			<li><a href="/project/userHistory">Rental history</a></li>
-            <li><a href="/project/userRent">Rent a bike</a></li>
+		<c:choose>
+			<c:when test="${sessionScope.user.getType().equals(\"serwisant\") }">
+				<li><a href="/project">Dashboard</a></li>
+				<li><a href="/project/users">Users</a></li>
+				<li><a href="/project/bikes">Bikes</a></li>
+				<li><a href="/project/places">Places</a></li>
+				<li><a href="/project/activeRentals">Active rentals</a>
+	            <li><a href="/project/userRent">Get a bike</a></li>
+			</c:when>
+			<c:otherwise>
+				<li><a href="/project">Dashboard</a></li>
+				<li><a href="/project/account">Account</a></li>
+				<li><a href="/project/userHistory">Rental history</a></li>
+	            <li><a href="/project/userRent">Rent a bike</a></li>
+			</c:otherwise>
+		</c:choose>
 		</ul>
 		<ul class="nav navbar-nav navbar-right">
         	<li><a href="/project/logout">Logout</a></li>

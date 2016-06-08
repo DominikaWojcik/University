@@ -12,20 +12,17 @@
 
 <div class="container">
 
+<div class="alert alert-success">
+	<strong>Success!</strong> Registration successful
+</div>
+
 <h2>Submitted user information</h2>
    <table class="table table-striped">
    	<tr>
         <td>Telephone number</td>
         <td>${tel}</td>
     </tr>
-    <tr>
-        <td>PIN</td>
-        <td>${pin}</td>
-    </tr>
-       	<tr>
-        <td>Repeated PIN</td>
-        <td>${pinRep}</td>
-    </tr>
+    
     <tr>
         <td>E-mail</td>
         <td>${email}</td>
@@ -55,9 +52,12 @@
         <td>Country</td>
         <td>${country}</td>
     </tr>
-	</table> 
+	</table>
 	
-	</div> 
+	<button class="btn btn-primary" 
+			onclick="window.location.href='/project/'">Return to homepage</button>
+	
+</div> 
 	
 	<script type="text/javascript" src="webjars/jquery/2.2.4/jquery.min.js"></script>
 	<script type="text/javascript" src="webjars/bootstrap/3.3.6/js/bootstrap.min.js"></script>

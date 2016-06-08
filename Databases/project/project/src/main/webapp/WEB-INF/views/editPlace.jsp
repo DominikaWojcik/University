@@ -7,7 +7,7 @@
 <head>
 	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 	<link rel='stylesheet' href='webjars/bootstrap/3.3.6/css/bootstrap.min.css'>
-	<title>City bikes - Edit place</title>
+	<title>City bikes - User history</title>
 </head>
 <body>
 
@@ -27,50 +27,52 @@
 	</div>
 </nav>
 
-
 <div class="container">
-	
-	<h2>Edit personal information</h2>
 
-	<form:form metod="POST" action="/project/savedUser" modelAttribute="newUserInfo">
-	   <table class="table table-striped">
-	    <tr>
-	        <td><form:label path="name">Name</form:label></td>
-	        <td><form:input path="name" value="${user.getName()}"/></td>
-	    </tr>
-	    <tr>
-	        <td><form:label path="lastName">Last name</form:label></td>
-	        <td><form:input path="lastName" value="${user.getLastName()}"/></td>
-	    </tr>
+	<h1>Edit place</h1>
+		
+	<form:form id="newPlaceForm" method="POST" action="/project/editPlace" 
+		modelAttribute="oldData">
+		<form:hidden path="type" value="${oldData.getType()}" />
+		
+   	<table class="table table-striped">
+	  
 	    <tr>
 	        <td><form:label path="address">Address</form:label></td>
-	        <td><form:input path="address" value="${user.getAddress()}"/></td>
+	        <td><form:input path="address" placeholder="${oldData.getAddress() }"/></td>
 	    </tr>
 	    <tr>
 	        <td><form:label path="postalCode">Postal code</form:label></td>
-	        <td><form:input path="postalCode" value="${user.getPostalCode()}"/></td>
+	        <td><form:input path="postalCode" placeholder="${oldData.getPostalCode() }"/></td>
 	    </tr>
 	    <tr>
 	        <td><form:label path="city">City</form:label></td>
-	        <td><form:input path="city" value="${user.getCity()}"/></td>
+	        <td><form:input path="city" placeholder="${oldData.getCity() }"/></td>
 	    </tr>
 	    <tr>
 	        <td><form:label path="country">Country</form:label></td>
-	        <td><form:input path="country" value="${user.getCountry()}"/></td>
-	    </tr>
-	   	<tr>
-	        <td><form:label path="email">E-mail</form:label></td>
-	        <td><form:input path="email" value="${user.getEmail()}"/></td>
+	        <td><form:input path="country" placeholder="${oldData.getCountry() }"/></td>
 	    </tr>
 	    <tr>
-	        <td colspan="2">
-	            <input class="btn btn-success" type="submit" value="Save"/>
-	        </td>
+	    <c:choose>
+	    	<c:when test="${oldData.getType().equals(\"stacja\")}">
+	    		<td><form:label path="positionCount">Position count</form:label></td>
+	    		<td><form:input path="positionCount" placeholder="${oldData.getPositionCount()}"/></td>
+	    	</c:when>
+	    	<c:otherwise>
+	    		<td><form:label path="tel">Phone number</form:label></td>
+	    		<td><form:input path="tel" placeholder="${oldData.getTel()}"/></td>
+	    	</c:otherwise>
+	    </c:choose>
 	    </tr>
 	</table>  
+	
+		<input class="btn btn-success" type="submit" value="Submit"/>
+		
 	</form:form>
-
-	</div>
+	
+	</div> 
+	
 	<script type="text/javascript" src="webjars/jquery/2.2.4/jquery.min.js"></script>
 	<script type="text/javascript" src="webjars/bootstrap/3.3.6/js/bootstrap.min.js"></script>
 </body>

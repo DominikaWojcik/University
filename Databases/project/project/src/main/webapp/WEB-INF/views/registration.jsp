@@ -1,6 +1,7 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8"
     pageEncoding="UTF-8"%>
 <%@taglib uri="http://www.springframework.org/tags/form" prefix="form"%>
+<%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <html>
 <head>
@@ -13,7 +14,14 @@
 	<div class="container">
 	
 	<h2>Registration</h2>
-	<form:form method="POST" action="/project/addUser">
+	
+	<c:if test="${registrationError != null && !registrationError.equals(\"\")}">
+		<div class="alert alert-danger">
+  			<strong>Error!</strong> ${registrationError}
+		</div>
+	</c:if>
+	
+	<form:form method="POST" action="/project/register">
 	   <table class="table table-striped">
 	   	<tr>
 	        <td><form:label path="tel">Telephone number</form:label></td>

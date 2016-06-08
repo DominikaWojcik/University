@@ -7,7 +7,7 @@
 <head>
 	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 	<link rel='stylesheet' href='webjars/bootstrap/3.3.6/css/bootstrap.min.css'>
-	<title>City bikes - Edit place</title>
+	<title>City bikes - User history</title>
 </head>
 <body>
 
@@ -27,50 +27,74 @@
 	</div>
 </nav>
 
-
 <div class="container">
-	
-	<h2>Edit personal information</h2>
 
-	<form:form metod="POST" action="/project/savedUser" modelAttribute="newUserInfo">
-	   <table class="table table-striped">
-	    <tr>
-	        <td><form:label path="name">Name</form:label></td>
-	        <td><form:input path="name" value="${user.getName()}"/></td>
-	    </tr>
-	    <tr>
-	        <td><form:label path="lastName">Last name</form:label></td>
-	        <td><form:input path="lastName" value="${user.getLastName()}"/></td>
-	    </tr>
+	<h1>Enter place information</h1>
+		
+	<form:form id="newPlaceForm" method="POST" action="/project/addPlace" 
+		modelAttribute="placeCreationData">
+   	<table class="table table-striped">
+	  
 	    <tr>
 	        <td><form:label path="address">Address</form:label></td>
-	        <td><form:input path="address" value="${user.getAddress()}"/></td>
+	        <td><form:input path="address" /></td>
 	    </tr>
 	    <tr>
 	        <td><form:label path="postalCode">Postal code</form:label></td>
-	        <td><form:input path="postalCode" value="${user.getPostalCode()}"/></td>
+	        <td><form:input path="postalCode" /></td>
 	    </tr>
 	    <tr>
 	        <td><form:label path="city">City</form:label></td>
-	        <td><form:input path="city" value="${user.getCity()}"/></td>
+	        <td><form:input path="city" /></td>
 	    </tr>
 	    <tr>
 	        <td><form:label path="country">Country</form:label></td>
-	        <td><form:input path="country" value="${user.getCountry()}"/></td>
-	    </tr>
-	   	<tr>
-	        <td><form:label path="email">E-mail</form:label></td>
-	        <td><form:input path="email" value="${user.getEmail()}"/></td>
+	        <td><form:input path="country" /></td>
 	    </tr>
 	    <tr>
-	        <td colspan="2">
-	            <input class="btn btn-success" type="submit" value="Save"/>
-	        </td>
+	     	<td><form:label path="type">Type</form:label></td>
+	     	<td><form:select class="form-control" id="selectType" path="type" onchange="onSelect(this);">
+	     			<form:option value="stacja">Station</form:option>
+	     			<form:option value="serwis">Service</form:option>
+	     		</form:select>
+	     	</td>
+	    </tr>
+	    <tr>
+	    	<td><form:label path="positionCount">Position count</form:label></td>
+	    	<td><form:input id="positionCount" path="positionCount"/></td>
+	    </tr>
+	    <tr>
+	    	<td><form:label path="tel">Phone number</form:label></td>
+	    	<td><form:input id="tel" path="tel"/></td>
 	    </tr>
 	</table>  
+	
+		<input class="btn btn-success" type="submit" value="Submit"/>
+		
 	</form:form>
 
-	</div>
+		
+	</div> 
+	<script type="text/javascript">
+	    function onSelect(selected) {
+			var pc = document.getElementById("positionCount");
+			var tel = document.getElementById("tel");
+	       if(selected.value == "stacja"){
+				pc.disabled = false;
+				tel.disabled = true;
+	    	} else {
+	    		pc.disabled = true;
+	    		tel.disabled = false;
+	    	}
+	    }
+	    
+	    function init() {
+		    var sel = document.getElementById("selectType");
+		    onSelect(sel);	
+	    }; 
+	    
+	    init();
+	</script>
 	<script type="text/javascript" src="webjars/jquery/2.2.4/jquery.min.js"></script>
 	<script type="text/javascript" src="webjars/bootstrap/3.3.6/js/bootstrap.min.js"></script>
 </body>

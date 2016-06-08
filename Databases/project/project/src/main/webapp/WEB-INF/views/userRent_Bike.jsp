@@ -14,10 +14,22 @@
 <nav class="navbar navbar-default">
 	<div class="container-fluid">
 		<ul class="nav navbar-nav">
-			<li><a href="/project">Dashboard</a></li>
-			<li><a href="/project/account">Account</a></li>
-			<li><a href="/project/userHistory">Rental history</a></li>
-            <li class="active"><a href="/project/userRent">Rent a bike</a></li>
+		<c:choose>
+			<c:when test="${sessionScope.user.getType().equals(\"serwisant\") }">
+				<li><a href="/project">Dashboard</a></li>
+				<li><a href="/project/users">Users</a></li>
+				<li><a href="/project/bikes">Bikes</a></li>
+				<li><a href="/project/places">Places</a></li>
+				<li><a href="/project/activeRentals">Active rentals</a>
+	            <li class="active"><a href="/project/userRent">Get a bike</a></li>
+			</c:when>
+			<c:otherwise>
+				<li><a href="/project">Dashboard</a></li>
+				<li><a href="/project/account">Account</a></li>
+				<li><a href="/project/userHistory">Rental history</a></li>
+	            <li class="active"><a href="/project/userRent">Rent a bike</a></li>
+			</c:otherwise>
+		</c:choose>
 		</ul>
 		<ul class="nav navbar-nav navbar-right">
         	<li><a href="/project/logout">Logout</a></li>
@@ -26,8 +38,15 @@
 </nav>
 
 <div class="container">
-
-		<h1>Rent a bike</h1>
+		
+		<c:choose>
+			<c:when test="${sessionScope.user.getType().equals(\"serwisant\")}">
+				<h1>Get a bike</h1>
+			</c:when>
+			<c:otherwise>
+				<h1>Rent a bike</h1>
+			</c:otherwise>
+		</c:choose>
 		
 		<h2>Station: <u><c:out value="${sessionScope.chosenPlace.toString()}"></c:out></u></h2>
 		
