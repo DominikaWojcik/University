@@ -24,7 +24,10 @@ import org.springframework.web.bind.annotation.SessionAttributes;
 import org.springframework.web.servlet.ModelAndView;
 
 import com.businessLogic.BikeAlreadyTakenException;
+import com.businessLogic.BikeCreationData;
+import com.businessLogic.CannotDeleteBikeException;
 import com.businessLogic.CannotDeletePlaceException;
+import com.businessLogic.CannotDeleteUserException;
 import com.businessLogic.LoginData;
 import com.businessLogic.PlaceCreationData;
 import com.businessLogic.PlaceSelection;
@@ -75,6 +78,67 @@ public class AdministratorController
 		return "bikes";
 	}
 	
+	@RequestMapping(value = "/addBike", method = RequestMethod.GET)
+	public String addBike(Model model, HttpSession session)
+	{
+		User user = (User) session.getAttribute("user");
+		if(user == null || !user.getType().equals("serwisant"))
+			return "redirect:/";
+		
+		HashMap<Integer, String> services = new HashMap<Integer, String>();
+		for(Service service : placeService.getServices())
+			services.put(service.getId(), service.toString());
+		
+		model.addAttribute("bikeCreationData", new BikeCreationData());
+		model.addAttribute("services", services);
+		return "addBike";
+	}
+	
+	@RequestMapping(value = "/addBike", method = RequestMethod.POST)
+	public String saveNewBike(@ModelAttribute("bikeCreationData") BikeCreationData data, 
+			Model model, HttpSession session)
+	{
+		Service service = (Service) placeService.getPlace(data.getServiceId());
+		bikeService.addBike(data, service);
+		return "redirect:/bikes";
+	}
+	
+	@RequestMapping(value = "/editBike", method = RequestMethod.GET)
+	public String editBike(@ModelAttribute("chosenBike") Bike bike, Model model, HttpSession session)
+	{
+		User user = (User) session.getAttribute("user");
+		if(user == null || !user.getType().equals("serwisant"))
+			return "redirect:/";
+		
+		bike = bikeService.getBike(bike.getId());
+		model.addAttribute("bike", bike);
+		
+		return "editBike";
+	}
+	
+	@RequestMapping(value = "/editBike", method = RequestMethod.POST)
+	public String saveEditedBike(@ModelAttribute("bike") Bike bike, Model model, HttpSession session)
+	{	
+		bikeService.editBike(bike);
+		return "redirect:/bikes";
+	}
+	
+	@RequestMapping(value = "/deleteBike", method = RequestMethod.POST)
+	public String deleteBike(@ModelAttribute("chosenBike") Bike bike)
+	{
+		bike = bikeService.getBike(bike.getId());
+		try
+		{
+			bikeService.delete(bike);
+		}
+		catch(CannotDeleteBikeException e)
+		{
+			System.out.println(e.getMessage());
+		}
+		
+		return "redirect:/bikes";
+	}
+	
 	@RequestMapping(value = "/users", method = RequestMethod.GET)
 	public String users(HttpSession session, Model model)
 	{
@@ -87,6 +151,48 @@ public class AdministratorController
 		model.addAttribute("users", users);
 		
 		return "users";
+	}
+	
+	@RequestMapping(value = "/editUserType", method = RequestMethod.GET)
+	public String editUserType(@ModelAttribute("chosenUser") User toChange, HttpSession session, Model model)
+	{
+		User user = (User) session.getAttribute("user");
+		if(user == null || !user.getType().equals("serwisant"))
+			return "redirect:/";
+		
+		toChange = userService.getUser(toChange.getId());	
+		if(user.getId() != toChange.getId())
+			userService.changeType(toChange);
+		
+		return "redirect:/users";
+	}
+	
+	@RequestMapping(value="/deleteUser", method = RequestMethod.GET)
+	public String deleteUser(@ModelAttribute("chosenUser") User toDelete, HttpSession session, Model model)
+	{
+		User user = (User) session.getAttribute("user");
+		if(user == null || !user.getType().equals("serwisant"))
+			return "redirect:/";
+		
+		toDelete = userService.getUser(toDelete.getId());
+		if(user.getId() != toDelete.getId())
+		{
+			List<Rental> rentals = rentalService.getActiveRentals(toDelete);
+			int activeRentals = 0;
+			if(rentals != null && rentals.size()>0)
+				activeRentals = rentals.size();
+			
+			try
+			{
+				userService.delete(toDelete, activeRentals);
+			}
+			catch(CannotDeleteUserException e)
+			{
+				System.out.println(e.getMessage());
+			}
+		}
+		
+		return "redirect:/users";
 	}
 	
 	@RequestMapping(value = "/places", method = RequestMethod.GET)
@@ -121,7 +227,7 @@ public class AdministratorController
 			Model model, HttpSession session)
 	{	
 		placeService.addNewPlace(data);
-		return places(session, model);
+		return "redirect:/places";
 	}
 	
 	@RequestMapping(value = "/editPlace", method = RequestMethod.GET)
@@ -132,14 +238,8 @@ public class AdministratorController
 		if(user == null || !user.getType().equals("serwisant"))
 			return "redirect:/";
 		
-		System.out.println(placeId);
 		Place chosenPlace = placeService.getPlace(placeId);
-		System.out.println(chosenPlace.getId());
-		System.out.println(chosenPlace.getType());
-		
 		PlaceCreationData oldData = new PlaceCreationData(chosenPlace);
-		//TODO zapamiętać jakoś id zmienianego miejsca
-		System.out.println(oldData.getType());
 		
 		model.addAttribute("oldData", oldData);
 		return "editPlace";
@@ -150,7 +250,7 @@ public class AdministratorController
 			Model model, HttpSession session)
 	{
 		placeService.save(data.toPlace());
-		return places(session, model);
+		return "redirect:/places";
 	}
 	
 	@RequestMapping(value="/deletePlace", method = RequestMethod.GET)
@@ -172,4 +272,18 @@ public class AdministratorController
 		
 		return places(session,model);
 	}
+	
+	@RequestMapping(value="/activeRentals", method = RequestMethod.GET)
+	public String activeRentals(HttpSession session, Model model)
+	{
+		User user = (User) session.getAttribute("user");
+		if(user == null || !user.getType().equals("serwisant"))
+			return "redirect:/";
+		
+		List<Rental> rentals = rentalService.getActiveRentals();
+		model.addAttribute("activeRentals", rentals);
+		
+		return "activeRentals";
+	}
+	
 }

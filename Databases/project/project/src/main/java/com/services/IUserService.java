@@ -2,6 +2,7 @@ package com.services;
 
 import java.util.List;
 
+import com.businessLogic.CannotDeleteUserException;
 import com.businessLogic.LoginData;
 import com.businessLogic.RegistrationException;
 import com.businessLogic.UserRegistration;
@@ -20,4 +21,8 @@ public interface IUserService
 	List<User> getAllUsers();
 	
 	void saveUser(User user);
+
+	void delete(User toDelete, int activeRentals) throws CannotDeleteUserException;
+
+	void changeType(User toChange);
 }

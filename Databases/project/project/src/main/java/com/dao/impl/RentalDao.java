@@ -78,4 +78,13 @@ public class RentalDao implements IRentalDao
 		
 		return (List<Rental>) query.list();
 	}
+	
+	@SuppressWarnings("unchecked")
+	public List<Rental> getActiveRentals()
+	{
+		Query query = sessionFactory.getCurrentSession()
+				.createQuery("FROM Rental WHERE returnDate IS NULL");
+		
+		return (List<Rental>) query.list();
+	}
 }

@@ -74,7 +74,7 @@ public class UserDao implements IUserDao
 	@SuppressWarnings("unchecked")
 	public List<User> getAllUsers()
 	{
-		return session().createQuery("FROM User").list();
+		return session().createQuery("FROM User ORDER BY id ASC").list();
 	}
 
 	public void saveUser(User user)

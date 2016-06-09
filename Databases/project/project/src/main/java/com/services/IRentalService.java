@@ -32,4 +32,6 @@ public interface IRentalService
 	void returnBike(Rental rental, Place chosenPlace, Integer endPosition) throws StationFullException;
 
 	List<Rental> getActiveRentals(User user);
+
+	List<Rental> getActiveRentals();
 }

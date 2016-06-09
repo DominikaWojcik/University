@@ -105,6 +105,10 @@ public class RentalService implements IRentalService
 		rentalDao.saveRental(rental);
 	}
 	
+	public List<Rental> getActiveRentals()
+	{
+		return rentalDao.getActiveRentals();
+	}
 	
 }
 	

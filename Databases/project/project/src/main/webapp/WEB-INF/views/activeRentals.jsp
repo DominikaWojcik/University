@@ -51,10 +51,6 @@
 			</c:forEach>
 		</table>
 		
-		<button class="btn btn-primary" 
-			onclick="window.location.href='/project/userRent'">Move a bike</button>
-		
-	
 	</div> 
 	
 	<script type="text/javascript" src="webjars/jquery/2.2.4/jquery.min.js"></script>

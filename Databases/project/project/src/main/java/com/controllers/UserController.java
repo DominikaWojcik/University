@@ -46,7 +46,7 @@ import com.services.IUserService;
 
 @Controller
 @SessionAttributes("user")
-public class TestController 
+public class UserController 
 {
 	@Autowired
 	private IUserService userService;

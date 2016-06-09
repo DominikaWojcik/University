@@ -9,6 +9,7 @@ import org.springframework.stereotype.Repository;
 
 import com.dao.interfaces.IBikeDao;
 import com.entities.Bike;
+import com.entities.BikePlace;
 
 @Repository
 public class BikeDao implements IBikeDao
@@ -42,5 +43,15 @@ public class BikeDao implements IBikeDao
 	{
 		bike.setActive(false);
 		session().update(bike);
+	}
+	
+	public void saveBikePlace(BikePlace bikePlace)
+	{
+		session().saveOrUpdate(bikePlace);
+	}
+	
+	public void delete(BikePlace bikePlace)
+	{
+		session().delete(bikePlace);
 	}
 }

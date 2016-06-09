@@ -17,4 +17,5 @@ public interface IRentalDao
 	void saveRental(Rental rental);
 	List<Rental> getActiveRentals(User user);
 	List<Rental> getLatestRentals(User user, int count);
+	List<Rental> getActiveRentals();
 }

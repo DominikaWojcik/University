@@ -7,7 +7,7 @@
 <head>
 	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 	<link rel='stylesheet' href='webjars/bootstrap/3.3.6/css/bootstrap.min.css'>
-	<title>City bikes - User history</title>
+	<title>City bikes - Add bike</title>
 </head>
 <body>
 
@@ -29,47 +29,30 @@
 
 <div class="container">
 
-		<h1>Bikes</h1>
-		<form:form action="/project/addBike" method="GET">
-			<input class="btn btn-primary" type="submit" value="Add new bike"/>
-		</form:form>
+		<h1>Add bike</h1>
 		
-		<h2>Bikes</h2>
+		<h2>Enter bike information</h2>
+		<form:form method="POST" action="/project/addBike" modelAttribute="bikeCreationData">
 		<table class="table table-striped">
 			<tr>
-				<th>Id</th>
-				<th>Brand</th>
-				<th>Model</th>
-				<th>Purchase date</th>
-				<th>Current place</th>
-				<th>Current position</th>
-				<th></th>
-				<th></th>
+				<td><form:label path="brand">Brand</form:label></td>
+				<td><form:input path="brand" /></td>
 			</tr>
-		
-			<c:forEach var="bike" items="${bikes}">
-				<tr>
-					<td>${bike.getId()}</td>
-					<td>${bike.getBrand()}</td>
-					<td>${bike.getModel()}</td>
-					<td>${bike.getPurchaseDate()}</td>
-					<td>${bike.getPlace().getPlace().toString()}</td>
-					<td>${bike.getPlace().getPosition()}</td>
-					<td>
-						<form:form action="/project/editBike" method="GET" modelAttribute="chosenBike">
-							<input type="hidden" name="id" value="${bike.getId()}" />
-							<input class="btn btn-info" type="submit" value="Edit"/>
-						</form:form>
-					</td>
-					<td>
-						<form:form action="/project/deleteBike" method="POST" modelAttribute="chosenBike">
-							<input type="hidden" name="id" value="${bike.getId()}" />
-							<input class="btn btn-danger" type="submit" value="Delete"/>
-						</form:form>
-					</td>
-				</tr>
-			</c:forEach>
+			<tr>
+				<td><form:label path="model">Model</form:label></td>
+				<td><form:input path="model" /></td>				
+			</tr>
+			<tr>
+				<td><form:label path="serviceId">Service</form:label></td>
+				<td>
+					<form:select class="form-control" path="serviceId">
+						<form:options items="${services}" />
+					</form:select>
+				</td>
+			</tr>
 		</table>
+			<input class="btn btn-success" type="submit" value="Submit"/>
+		</form:form>
 		
 	</div> 
 	

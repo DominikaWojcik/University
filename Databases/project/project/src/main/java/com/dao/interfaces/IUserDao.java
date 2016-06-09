@@ -15,4 +15,5 @@ public interface IUserDao
 	List<User> getAllUsers();
 	void saveUser(User user);
 	boolean authentication(LoginData data);
+	void delete(User user);
 }

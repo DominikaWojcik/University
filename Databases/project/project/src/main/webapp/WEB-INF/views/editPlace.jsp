@@ -34,6 +34,7 @@
 	<form:form id="newPlaceForm" method="POST" action="/project/editPlace" 
 		modelAttribute="oldData">
 		<form:hidden path="type" value="${oldData.getType()}" />
+		<form:hidden path="id" value="${oldData.getId()}" />
 		
    	<table class="table table-striped">
 	  
