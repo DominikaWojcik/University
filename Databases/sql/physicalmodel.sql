@@ -46,7 +46,7 @@ CREATE TABLE uzytkownik(
     miejscowosc VARCHAR(32) NOT NULL,
     kraj VARCHAR(32) NOT NULL,
     data_rejestracji TIMESTAMP WITH TIME ZONE NOT NULL,
-    aktywowany BOOLEAN NOT NULL DEFAULT false,
+    aktywny BOOLEAN NOT NULL DEFAULT TRUE,
     rodzaj rodzaj_uzytkownika DEFAULT 'klient',
     email TEXT NOT NULL UNIQUE,
     telefon VARCHAR(16) NOT NULL UNIQUE,
@@ -69,6 +69,7 @@ CREATE TABLE miejsce(
     miejscowosc VARCHAR(32) NOT NULL,
     kraj VARCHAR(32) NOT NULL,
     rodzaj rodzaj_miejsca,
+    aktywny BOOLEAN DEFAULT TRUE,
 
     PRIMARY KEY (id)
 );
@@ -107,6 +108,7 @@ CREATE TABLE rower(
     marka VARCHAR(16) NOT NULL,
     model VARCHAR(16),
     data_zakupu DATE NOT NULL,
+    active BOOLEAN DEFAULT TRUE,
 
     PRIMARY KEY (id)
 );
@@ -226,11 +228,12 @@ DECLARE
     correct_hash BYTEA;
     salt TEXT;
     znalezione_id INTEGER;
+    aktywny_uzyt BOOLEAN;
 BEGIN
-    SELECT id INTO znalezione_id
+    SELECT id, aktywny INTO znalezione_id, aktywny_uzyt
         FROM uzytkownik
         WHERE podany_telefon = telefon;
-    IF znalezione_id IS NULL THEN RETURN FALSE; END IF;
+    IF znalezione_id IS NULL OR aktywny_uzyt = FALSE THEN RETURN FALSE; END IF;
 
     SELECT u.salt, u.hash
         INTO salt, correct_hash
@@ -254,10 +257,10 @@ DECLARE
     new_salt TEXT;
 BEGIN
     INSERT INTO uzytkownik(imie, nazwisko, adres, kod_pocztowy,
-        miejscowosc, kraj, data_rejestracji, aktywowany,
+        miejscowosc, kraj, data_rejestracji,
         rodzaj, email, telefon)
         VALUES (im, nazw, adr, kod_p, miejs, kr,
-            CURRENT_TIMESTAMP, false, 'klient', eml, tel)
+            CURRENT_TIMESTAMP, 'klient', eml, tel)
         RETURNING id INTO new_id;
 
     SELECT md5(random()::TEXT) INTO new_salt;
