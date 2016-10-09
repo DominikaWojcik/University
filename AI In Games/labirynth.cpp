@@ -10,6 +10,13 @@ using namespace std;
  * Auto-generated code below aims at helping you parse
  * the standard input according to the problem statement.
  **/
+
+enum DiscoveryMode {
+    EXPLORE,
+    GO_TO_CONTROL_ROOM,
+    GO_TO_START
+};
+
 vector<pair<int,int> > exitPath;
 
 const char CONTROL_ROOM = 'C';
@@ -17,6 +24,7 @@ const char START = 'T';
 const char UNEXPLORED = '?';
 const char OBSTACLE = '#';
 const int UNDEFINED = -1e6-7;
+const int INF = 1e6+7;
 const pair<int,int> UNKNOWN = pair<int,int>(-1,-1);
 
 int R; // number of rows.
@@ -51,7 +59,7 @@ vector<pair<int,int> > getNeighbours(pair<int,int> p){
 }
 
 pair<int,int> getNextField(pair<int,int> p, bool storeExitPath){
-    cerr<<"Jestem getNextField w ("<<p.first<<","<<p.second<<") z dist "<<dist[p.first][p.second]<<endl;
+    //cerr<<"Jestem getNextField w ("<<p.first<<","<<p.second<<") z dist "<<dist[p.first][p.second]<<endl;
     if(storeExitPath) exitPath.push_back(p);
 
     if(dist[p.first][p.second] == 1) return p;
@@ -62,7 +70,7 @@ pair<int,int> getNextField(pair<int,int> p, bool storeExitPath){
             return getNextField(neighbours[i], storeExitPath);
 }
 
-pair<int,int> discover(int row, int col, bool returnToStart){
+pair<int,int> discover(int row, int col, DiscoveryMode mode){
     for(int i=0;i<R;i++)
         for(int j=0;j<C;j++)
             dist[i][j] = UNDEFINED;
@@ -78,25 +86,32 @@ pair<int,int> discover(int row, int col, bool returnToStart){
     while(!Q.empty()){
         pair<int,int> current = Q.front();
         Q.pop();
-        cerr<<"Jestem w ("<<current.first<<","<<current.second<<")"<<endl;
+        //cerr<<"Jestem w ("<<current.first<<","<<current.second<<")"<<endl;
 
         if(map[current.first][current.second] == UNEXPLORED){
             if(firstUnknown == UNKNOWN)
                 firstUnknown = current;
         }
         else {
-            if(!returnToStart){
+            if(mode == GO_TO_CONTROL_ROOM){
                 if(map[current.first][current.second] == CONTROL_ROOM){
                     controlRoom = current;
                     emptyAQueue(Q);
                     break;
                 }
             }
-            else {
+            else if(mode == GO_TO_START){
                 if(map[current.first][current.second] == START){
                     start = current;
                     emptyAQueue(Q);
                     break;
+                }
+            }
+            else if(mode == EXPLORE){
+                if(map[current.first][current.second] == CONTROL_ROOM){
+                    controlRoom = current;
+                    dist[current.first][current.second] = INF;
+                    continue;
                 }
             }
 
@@ -112,12 +127,18 @@ pair<int,int> discover(int row, int col, bool returnToStart){
         }
     }
 
-    if(!returnToStart){
-        if(controlRoom != UNKNOWN) return getNextField(controlRoom, false);
-        return getNextField(firstUnknown, false);
-    }
-    else{
-        return getNextField(start, true);
+    switch(mode){
+        case EXPLORE:
+            if(firstUnknown != UNKNOWN)
+                return getNextField(firstUnknown, false);
+            return discover(row, col, GO_TO_CONTROL_ROOM);
+            break;
+        case GO_TO_CONTROL_ROOM:
+            return getNextField(controlRoom, false);
+            break;
+        case GO_TO_START:
+            return getNextField(start, true);
+            break;
     }
 }
 
@@ -130,8 +151,8 @@ pair<int,int> getNextFieldToExit(){
 void printDirection(pair<int,int> nextField){
     // Write an action using cout. DON'T FORGET THE "<< endl"
     // To debug: cerr << "Debug messages..." << endl;
-    cerr << "KR: " << KR << " KC: " << KC << endl;
-    cerr<<"Next field: ("<<nextField.first<<","<<nextField.second<<")"<< endl;
+    //cerr << "KR: " << KR << " KC: " << KC << endl;
+    //cerr<<"Next field: ("<<nextField.first<<","<<nextField.second<<")"<< endl;
 
     if(KR == nextField.first){
         if(KC < nextField.second)
@@ -164,17 +185,17 @@ int main()
     // game loop
     while (1) {
         cin >> KR >> KC; cin.ignore();
-        cerr<< KR << " " << KC << endl;
+        //cerr<< KR << " " << KC << endl;
         for (int i = 0; i < R; i++) {
             string ROW; // C of the characters in '#.TC?' (i.e. one line of the ASCII maze).
             cin >> ROW; cin.ignore();
-            cerr << ROW << endl;
+            //cerr << ROW << endl;
             map[i] = ROW;
         }
 
         if(map[KR][KC] == CONTROL_ROOM){
             alarmOn = true;
-            discover(KR, KC, true);
+            discover(KR, KC, GO_TO_START);
         }
 
         pair<int,int> nextField;
@@ -182,9 +203,9 @@ int main()
         if(alarmOn)
             nextField = getNextFieldToExit();
         else
-            nextField = discover(KR, KC, false);
+            nextField = discover(KR, KC, EXPLORE);
 
-        cerr<<"Next field: ("<<nextField.first<<","<<nextField.second<<")"<< endl;
+        //cerr<<"Next field: ("<<nextField.first<<","<<nextField.second<<")"<< endl;
         printDirection(nextField);
     }
 }
