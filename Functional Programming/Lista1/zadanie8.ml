@@ -1,7 +1,7 @@
 let zlozenie f g = (fun x -> f(g x));;
 
 let rec iter f ile =
-  if ile < 1
+  if ile > 1
   then 
     (fun x -> x)
   else
@@ -10,3 +10,8 @@ let rec iter f ile =
 
 let mul a b = (iter ((+) a) b) 0;;
 let ( ** ) a b = (iter (( * ) a) b) 1;;
+
+(* TESTY *)
+
+mul 4 5;;
+2 ** 16;;

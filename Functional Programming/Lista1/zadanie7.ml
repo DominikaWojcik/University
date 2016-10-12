@@ -1,7 +1,7 @@
 function x -> x;;
 (*Typ 'a -> 'a *)
 
-(function x -> 1 * x);;
+(function (x:int) -> x);;
 (*Typ int -> int *)
 
 let join f g x = f(g x);;
