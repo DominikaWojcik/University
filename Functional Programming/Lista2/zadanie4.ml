@@ -54,14 +54,6 @@ let rec mergesort cmp a =
     in merge cmp sortedxs sortedys;;
 
 (*****************************************************************)
-let splitNoRev x n = 
-  let rec aux acc x n= 
-    if n = 0 || x = []
-    then acc, x
-    else let hd::tl = x in
-      aux (hd::acc) tl (n-1)
-  in aux [] x n;;
-
 let mergeNoRev cmp a b = 
   let rec aux cmp a b acc =
     match a,b with
@@ -79,7 +71,7 @@ let rec mergesort2 cmp a =
   if length < 2
   then a
   else
-    let xs,ys = splitNoRev a (length/2) 
+    let xs,ys = split a (length/2) 
     and revCmp x y = not (cmp x y) in
     let sortedxs = mergesort2 revCmp xs
     and sortedys = mergesort2 revCmp ys
@@ -91,6 +83,16 @@ merge2 (<=) [1;2;5] [3;4;5];;
 mergesort (<=) [2;5;2;7;9;5;3;6;9;0;5;2;2;5;6;5;-1;43;3;-133];;
 mergesort2 (<=) [2;5;2;7;9;5;3;6;9;0;5;2;2;5;6;5;-1;43;3;-133];;
 
+(* ZWIEKSZYC LIMIT NA STOS - export OCAMLRUNPARAM='l=256M'*)
+
+let time f x y =
+  let start = Sys.time ()
+  in let res = f x y
+  in let stop = Sys.time ()
+  in let () = Printf.printf "Execution time: %fs\n%!" (stop -. start)
+  in
+  res;;
+
 let rec ones acc n = 
   if n = 0
   then acc
@@ -98,5 +100,11 @@ let rec ones acc n =
 
 let toSort = ones [] 1000000;;
 
-mergesort (<=) toSort;;
-mergesort2 (<=) toSort;;
+Printf.printf "Bez rekursji ogonowej:\n";;
+time mergesort (<=) toSort;;
+
+Printf.printf "Z rekursja ogonowa:\n";;
+time mergesort2 (<=) toSort;;
+
+(* REKURSJA OGONOWA WOLNIEJSZA BO MergeNoRev przechodzi przez wszystkie elementy,
+   a zwykly merge nie*)
