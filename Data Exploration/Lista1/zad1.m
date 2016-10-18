@@ -54,9 +54,9 @@ close;
 
 %%%%%%%%% C %%%%%%%%%
 mu1 = 2;
-sigma1 = 5;
+sigma1 = sqrt(5);
 mu2 = 3;
-sigma2 = 1;
+sigma2 = sqrt(1);
 
 randXMaly = normrnd(mu1, sigma1, 1, malo);
 randYMaly = normrnd(mu2, sigma2, 1, malo);
@@ -78,5 +78,19 @@ print('-dpng', '-r300', 'pairs2.png');
 close;
 
 %%%%%%%%% D %%%%%%%%%
-sign(randYMaly - randXMaly) * ones(malo, 1) / malo
-sign(randYDuzy - randXDuzy) * ones(duzo, 1) / duzo
+
+%%%%% STATYSTYKA Z POPRZEDNIEGO PODPUNKTU
+disp('Prawdopodobienstwo dla 10^4:')
+max(0, sign(randYMaly - randXMaly)) * ones(malo, 1) / malo
+disp('Prawdopodobienstwo dla 10^5:')
+max(0, sign(randYDuzy - randXDuzy)) * ones(duzo, 1) / duzo
+
+%%%%% NORMALNE LICZENIE
+%X ~ N(mu1, sigma1^2)
+%Y ~ N(mu2, sigma2^2)
+%X - Y ~ N(mu1 - mu2, sigma1^2 + (-sigma2)^2)
+%P(X - Y < 0) = F(X - Y, 0)
+mu3 = mu1 - mu2;
+sigma3 = sqrt(sigma1^2 + (-sigma2)^2);
+disp('Prawdopodobienstwo wyliczone normalnie:')
+normcdf(0, mu3, sigma3)
