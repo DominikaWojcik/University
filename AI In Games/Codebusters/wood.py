@@ -1,6 +1,10 @@
 import sys
 import math
-import queue
+from queue import *
+import numpy as np
+import copy
+import random
+
 
 SIZE_X = None
 SIZE_Y = None
@@ -33,31 +37,124 @@ class Buster:
         self.usedRadar = False
         self.lastStun = 0
         self.ghost = None
+        self.commandToExecute = None
 
     def moveTo(self, point):
-        print("MOVE", point[0], point[1])
+        self.commandToExecute = "MOVE %d %d" % point
+        return True
 
     def bust(self, ghost):
-        print("BUST", ghost.id)
+        self.commandToExecute = "BUST %d" % ghost.id
+        return True
 
     def stun(self, buster):
-        print("STUN", buster.id)
+        self.commandToExecute = "STUN %d" % buster.id
+        self.lastStun = TURN
+        return True
 
     def release(self):
-        print("RELEASE")
+        self.commandToExecute = "RELEASE"
+        return True
 
     def useRadar(self):
         self.usedRadar = True
-        print("RADAR")
+        self.commandToExecute = "RADAR"
+        return True
 
     def canUseStun(self):
         return TURN - self.lastStun >= STUN_COOLDOWN or self.lastStun == 0
 
-    def carriesGhost(self):
+    def isCarryingAGhost(self):
         return not self.ghost is None
 
     def isPosInSight(self, pos):
         return distance(self.pos, pos) <= VISION_RANGE
+
+    def isPosInRange(self, pos):
+        return distance(self.pos, pos) <= ACTION_RANGE
+
+    def canBust(self, ghost):
+        return BUST_MIN_DIST < distance(self.pos, ghost.pos) <= ACTION_RANGE 
+    
+    def isInBase(self):
+        return distance(self.pos, BASE) <= BASE_RADIUS
+
+    def goToBase(self):
+        base = pairToNpVec(BASE)
+        buster = pairToNpVec(self.pos)
+        normalized = (buster - base) / np.linalg.norm(buster - base)
+        target = (BASE_RADIUS - 2) * normalized + base
+        return self.moveTo(target.astype(np.int64))
+        
+    def goToGhost(self, ghost):
+        buster = pairToNpVec(self.pos)
+        gpos = pairToNpVec(ghost.pos)
+        toGhost = gpos - buster
+        distanceToGhost = np.linalg.norm(toGhost) 
+        normalized = toGhost / distanceToGhost
+
+        if distanceToGhost > VISION_RANGE:
+            return self.moveTo(ghost.pos)
+        elif distanceToGhost > ACTION_RANGE:
+            target = buster + normalized * (distanceToGhost - ACTION_RANGE + GHOST_MOVE_DIST)
+            return self.moveTo(target.astype(np.int64))
+        else: #We are too close!
+            #Let's just go towards base but not too far away
+            base = pairToNpVec(BASE)
+            toBase = base - buster
+            normalized = toBase / np.linalg.norm(toBase)
+            moveDist = MOVE_DIST
+            if distanceToGhost >= ACTION_RANGE - GHOST_MOVE_DIST - MOVE_DIST:
+                moveDist = ACTION_RANGE - GHOST_MOVE_DIST - MOVE_DIST
+            target = buster + normalized * moveDist
+            return self.moveTo(target.astype(np.int64))
+
+    def explore(self):
+        square = grid.getSquareFromPos(self.pos)
+        group = grid.voronoi[square[0]][square[1]]
+        candidateSquares = grid.bestSquares[group][2]
+        chosenSquare = candidateSquares[random.randrange(0,len(candidateSquares))]
+        return self.moveTo(grid.getMiddleOfSquare(chosenSquare))
+
+    def selectOptimalGhost(self):
+        square = grid.getSquareFromPos(self.pos)
+        group = grid.voronoi[square[0]][square[1]]
+        ghostsInMyArea = []
+
+        for ghostId, ghost in Blackboard.ghosts.items():
+            ghostSquare = grid.getSquareFromPos(ghost.pos)
+            if grid.voronoi[ghostSquare[0]][ghostSquare[1]] == group:
+                ghostsInMyArea.append(ghost)
+
+        if len(ghostsInMyArea) == 0:
+            return False
+
+        ghostsInMyArea.sort(key=lambda gh: self.estimateRoundsToCapture(gh))
+        Blackboard.selectedGhost = gh
+        return True
+
+    def estimateRoundsToCapture(self, ghost):
+        dist = distance(self.pos, ghost.pos)
+
+        #Getting to the ghost:
+        roundsToReach = 0
+        if dist < BUST_MIN_DIST:
+            roundsToReach = 1
+        elif dist > ACTION_RANGE:
+            roundsToReach = math.ceil((dist - ACTION_RANGE // 2) / MOVE_DIST)
+
+        #Busting the ghost:
+        roundsToBust = 1
+
+        #Returning to the base:
+        ghostVec = pairToNpVec(ghost.pos)
+        base = pairToNpVec(BASE)
+        ghostToBase = base - ghostVec
+        dist = np.linalg.norm(ghostToBase)
+        dist = max(0, dist - ACTION_RANGE // 2)
+        roundsToReturn = math.ceil(dist / MOVE_DIST)
+
+        return roundsToReach + roundsToBust + roundsToReturn
 
 class Ghost:
 
@@ -71,32 +168,71 @@ class Ghost:
 class Grid:
 
     def __init__ (self):
-        self.size_x = SIZE_X / GRID_SIZE
-        self.size_y = SIZE_Y / GRID_SIZE
+        self.size_x = SIZE_X // GRID_SIZE
+        self.size_y = SIZE_Y // GRID_SIZE
         self.grid = [[0 for x in range(self.size_x)] for y in range(self.size_y)]
         self.voronoi = [[[] for x in range(self.size_x)] for y in range(self.size_y)]
+        self.bestSquares = {}
 
     def update(self):
         dist = [[INF for x in range(self.size_x)] for y in range(self.size_y)]
         self.voronoi = [[[] for x in range(self.size_x)] for y in range(self.size_y)]
         Q = Queue()
-        for bId, buster in Blackboard.busters:
+        for bId, buster in Blackboard.busters.items():
+            if buster.isCarryingAGhost():
+                continue
             square = self.getSquareFromPos(buster.pos)
             dist[square[0]][square[1]] = 0
-            voronoi[square[0]][square[1]].append(bId)
-            Q.put(square)
+            self.voronoi[square[0]][square[1]].append(bId)
+            if len(self.voronoi[square[0]][square[1]]) == 1:
+                Q.put(square)
 
+        #RESETING BEST SQUARES
+        tmpQ = copy.copy(Q)
+        self.bestSquares = {}
+        while not tmpQ.empty():
+            square = tmpQ.get()
+            group = self.voronoi[square[0]][square[1]]
+            self.bestSquares[group] = (TURN, 0, [])
+
+        #BFS
         while not Q.empty():
             square = Q.get()
+            for busterId in self.voronoi[square[0]][square[1]]:
+                if self.isSquareEntirelyVisibleBy(square, busterId):
+                    self.grid[square[0]][square[1]] = TURN
+                    break
+            
+            #UPDATING BEST SQUARES
+            group = self.voronoi[square[0]][square[1]]
+            lastVisited, shortestDist, squares = self.bestSquares[group]
+            currentLastVisited = self.grid[square[0]][square[1]]
+            currentDist = dist[square[0]][square[1]]
+            
+            if currentLastVisited < lastVisited:
+                lastVisited = currentLastVisited
+                shortestDist = currentDist
+                squares = []
+            if lastVisited == currentLastVisited:
+                if currentDist < shortestDist:
+                    shortestDist = currentDist
+                    squares = []
+                if currentDist == shortestDist:
+                    squares.append(square)
+            bestSquares[group] = (lastVisited, shortestDist, squares)
+
+            #CONTINUING BFS
             neighbours = self.getNeighbourSquares(square)
             for neighbour in neighbours:
                 if dist[neighbour[0]][neighbour[1]] == INF:
                     dist[neighbour[0]][neighbour[1]] = dist[square[0]][square[1]] + 1
-                    voronoi[neighbour[0]][neighbour[1]] = voronoi[square[0]][square[1]]
+                    self.voronoi[neighbour[0]][neighbour[1]] = self.voronoi[square[0]][square[1]]
                     Q.put(neighbour)
 
+
+
     def getSquareFromPos(self, pos):
-        return (pos[0] % self.size_x, pos[1] % self.size_y)
+        return (pos[0] // self.size_x, pos[1] // self.size_y)
 
     def getNeighbourSquares(self, pos):
         x,y = pos
@@ -108,52 +244,120 @@ class Grid:
                         ans.append((x+i,y+j))
         return ans
 
+    def isSquareEntirelyVisibleBy(self, square, busterId):
+        buster = Blackboard.busters[busterId]
+        leftTop = (square[0] * GRID_SIZE, square[1] * GRID_SIZE)
+        rightTop = (leftTop[0], leftTop[1] + GRID_SIZE - 1)
+        leftBottom = (leftTop[0] + GRID_SIZE - 1, leftTop[1])
+        rightBottom = (leftBottom[0], rightTop[1])
+
+        ans = True
+        ans &= buster.isPosInSight(leftTop)
+        ans &= buster.isPosInSight(rightTop)
+        ans &= buster.isPosInSight(leftBottom)
+        ans &= buster.isPosInSight(rightBottom)
+        return ans
+
+    def getMiddleOfSquare(self, square):
+        coordX = square[0] * GRID_SIZE + GRID_SIZE // 2 - 1
+        coordY = square[1] * GRID_SIZE + GRID_SIZE // 2 - 1
+        return (coordX, coordY)
+
 
 class Blackboard:
 
     ghosts = {}
     busters = {}
     enemies = {}
+    currentBuster = None
+    selectedGhost = None
 
     def update():
-        for ghostId, ghost in ghosts.items():
+        for ghostId, ghost in Blackboard.ghosts.items():
             if ghost.lastSeen == TURN:
                 continue    
-            for busterId, buster in busters.items():
+            for busterId, buster in Blackboard.busters.items():
                 if distance(ghost.pos, buster.pos) <= ACTION_RANGE:
-                    ghosts.pop(ghostId)
+                    Blackboard.ghosts.pop(ghostId)
                     break
 
+########################################################################
+class BehaviouralTreeNode:
+    def __init__(self, *sons):
+        self.sons = sons
 
+    def run(self):
+        return False
 
-    
-# PROGRAM STARTS HERE
+class Selector(BehaviouralTreeNode):
+    def __init__(self, *sons):
+        super().__init__(self, sons)
 
-initialize()
+    def run(self):
+        for son in sons:
+            if son.run():
+                return True
+        return False
 
-# game loop
-while True:
+class Sequence(BehaviouralTreeNode):
+    def __init__(self, *sons):
+        super().__init__(self, sons)
 
-    TURN += 1
-    entities = int(input())  # the number of busters and ghosts visible to you
-    for i in range(entities):
-        entity_id, x, y, entity_type, state, value = [int(j) for j in input().split()]
-        updateEntity(entity_id, (x,y), entity_type, state, value)
-            
-    Blackboard.update()
-    grid.update()
+    def run(self):
+        for son in sons:
+            if not son.run(): 
+                return False
+        return True
 
-    for i in range(BUSTER_COUNT):
-        # Write an action using print
-        # To debug: print("Debug messages...", file=sys.stderr)
+class Func(BehaviouralTreeNode):
+    def __init__(self, booleanF):
+        self.booleanF = booleanF
 
-        # MOVE x y | BUST id | RELEASE
-        print("MOVE 8000 4500")
+    def run(self):
+        return self.booleanF()
 
-# PROGRAM ENDS HERE
+strategy = Selector(
+        Sequence(
+            Func(lambda: Blackboard.currentBuster.isCarryingAGhost()),
+            Selector(
+                Sequence(
+                    Func(lambda: Blackboard.currentBuster.isInBase()),
+                    Func(lambda: Blackboard.currentBuster.release())),
+                Func(lambda: Blackboard.currentBuster.goToBase()))),
+        Sequence(
+            Func(lambda: Blackboard.currentBuster.selectOptimalGhost()),
+            Selector(
+                Sequence(
+                    Func(lambda: Blackboard.currentBuster.canBust(Blackboard.selectedGhost)),
+                    Func(lambda: Blackboard.currentBuster.bust(Blackboard.selectedGhost))),
+                Func(lambda: Blackboard.currentBuster.goToGhost(Blackboard.selectedGhost)))),
+        Func(lambda: Blackboard.currentBuster.explore()))
+
+########################################################################
 
 def initialize():
 
+    global SIZE_X
+    global SIZE_Y
+    global GRID_SIZE
+    global TURN
+    global STUN_COOLDOWN
+    global BASE_RADIUS
+    global MOVE_DIST
+    global GHOST_MOVE_DIST
+    global GHOST_HP
+    global VISION_RANGE
+    global ACTION_RANGE
+    global BUST_MIN_DIST
+    global BUSTER_COUNT
+    global GHOST_COUNT
+    global TEAM_ID
+    global ENEMY_TEAM_ID
+    global GHOST_ID
+    global INF
+
+    global grid
+    
     SIZE_X = 16001
     SIZE_Y = 9001
     GRID_SIZE = 100
@@ -171,7 +375,7 @@ def initialize():
     TEAM_ID = int(input())  # if this is 0, your base is on the top left of the map, if it is one, on the bottom right
     ENEMY_TEAM_ID = 1 - TEAM_ID
     GHOST_ID = -1
-    INF = sys.maxint
+    INF = float("inf") 
 
     if TEAM_ID == 0 :
         BASE = (0,0)
@@ -219,3 +423,37 @@ def updateEntity(entity_id, pos, entity_type, state, value):
 def distance(x, y):
     return math.sqrt((x[0]-y[0])**2 + (x[1]-y[1])**2)
 
+def pairToNpVec(pair):
+    return np.array([pos[0], pos[1]], dtype=float64)
+
+
+    
+# PROGRAM STARTS HERE
+
+initialize()
+
+# game loop
+while True:
+
+    TURN += 1
+    entities = int(input())  # the number of busters and ghosts visible to you
+    for i in range(entities):
+        entity_id, x, y, entity_type, state, value = [int(j) for j in input().split()]
+        updateEntity(entity_id, (x,y), entity_type, state, value)
+            
+    Blackboard.update()
+    grid.update()
+    orders = []
+
+    for busterId, buster in Blackboard.busters.items():
+        Blackboard.currentBuster = buster
+        buster.commandToExecute = None
+        strategy.run()
+        orders.append((busterId, buster.commandToExecute))
+
+    # To debug: print("Debug messages...", file=sys.stderr)
+    orders.sort()
+    for order in orders:
+        print(order[1])
+
+# PROGRAM ENDS HERE
