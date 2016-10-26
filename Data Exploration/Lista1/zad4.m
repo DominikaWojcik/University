@@ -8,7 +8,11 @@ function zad4()
 	tic;
 	policzOdleglosci(X,Y);
 	czas = toc;
-	fprintf('Czas dla d=%d, N=%d, M=%d to: %f\n', d, N, M, czas);
+	fprintf('Czas dla policz gorzej d=%d, N=%d, M=%d to: %f\n', d, N, M, czas);
+    tic;
+	policzOdleglosciLepiej(X,Y);
+	czas = toc;
+	fprintf('Czas policz lepiej dla d=%d, N=%d, M=%d to: %f\n', d, N, M, czas);
 
 	N = 10000;
 	X = rand(d,N);
@@ -16,5 +20,9 @@ function zad4()
 	tic;
 	policzOdleglosci(X,Y);
 	czas = toc;
-	fprintf('Czas dla d=%d, N=%d, M=%d to: %f\n', d, N, M, czas);
+	fprintf('Czas dla policz gorzej d=%d, N=%d, M=%d to: %f\n', d, N, M, czas);
+    tic;
+	policzOdleglosciLepiej(X,Y);
+	czas = toc;
+	fprintf('Czas policz lepiej dla d=%d, N=%d, M=%d to: %f\n', d, N, M, czas);
 end

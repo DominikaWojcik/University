@@ -26,30 +26,18 @@ disp(iloczynSkalarnyXY);
 N = 1000;
 X = rand(d, N);
 
-%dlugosci = sqrt(diag(X' * X));
-dlugosci = zeros(N,1);
-for i = 1:N
-	suma = 0;
-	for j = 1:d
-		suma = suma + X(j,i)^2;
-	end
-	dlugosci(i,1) = sqrt(suma);
-end
+dlugosci = sqrt(sum(X.^2))
 
 srednieWazone = (w' * X) / sumaWag;
 
-roznica = X - (y * ones(1,N));
-%odleglosciEuklidesowe = sqrt(diag(roznica' * roznica));
-odleglosciEuklidesowe = zeros(N,1);
-for i = 1:N
-	suma = 0;
-	for j = 1:d
-		suma = suma + roznica(j,i)^2;
-	end
-	odleglosciEuklidesowe(i,1) = sqrt(suma);
-end
-
 iloczynySkalarne = y' * X;
+
+kwadratyDlugosci = sum(X.^2);
+kwadratDlugY = sum(y.^2)
+
+odleglosciEuklidesowe = sqrt(kwadratDlugY + kwadratyDlugosci - 2 * iloczynySkalarne);
+
+
 
 disp('Macierz X:');
 disp(X);
