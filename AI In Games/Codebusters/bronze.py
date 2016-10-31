@@ -55,6 +55,8 @@ class Buster:
     def stun(self, buster):
         self.commandToExecute = "STUN %d" % buster.id
         self.lastStun = TURN
+        #Załóżmy ze juz jest stunned zeby inny buster go nie zestunowal
+        buster.stunned = True
         return True
 
     def release(self):
@@ -134,13 +136,19 @@ class Buster:
             ghostSquare = grid.getSquareFromPos(ghost.pos)
             if tuple(grid.voronoi[ghostSquare[0]][ghostSquare[1]]) == group:
                 ghostsInMyArea.append(ghost)
+        allGhostsClose = list(Blackboard.ghosts.values())
+        allGhostsClose = [gh for gh in allGhostsClose if distance(gh.pos, self.pos) <= 2*VISION_RANGE] 
 
-        if len(ghostsInMyArea) == 0:
-            return False
+        if len(ghostsInMyArea) > 0:
+            ghostsInMyArea.sort(key=lambda gh: self.estimateRoundsToCapture(gh))
+            Blackboard.selectedGhost = ghostsInMyArea[0]
+            return True
+        elif len(allGhostsClose) > 0:
+            allGhostsClose.sort(key=lambda gh: self.estimateRoundsToCapture(gh))
+            Blackboard.selectedGhost = allGhostsClose[0]
+            return True
+        return False
 
-        ghostsInMyArea.sort(key=lambda gh: self.estimateRoundsToCapture(gh))
-        Blackboard.selectedGhost = ghostsInMyArea[0]
-        return True
 
     def estimateRoundsToCapture(self, ghost):
         dist = distance(self.pos, ghost.pos)
@@ -151,9 +159,11 @@ class Buster:
             roundsToReach = 1
         elif dist > ACTION_RANGE:
             roundsToReach = math.ceil((dist - ACTION_RANGE // 2) / MOVE_DIST)
+        if ghost.bustersAttempting > 0 and roundsToReach > math.ceil(ghost.hp/ghost.bustersAttempting):
+            return INF
 
         #Busting the ghost:
-        roundsToBust = ghost.hp
+        roundsToBust = max(1, math.ceil((ghost.hp - ghost.bustersAttempting * roundsToReach) / (ghost.bustersAttempting+1)))
 
         #Returning to the base:
         ghostVec = pairToNpVec(ghost.pos)
@@ -183,11 +193,14 @@ class Buster:
         return self.ghostBusted != None
 
     def canCatch(self, enemy):
-        #a - pozycja moja
+        return self.canCatchStartingFrom(self.pos, enemy)
+
+    def canCatchStartingFrom(self, startPos, enemy):
+        #a - pozycja moja poczatkowa
         #b - pozycja przeciwnika
         #toBaseA - znormalizowany wektor wskazujacy kierunek do bazy od mojej pozycji
         #toBaseB - to samo tylko od pozycji wroga
-        a = pairToNpVec(self.pos)
+        a = pairToNpVec(startPos)
         b = pairToNpVec(enemy.pos)
         enemyBase = pairToNpVec(ENEMY_BASE)
         toBaseA = (enemyBase - a)
@@ -200,14 +213,19 @@ class Buster:
         p = (MOVE_DIST * distance(toBaseA, toBaseB))**2
         q = 2.*MOVE_DIST * scalarProd(a - b, toBaseA - toBaseB)
         r = distance(a,b)**2 - ACTION_RANGE**2
+        if q**2 - 4*p*r < 0:
+            return False
         delta = math.sqrt(q**2 - 4*p*r)
         RES1 = (math.ceil((-q-delta)/(2*p)), math.floor((-q+delta)/(2*p)))
 
         #Nierówność kiedy przeciwnik jest poza bazą:
         #p*t^2 + q*t + r > 0
-        p = speed**2 * scalarProd(toBaseB, toBaseB)
-        q = 2.*speed * scalarProd(toBaseB, b - enemyBase)
+        p = MOVE_DIST**2 * scalarProd(toBaseB, toBaseB)
+        q = 2.*MOVE_DIST * scalarProd(toBaseB, b - enemyBase)
         r = distance(b, enemyBase)**2 - BASE_RADIUS**2
+        if q**2 - 4*p*r < 0:
+            return False
+        delta = math.sqrt(q**2 - 4*p*r)
         RES2 = (-1,math.floor((-q-delta-1)/(2*p)))
 
         if RES2[1] < RES1[0]:
@@ -217,8 +235,7 @@ class Buster:
         #Now I know the interval of time when the buster will be in range to stun the enemy
         #Can the buster stun the enemy before or at the same time when he stuns the buster? 
         #If enemy has stun fster
-        if (enemy.lastStun < self.lastStun and self.lastStun + STUN_COOLDOWN + 1 > RES[0]) or 
-        (self.lastStun != 0 and self.lastStun + STUN_COOLDOWN + 1 > RES[1]):
+        if (enemy.lastStun < self.lastStun and self.lastStun + STUN_COOLDOWN + 1 > RES[0]) or (self.lastStun != 0 and self.lastStun + STUN_COOLDOWN + 1 > RES[1]):
             return False
         return True
 
@@ -237,6 +254,40 @@ class Buster:
         else: # VISION_RANGE >= distanceToEnemy > ACTION_RANGE:
             target = buster + normalized * (distanceToEnemy - ACTION_RANGE + 5)
             return self.moveTo(target.astype(np.int64))
+
+    def canStopTheEnemyBeforeBust(self):
+        enemy = Blackboard.selectedEnemy
+        ghost = enemy.ghostBusted
+        roundsToBust = 10
+        if ghost.id in Blackboard.ghosts:
+            if ghost.bustersAttempting == 0:
+                ghost.bustersAttempting += 1
+            roundsToBust = ghost.hp / ghost.bustersAttempting
+            if ghost.hp == 0 and ghost.bustersAttempting > 1:
+                roundsToBust = INF
+
+        roundsToStun = math.ceil((distance(self.pos, enemy.pos) - ACTION_RANGE + 10) / MOVE_DIST) + 1
+        return roundsToBust >= roundsToStun and (roundsToBust == INF or self.lastStun == 0 or 
+                self.lastStun + STUN_COOLDOWN + 1 <= TURN + roundsToStun or self.lastStun <= enemy.lastStun)
+
+    def canCatchAfterBust(self, enemy):
+        enemy = Blackboard.selectedEnemy
+        ghost = enemy.ghostBusted
+        roundsToBust = 10
+        if ghost.id in Blackboard.ghosts:
+            if ghost.bustersAttempting == 0:
+                ghost.bustersAttempting += 1
+            roundsToBust = ghost.hp / ghost.bustersAttempting
+
+        enemyBase = pairToNpVec(ENEMY_BASE)
+        myPos = pairToNpVec(self.pos)
+        toBase = enemyBase - myPos / np.linalg.norm(enemyBase - myPos)
+        startChasePos = myPos + MOVE_DIST * roundsToBust * toBase
+        return self.canCatchStartingFrom(startChasePos, enemy)
+
+    def smartGoToStopTheEnemy(self):
+        return self.goToEnemyBase()
+
 
 class Ghost:
 
@@ -261,8 +312,7 @@ class Grid:
         self.voronoi = [[[] for y in range(self.size_y)] for x in range(self.size_x)]
         Q = Queue()
         for bId, buster in Blackboard.busters.items():
-            if buster.isCarryingAGhost() or buster.stunned or 
-            (buster.isBustingAGhost and buster.ghostBusted.hp == 0):
+            if buster.isCarryingAGhost() or buster.stunned or (buster.isBustingAGhost() and buster.ghostBusted.hp == 0):
                 continue
             square = self.getSquareFromPos(buster.pos)
             dist[square[0]][square[1]] = 0
@@ -384,6 +434,9 @@ class Blackboard:
                     break
         Blackboard.newStunnedBusters = []
 
+    def selectEnemy(enemy):
+        Blackboard.selectedEnemy = enemy
+
 ########################################################################
 class BehaviouralTreeNode:
     def __init__(self, *sons):
@@ -447,39 +500,42 @@ strategy = Selector(
                     Func(lambda: Blackboard.currentBuster.release())),
                 Sequence(
                     Func(lambda: Blackboard.currentBuster.canUseStun()),
-                    Iter(lambda: Blackboard.enemies,
-                        lambda e: Blackboard.selectedEnemy = e,
+                    Iter(lambda: list(Blackboard.enemies.values()), 
+                        lambda e: Blackboard.selectEnemy(e),
                         Sequence(
-                            Func(Blackboard.currentBuster.isPosInRange(Blackboard.selectedEnemy)),
-                            Func(Blackboard.selectedEnemy.canUseStun()),
-                            Func(Blackboard.currentBuster.stunTheEnemy())))),
+                            Func(lambda: Blackboard.currentBuster.isPosInRange(Blackboard.selectedEnemy.pos)),
+                            Func(lambda: not Blackboard.selectedEnemy.stunned),
+                            Func(lambda: Blackboard.selectedEnemy.canUseStun()),
+                            Func(lambda: Blackboard.currentBuster.stunTheEnemy())))),
                 Func(lambda: Blackboard.currentBuster.goToBase()))),
         # I'm not carrying a ghost but maybe I can steal someone's ghost
         Sequence(
             Func(lambda: Blackboard.currentBuster.canUseStun()),
-            Iter(lambda: Blackboard.enemies, 
-                lambda e: Blackboard.selectedEnemy = e,
+            Iter(lambda: list(Blackboard.enemies.values()), 
+                lambda e: Blackboard.selectEnemy(e),
                 Sequence(
                     Func(lambda: Blackboard.selectedEnemy.isCarryingAGhost()),
                     Func(lambda: Blackboard.currentBuster.isPosInRange(Blackboard.selectedEnemy.pos)),
+                    Func(lambda: not Blackboard.selectedEnemy.stunned),
                     Func(lambda: Blackboard.currentBuster.stunTheEnemy())))),
         # I can't steal anyone's ghost right now, but maybe I will be able to in the future.
         # If yes, chase the enemy
-        Iter(lambda: Blackboard.enemies, 
-            lambda e: Blackboard.selectedEnemy = e,
+        Iter(lambda: list(Blackboard.enemies.values()), 
+            lambda e: Blackboard.selectEnemy(e),
             Sequence(
                 Func(lambda: Blackboard.selectedEnemy.isCarryingAGhost()),
                 Func(lambda: Blackboard.currentBuster.canCatch(Blackboard.selectedEnemy)),
                 Func(lambda: Blackboard.currentBuster.goToEnemyBase()))),
         # Maybe I will be able to steal a ghost from an enemy 
-        Iter(lambda: Blackboard.enemies, 
-            lambda e: Blackboard.selectedEnemy = e,
+        Iter(lambda: list(Blackboard.enemies.values()), 
+            lambda e: Blackboard.selectEnemy(e),
             Sequence(
                 Func(lambda: Blackboard.selectedEnemy.isBustingAGhost()),
                 Selector(
                     Sequence(
-                        Func(lambda: Blackboard.currentBuster.isPosInRange(Blackboard.selectedEnemy)),
+                        Func(lambda: Blackboard.currentBuster.isPosInRange(Blackboard.selectedEnemy.pos)),
                         Func(lambda: Blackboard.currentBuster.canUseStun()),
+                        Func(lambda: not Blackboard.selectedEnemy.stunned),
                         Func(lambda: Blackboard.currentBuster.stunTheEnemy())),
                     Sequence(
                         Func(lambda: Blackboard.currentBuster.canStopTheEnemyBeforeBust()),
@@ -487,6 +543,17 @@ strategy = Selector(
                     Sequence(
                         Func(lambda: Blackboard.currentBuster.canCatchAfterBust(Blackboard.selectedEnemy)),
                         Func(lambda: Blackboard.currentBuster.smartGoToStopTheEnemy()))))),
+        # If I'm busting a ghost at the moment and some enemy comes into stun range 
+        # and is not stunned yet - stun him
+        Sequence(
+            Func(lambda: Blackboard.currentBuster.isBustingAGhost()),
+            Func(lambda: Blackboard.currentBuster.canUseStun()),
+            Iter(lambda: list(Blackboard.enemies.values()), 
+                lambda e: Blackboard.selectEnemy(e),
+                Sequence(
+                    Func(lambda: Blackboard.currentBuster.isPosInRange(Blackboard.selectedEnemy.pos)),
+                    Func(lambda: not Blackboard.selectedEnemy.stunned),
+                    Func(lambda: Blackboard.currentBuster.stunTheEnemy())))),
         # Can't steal anything, Bust the "best" ghost in my area
         Sequence(
             Func(lambda: Blackboard.currentBuster.selectOptimalGhost()),
@@ -534,7 +601,7 @@ def initialize():
     BASE_RADIUS = 1600
     MOVE_DIST = 800
     GHOST_MOVE_DIST = 400
-    GHOST_HP = 0
+    GHOST_HP = 10
     VISION_RANGE = 2200
     ACTION_RANGE = 1760
     BUST_MIN_DIST = 900
@@ -544,7 +611,7 @@ def initialize():
     ENEMY_TEAM_ID = 1 - TEAM_ID
     GHOST_ID = -1
     INF = float("inf") 
-    DEBUG = False
+    DEBUG = True
 
     if TEAM_ID == 0 :
         BASE = (0,0)
@@ -569,7 +636,7 @@ def updateEntity(entity_id, pos, entity_type, state, value):
         elif state == 3:
             buster.ghost = None
             buster.ghostBusted = Blackboard.ghosts[value]
-        elif not buster.ghost is None:
+        else:
             buster.ghost = None
             buster.ghostBusted = None
             if state == 2 and buster.stunned == False:
@@ -651,6 +718,7 @@ while True:
         Blackboard.currentBuster = buster
         buster.commandToExecute = None
         strategy.run()
+        debug("Strategy for buster",busterId,"computed")
         orders.append((busterId, buster.commandToExecute))
 
     # To debug: print("Debug messages...", file=sys.stderr)
