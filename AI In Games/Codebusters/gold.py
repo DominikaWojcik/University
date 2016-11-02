@@ -17,6 +17,9 @@ STUN_DURATION = None
 BASE_RADIUS = None
 MIN_DIST_FROM_BASE_FOR_MIRROR = None 
 EARLY_EXPLORE_RANGE = None
+CATCH_EJECT_DIST_FROM_BASE = None
+EJECT_PASS_MAX_DIST = None
+EJECT_PASS_MIN_DIST = None
 MOVE_DIST = None
 GHOST_MOVE_DIST = None
 GHOST_HP = None
@@ -49,7 +52,9 @@ class Buster:
         self.commandToExecute = None
         self.lastSeen = 0
         self.stunnedFor = 0
-        self.wentEarlyExplore = False
+        self.ejectUsed = False
+        self.ejectUsedWhen = -1337
+        self.ejectedId = -1337 
 
     def moveTo(self, point):
         self.commandToExecute = "MOVE %d %d" % (point[0], point[1])
@@ -79,8 +84,43 @@ class Buster:
         self.commandToExecute = "RADAR RADAR"
         return True
 
+    def eject(self, point):
+        self.ejectUsed = True
+        self.ejectUsedWhen = TURN
+        self.ejectedId = self.ghost.id
+        self.commandToExecute = "EJECT %d %d EJECT" % (point[0], point[1])
+        return True
+
+    def ejectToBase(self):
+        return self.eject(BASE)
+
+    def paysOffToEjectToBase(self):
+        myPos = pairToNpVec(self.pos)
+        base = pairToNpVec(BASE)
+        toBase = (base - myPos) / np.linalg.norm(base - myPos)
+        target = myPos + ACTION_RANGE * toBase
+        target = target.astype(np.int64)
+        return not Blackboard.notStunnedEnemyClose((target[0], target[1])) and self.anotherBusterCanPickUp((target[0], target[1]))
+
+    def anotherBusterCanPickUp(self, point):
+        for buster in Blackboard.busters.values():
+            if buster.id == self.id or buster.stunnedFor > 1:
+                continue
+            distBetween = distance(buster.pos, self.pos)
+            distBusterBase = distance(buster.pos, BASE)
+            distMeBase = distance(self.pos, BASE)
+            goodDistance = (EJECT_PASS_MAX_DIST + EJECT_PASS_MIN_DIST) / 2 - 400
+            if distBusterBase <= CATCH_EJECT_DIST_FROM_BASE or EJECT_PASS_MIN_DIST <= distBetween <= EJECT_PASS_MAX_DIST:
+                if distBusterBase + goodDistance < distMeBase and not buster.isCarryingAGhost and not buster.isBustingAGhost():
+                    return True
+        return False
+
+
+    def inPosToRadar(self):
+        return distance(self.pos, BASE) >= EARLY_EXPLORE_RANGE 
+
     def canUseStun(self):
-        return TURN - self.lastStun > STUN_COOLDOWN or self.lastStun == 0
+        return TURN - self.lastStun >= STUN_COOLDOWN or self.lastStun == 0
 
     def couldHaveUsedStun(self):
         return (TURN-1) - self.lastStun > STUN_COOLDOWN or self.lastStun == 0
@@ -143,6 +183,7 @@ class Buster:
         return self.moveToWithText(grid.getMiddleOfSquare(chosenSquare), "explore")
 
     def selectOptimalGhost(self):
+        '''
         square = grid.getSquareFromPos(self.pos)
         group = tuple(grid.voronoi[square[0]][square[1]])
         ghostsInMyArea = []
@@ -163,6 +204,23 @@ class Buster:
             Blackboard.selectedGhost = allGhostsClose[0]
             return True
         return False
+        '''
+        ghosts = list(Blackboard.ghosts.values())
+        ghostToRemove = None
+        for gh in ghosts:
+            if gh.id == self.ejectedId and TURN - self.ejectUsedWhen < 5:
+                ghostToRemove = gh
+                break
+        if not ghostToRemove is None:
+            ghosts.remove(ghostToRemove)
+
+        if len(ghosts) == 0:
+            return False
+        ghosts.sort(key=lambda gh: self.estimateRoundsToCapture(gh))
+        Blackboard.selectedGhost = ghosts[0]
+        return True
+        
+        
 
 
     def estimateRoundsToCapture(self, ghost):
@@ -188,7 +246,14 @@ class Buster:
         dist = max(0, dist - ACTION_RANGE // 2)
         roundsToReturn = math.ceil(dist / MOVE_DIST)
 
-        return roundsToReach + roundsToBust + roundsToReturn
+        #Another factor we should take into account is the proximity to enemy base (if ghost is not seen)
+        notSeenFactor = 0
+        if ghost.lastSeen < TURN:
+            distToEnemyBase = distance(ghost.pos, ENEMY_BASE)
+            #y = -(x-SIZE_Y)(x+SIZE_Y)
+            notSeenFactor = max(0, -(distToEnemyBase - SIZE_Y) * (distToEnemyBase + SIZE_Y) / (400*SIZE_Y))
+
+        return roundsToReach + roundsToBust + roundsToReturn + notSeenFactor
 
     def enemyInRange(self):
         for enemyId, enemy in Blackboard.enemies.items():
@@ -335,15 +400,11 @@ class Buster:
     def closeToEnemyBase(self):
         return distance(self.pos, ENEMY_BASE) <= BASE_RADIUS + 100
     
-    def earlyExploreDone(self):
-        self.wentEarlyExplore |= distance(self.pos, BASE) > EARLY_EXPLORE_RANGE
-        return self.wentEarlyExplore
-
-    def goEarlyExplore(self):
+    def goUseRadar(self):
         base = pairToNpVec(BASE)
         myPos = pairToNpVec(self.pos)
         target = myPos + MOVE_DIST * (myPos - base) / np.linalg.norm(myPos - base)
-        return self.moveToWithText(target.astype(np.int64), "early explore")
+        return self.moveToWithText(target.astype(np.int64), "go use RADAR")
 
 class Ghost:
 
@@ -529,6 +590,12 @@ class Blackboard:
     def selectAlly(ally):
         Blackboard.selectedAlly = ally
 
+    def notStunnedEnemyClose(point):
+        for enemy in Blackboard.enemies.values():
+            if enemy.lastSeen + 2 > TURN and enemy.stunnedFor <= 1 and distance(point, enemy.pos) <= VISION_RANGE:
+                return False
+        return True
+
 ########################################################################
 class BehaviouralTreeNode:
     def __init__(self, *sons):
@@ -585,8 +652,12 @@ strategy = Selector(
             Func(lambda: Blackboard.currentBuster.noOperation())),
         Sequence(
             Func(lambda: isEarlyGame()),
-            Func(lambda: not Blackboard.currentBuster.earlyExploreDone()),
-            Func(lambda: Blackboard.currentBuster.goEarlyExplore())),
+            Func(lambda: not Blackboard.currentBuster.usedRadar),
+            Selector(
+                Sequence(
+                    Func(lambda: Blackboard.currentBuster.inPosToRadar()),
+                    Func(lambda: Blackboard.currentBuster.useRadar())),
+                Func(lambda: Blackboard.currentBuster.goUseRadar()))),
         # If I'm carrying a ghost
         Sequence(
             Func(lambda: Blackboard.currentBuster.isCarryingAGhost()),
@@ -594,6 +665,10 @@ strategy = Selector(
                 Sequence(
                     Func(lambda: Blackboard.currentBuster.isInBase()),
                     Func(lambda: Blackboard.currentBuster.release())),
+                Sequence(
+                    Func(lambda: not Blackboard.currentBuster.ejectUsed),
+                    Func(lambda: Blackboard.currentBuster.paysOffToEjectToBase()),
+                    Func(lambda: Blackboard.currentBuster.ejectToBase())),
                 Sequence(
                     Func(lambda: Blackboard.currentBuster.canUseStun()),
                     Iter(lambda: list(Blackboard.enemies.values()), 
@@ -694,6 +769,9 @@ def initialize():
     global BASE_RADIUS
     global MIN_DIST_FROM_BASE_FOR_MIRROR 
     global EARLY_EXPLORE_RANGE
+    global CATCH_EJECT_DIST_FROM_BASE
+    global EJECT_PASS_MAX_DIST
+    global EJECT_PASS_MIN_DIST
     global MOVE_DIST
     global GHOST_MOVE_DIST
     global GHOST_HP
@@ -723,6 +801,9 @@ def initialize():
     BASE_RADIUS = 1600
     MIN_DIST_FROM_BASE_FOR_MIRROR = 7000 
     EARLY_EXPLORE_RANGE = 7000
+    CATCH_EJECT_DIST_FROM_BASE = 5000
+    EJECT_PASS_MAX_DIST = 4200
+    EJECT_PASS_MIN_DIST = 2400
     MOVE_DIST = 800
     GHOST_MOVE_DIST = 400
     GHOST_HP = 10
