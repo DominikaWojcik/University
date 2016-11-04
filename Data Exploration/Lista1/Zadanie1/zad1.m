@@ -63,10 +63,18 @@ randYMaly = normrnd(mu2, sigma2, 1, malo);
 randXDuzy = normrnd(mu1, sigma1, 1, duzo);
 randYDuzy = normrnd(mu2, sigma2, 1, duzo);
 
+
+ix1 = [mu1 - 4*sigma1 : 1e-2 : mu1 + 4*sigma1];
+iy1 = pdf('Normal', ix1, mu1, sigma1);
+ix2 = [mu2 - 4*sigma2 : 1e-2 : mu2 + 4*sigma2];
+iy2 = pdf('Normal', ix2, mu2, sigma2);
+Z = iy2' * iy1;
+
 %%%%% RYSUJEMY DLA 10^4
 figure;
 hold on;
 scatter(randXMaly, randYMaly,'.');
+contour(ix1,ix2,Z,25);
 print('-dpng', '-r300', 'pairs1.png');
 close;
 
@@ -74,8 +82,21 @@ close;
 figure;
 hold on;
 scatter(randXDuzy, randYDuzy,'.');
+contour(ix1,ix2,Z,25);
 print('-dpng', '-r300', 'pairs2.png');
 close;
+
+%%%%% POZIOMICA GESTOSCI
+% X ~ N(mu1, sigma1)
+% Y ~ N(mu2, sigma2)
+% X i Y są niezależne! zatem prawdopodobienstwo 
+% P(X w A, Y w B) = P(X w A) * P(Y w B)
+figure;
+hold on;
+contour(ix1,ix2,Z,25);
+print('-dpng', '-r300', 'pairsNormalDistribution.png');
+close;
+
 
 %%%%%%%%% D %%%%%%%%%
 
