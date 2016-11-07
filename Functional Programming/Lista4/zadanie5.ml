@@ -37,3 +37,16 @@ print_endline "Test without zero";;
 prod2 test;;
 print_endline "Test with zero in tree";;
 prod2 testWithZero;;
+
+let prod3 tree = 
+  let rec aux tre k = match tre with
+      Leaf -> k 1
+    | Node (left, value, right) -> if value = 0 then 0
+      else
+        aux left (fun prodLeft -> 
+            aux right (fun prodRight ->
+                k (prodLeft * value * prodRight))) in 
+  aux tree (fun v -> v);;
+
+prod3 test;;
+prod3 testWithZero;;
