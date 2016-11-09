@@ -6,8 +6,9 @@ let isBalanced tree =
   let rec aux tree = match tree with
     |Leaf -> (true, 0)
     |Node (l, _, r) -> 
-      let lFlag, lSum = aux l
-      and rFlag, rSum = aux r in 
+      let lFlag, lSum = aux l in
+      if not lFlag then (false, 0) else
+      let rFlag, rSum = aux r in 
       (lFlag && rFlag && abs (lSum - rSum) <= 1, lSum + 1 + rSum) in
   fst (aux tree);;
 
