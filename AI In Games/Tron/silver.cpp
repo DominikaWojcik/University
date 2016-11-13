@@ -1,5 +1,6 @@
 #include<chrono>
 #include<vector>
+#include<queue>
 #include<algorithm>
 #include<cmath>
 #include<string>
@@ -65,6 +66,12 @@ struct GameState
 		}
 		else if(firstPos != LOST && (TURN == 0 || newPosition != trails[player].back()))
 		{
+			if(TURN == 0 && firstPos != newPosition)
+			{
+				trails[player].push_back(firstPos);
+				board[firstPos.ft][firstPos.sd] = player;			
+			}
+
 			trails[player].push_back(newPosition);
 			board[newPosition.ft][newPosition.sd] = player;			
 		}
@@ -144,6 +151,22 @@ struct GameState
 		return possible;
 	}
 
+	bool currentPlayerTookAction()
+	{
+		return trails[currentPlayer].size() >= 2;
+	}
+
+	action getPreviousCurrentPlayerAction()
+	{
+		pii currentPos = trails[currentPlayer].back();
+		pii prevPos = trails[currentPlayer][trails[currentPlayer].size()-2];
+		pii delta = pii(currentPos.ft - prevPos.ft, currentPos.sd - prevPos.sd);
+
+		for(auto a : actions)
+			if(a.sd == delta)
+				return a;
+	}
+
 	bool isTerminal()
 	{
 		int activePlayers = 0;
@@ -152,8 +175,6 @@ struct GameState
 
 		return activePlayers == 1;
 	}
-
-private:
 
 	bool isAlive(int player)
 	{
@@ -332,6 +353,17 @@ int defaultPolicy(MCTNode& node)
 	while(!state.isTerminal())
 	{
 		auto possibleActions = state.getPossibleActions();
+		if(state.currentPlayerTookAction())
+		{
+			action prevAction = state.getPreviousCurrentPlayerAction();
+			if(find(possibleActions.begin(), possibleActions.end(), prevAction) != possibleActions.end())
+			{
+				state.applyAction(prevAction);
+				continue;
+			}
+		}
+
+		//If we couldn't use previous action. We don't enter this section if we could use previous action
 		action randomAction = possibleActions[makeRandom(possibleActions.size())];
 		state.applyAction(randomAction);	
 	}
@@ -356,7 +388,7 @@ void backup(MCTNode& node, int whoWon)
 	}
 }
 
-action computeStrategy(Stopwatch<>& sw)
+action MCTS(Stopwatch<>& sw)
 {
 	action strategy = {"LEFT",{-1,0}};
 	double maxTime = 0;
@@ -385,6 +417,66 @@ action computeStrategy(Stopwatch<>& sw)
 	strategy = root.getBestAction();
 
 	return strategy;
+}
+
+vector<int> computeVoronoi(GameState state, action actionToTake)
+{
+	state.applyAction(actionToTake);
+
+	vector<int>voronoiSizes(state.players, 0);
+	queue<pair<pii, int> >Q;
+
+	for(int player = state.currentPlayer, i = 0; i<PLAYERS; player = (player + 1)%PLAYERS, i++)
+		if(state.isAlive(player))
+			Q.push(make_pair(state.trails[player].back(), player));
+
+	while(!Q.empty())
+	{
+		auto fieldPlayer = Q.front();
+		Q.pop();
+		pii field = fieldPlayer.ft;
+		int player = fieldPlayer.sd;
+		
+		voronoiSizes[player]++;
+		for(action a : actions)
+		{
+			pii neighbour = pii(field.ft + a.sd.ft, field.sd + a.sd.sd);
+			if(neighbour.ft >= 0 && neighbour.ft < SIZE_X && neighbour.sd >= 0 && neighbour.sd < SIZE_Y &&
+					state.board[neighbour.ft][neighbour.sd] == FREE)
+			{
+				state.board[neighbour.ft][neighbour.sd] = player;
+				Q.push(make_pair(neighbour, player));
+			}
+		}
+	}
+
+	return voronoiSizes;
+}
+
+action voronoiStrategy(Stopwatch<>& sw)
+{
+	action strategy = {"LEFT",{-1,0}};
+
+	int maxSize = -1;
+
+	for(action a : currentState.getPossibleActions())
+	{
+		vector<int> voronoiSizes = computeVoronoi(currentState, a);
+		debug("Action %s - %d\n", a.ft.c_str(), voronoiSizes[currentState.currentPlayer]);
+		if(voronoiSizes[currentState.currentPlayer] > maxSize)
+		{
+			maxSize = voronoiSizes[currentState.currentPlayer];
+			strategy = a;
+		}
+	}
+
+	return strategy;
+}
+
+action computeStrategy(Stopwatch<>& sw)
+{
+	return voronoiStrategy(sw);	
+//	return MCTS(sw);
 }
 
 int main()

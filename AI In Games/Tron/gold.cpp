@@ -1,5 +1,6 @@
 #include<chrono>
 #include<vector>
+#include<queue>
 #include<algorithm>
 #include<cmath>
 #include<string>
@@ -8,7 +9,7 @@
 
 #define ft first
 #define sd second
-#define DEBUG 0
+#define DEBUG 1
 #define debug(...) if(DEBUG) {fprintf(stderr, __VA_ARGS__);}
 
 using namespace std;
@@ -65,6 +66,12 @@ struct GameState
 		}
 		else if(firstPos != LOST && (TURN == 0 || newPosition != trails[player].back()))
 		{
+			if(TURN == 0 && firstPos != newPosition)
+			{
+				trails[player].push_back(firstPos);
+				board[firstPos.ft][firstPos.sd] = player;			
+			}
+
 			trails[player].push_back(newPosition);
 			board[newPosition.ft][newPosition.sd] = player;			
 		}
@@ -144,6 +151,22 @@ struct GameState
 		return possible;
 	}
 
+	bool currentPlayerTookAction()
+	{
+		return trails[currentPlayer].size() >= 2;
+	}
+
+	action getPreviousCurrentPlayerAction()
+	{
+		pii currentPos = trails[currentPlayer].back();
+		pii prevPos = trails[currentPlayer][trails[currentPlayer].size()-2];
+		pii delta = pii(currentPos.ft - prevPos.ft, currentPos.sd - prevPos.sd);
+
+		for(auto a : actions)
+			if(a.sd == delta)
+				return a;
+	}
+
 	bool isTerminal()
 	{
 		int activePlayers = 0;
@@ -152,8 +175,6 @@ struct GameState
 
 		return activePlayers == 1;
 	}
-
-private:
 
 	bool isAlive(int player)
 	{
@@ -254,6 +275,28 @@ struct MCTNode
 		return possibleActions[getBestChild()];
 	}
 
+	int getFinalChild()
+	{
+		int bestChild = 0;
+		double maxUCT = 0;
+		for(int i=0; i<children.size();i++)
+		{
+			double UCT = ((double)timesChildWon[i])/timesChildPlayed[i];
+			if(UCT > maxUCT)
+			{
+				maxUCT = UCT;
+				bestChild = i;
+			}
+		}
+
+		return bestChild;	
+	}
+
+	action getFinalAction()
+	{
+		return possibleActions[getFinalChild()];
+	}
+
 
 private:
 
@@ -288,6 +331,64 @@ struct Pool
 };
 
 Pool<MCTNode> nodePool;
+
+vector<int> computeVoronoi(GameState& state)
+{
+	vector<int>voronoiSizes(state.players, 0);
+	queue<pair<pii, int> >Q;
+
+	for(int player = state.currentPlayer, i = 0; i<PLAYERS; player = (player + 1)%PLAYERS, i++)
+		if(state.isAlive(player))
+			Q.push(make_pair(state.trails[player].back(), player));
+
+	while(!Q.empty())
+	{
+		auto fieldPlayer = Q.front();
+		Q.pop();
+		pii field = fieldPlayer.ft;
+		int player = fieldPlayer.sd;
+		
+		voronoiSizes[player]++;
+		for(action a : actions)
+		{
+			pii neighbour = pii(field.ft + a.sd.ft, field.sd + a.sd.sd);
+			if(neighbour.ft >= 0 && neighbour.ft < SIZE_X && neighbour.sd >= 0 && neighbour.sd < SIZE_Y &&
+					state.board[neighbour.ft][neighbour.sd] == FREE)
+			{
+				state.board[neighbour.ft][neighbour.sd] = player;
+				Q.push(make_pair(neighbour, player));
+			}
+		}
+	}
+
+	return voronoiSizes;
+}
+
+vector<int> computeVoronoi(GameState state, action actionToTake)
+{
+	state.applyAction(actionToTake);
+	return computeVoronoi(state);
+}
+
+action voronoiStrategy(GameState& state)
+{
+	action strategy = {"LEFT",{-1,0}};
+
+	int maxSize = -1;
+
+	for(action a : state.getPossibleActions())
+	{
+		vector<int> voronoiSizes = computeVoronoi(state, a);
+
+		if(voronoiSizes[state.currentPlayer] > maxSize)
+		{
+			maxSize = voronoiSizes[state.currentPlayer];
+			strategy = a;
+		}
+	}
+
+	return strategy;
+}
 
 MCTNode& expand(MCTNode* node)
 {
@@ -332,10 +433,58 @@ int defaultPolicy(MCTNode& node)
 	while(!state.isTerminal())
 	{
 		auto possibleActions = state.getPossibleActions();
+		if(state.currentPlayerTookAction())
+		{
+			action prevAction = state.getPreviousCurrentPlayerAction();
+			if(find(possibleActions.begin(), possibleActions.end(), prevAction) != possibleActions.end())
+			{
+				state.applyAction(prevAction);
+				continue;
+			}
+		}
+
+		//If we couldn't use previous action. We don't enter this section if we could use previous action
 		action randomAction = possibleActions[makeRandom(possibleActions.size())];
 		state.applyAction(randomAction);	
 	}
 	
+	return state.currentPlayer;
+}
+
+int voronoiRolloutPolicy(MCTNode& node)
+{
+	const int ROLLOUT_DEPTH = 10;
+	GameState state = node.state;
+
+	for(int depth = 0; depth < ROLLOUT_DEPTH && !state.isTerminal(); depth++)
+	{
+		action bestAction = voronoiStrategy(state);
+		state.applyAction(bestAction);	
+	}
+	
+	if(!state.isTerminal())
+	{
+		auto voronoiSizes = computeVoronoi(state);
+		int maxSize = -1;
+		vector<int> bestPlayers;	
+
+		for(int i = 0; i<voronoiSizes.size(); i++)
+		{
+			if(voronoiSizes[i] > maxSize)
+			{
+				maxSize = voronoiSizes[i];
+				bestPlayers.clear();
+			}
+			if(voronoiSizes[i] == maxSize)
+				bestPlayers.push_back(i);
+		}
+
+
+		int whoWon = bestPlayers[makeRandom(bestPlayers.size())];
+		//debug("pl %d won\n", whoWon);
+		return whoWon;
+	}
+
 	return state.currentPlayer;
 }
 
@@ -356,7 +505,7 @@ void backup(MCTNode& node, int whoWon)
 	}
 }
 
-action computeStrategy(Stopwatch<>& sw)
+action MCTS(Stopwatch<>& sw)
 {
 	action strategy = {"LEFT",{-1,0}};
 	double maxTime = 0;
@@ -370,10 +519,11 @@ action computeStrategy(Stopwatch<>& sw)
 	{
 		Stopwatch<> iterSW;
 
-		if(cnt%100 == 0)debug("%d\n", cnt);
+		//if(cnt%100 == 0)debug("%d\n", cnt);
 		cnt++;
 		MCTNode& chosenNode = treePolicy(root);	
-		int whoWon = defaultPolicy(chosenNode);
+		//int whoWon = defaultPolicy(chosenNode);
+		int whoWon = voronoiRolloutPolicy(chosenNode);
 		backup(chosenNode, whoWon);
 
 		maxTime = max(maxTime, iterSW.stop());
@@ -382,9 +532,17 @@ action computeStrategy(Stopwatch<>& sw)
 			
 	} while (maxTime < TIME_BUDGET - sw.stop());
 
-	strategy = root.getBestAction();
+	debug("Simulations: %d\n", cnt);
+	strategy = root.getFinalAction();
 
 	return strategy;
+}
+
+
+action computeStrategy(Stopwatch<>& sw)
+{
+//	return voronoiStrategy(currentState);	
+	return MCTS(sw);
 }
 
 int main()
