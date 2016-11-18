@@ -75,9 +75,9 @@ let nsols (glasses, v) =
 
   and initialState = LCons([], lazy LNil) in
 
-  let winningStates = lfilter checkIfWinning (genStates initialState) in
+  let winningStates = lmap (fun moves -> List.rev moves) @@ lfilter checkIfWinning (genStates initialState) in
 
-  function n -> List.map List.rev @@ ltake(n, winningStates);;
+  function n -> ltake(n, winningStates);;
 
 let time f x =
   let start = Sys.time ()
@@ -87,13 +87,15 @@ let time f x =
   in
   res;;
 
-let f = nsols ([1;2;3;4;6], 5) and n = 10 in 
+nsols ([1;2;4;6], 5) 10;;
+
+let f = nsols ([1;2;4;6], 5) and n = 10 in 
 let start = Sys.time () in
 let res = f n in
 let stop = Sys.time () in
 Printf.printf "Execution time: %fs\n%!" (stop -. start);;
 
-let f = nsols ([1;2;3;4;6], 5) and n = 10 in 
+let f = nsols ([1;2;4;6], 5) and n = 10 in 
 let start = Sys.time () in
 let res = (f n, f n) in
 let stop = Sys.time () in

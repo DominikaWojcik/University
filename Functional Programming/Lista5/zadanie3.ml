@@ -15,6 +15,7 @@ let mkHTree xs =
   let rec insert ys tree = match ys with
       [] -> [tree]
     | hd::tl -> if tree <= hd then tree::ys else hd::(insert tl tree) in
+    
   let rec aux trees = match trees with
       [] -> failwith "This shouldn't happen"
     | [tree] -> tree
