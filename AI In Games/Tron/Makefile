@@ -10,5 +10,8 @@ silver: silver.cpp
 gold: gold.cpp
 	$(CXX) $(CXXFLAGS) -o gold gold.cpp
 
+legend: legend.cpp
+	$(CXX) $(CXXFLAGS) -o legend legend.cpp
+
 clean:
-	rm wood silver gold
+	rm wood silver gold legend
