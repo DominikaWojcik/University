@@ -1,0 +1,1 @@
+let play state = Model.Game state;;
