@@ -55,7 +55,7 @@ let main () =
   Random.self_init ();
   let () = View.init_window () in
   while true do
-    playGame ()
+    playGame ();
   done;
   View.close_window ();;
 

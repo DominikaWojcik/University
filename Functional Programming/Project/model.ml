@@ -30,7 +30,25 @@ type gameState = {
   terminal : bool option;
 }
 
-type gamePhase = Welcome of gameState | Game of gameState | GameOver of gameState
+type gamePhase = Welcome of gameState | Game of gameState | GameOver of gameState;;
+
+let (++) = function x,y -> function a,b -> x+a,y+b;;
+let (--) = function x,y -> function a,b -> x-a,y-b;;
+
+let copyState state = 
+  let copiedMoves = Hashtbl.copy state.moves in
+  Hashtbl.iter (fun key moves -> Hashtbl.replace copiedMoves key (Array.copy moves)) state.moves;
+  (* Printf.printf "copied state in point (%d,%d)\n" (fst @@ List.hd state.path)(snd @@ List.hd state.path);
+     Array.iteri (fun i av -> Printf.printf "\t%d %B\n" i av) (Hashtbl.find copiedMoves (List.hd state.path)); *)
+  {
+    path = state.path;
+    lastMove = state.lastMove;
+    config = state.config;
+    turn = state.turn;
+    lastTurn = state.lastTurn;
+    moves = copiedMoves;
+    terminal = state.terminal;
+  };;
 
 let possibleMoves = [(-1,0);(-1,1);(0,1);(1,1);(1,0);(1,-1);(0,-1);(-1,-1)];;
 
@@ -58,7 +76,7 @@ let canMoveTo state targetPoint =
     let notUsedBefore = Array.get (Hashtbl.find state.moves fromPoint) @@ findIndex possibleMoves delta in
     notUsedBefore;;
 
-let getMoves config = function x,y -> 
+let getInitialMoves config = function x,y -> 
   let all = Array.make (List.length possibleMoves) true in
   let () = List.iteri (function i -> function (dX,dY) -> 
       let vX, vY = x + dX, y + dY in
@@ -66,6 +84,9 @@ let getMoves config = function x,y ->
       Array.set all i isOk) 
       possibleMoves in
   all;;
+
+let getMoves state =
+  Hashtbl.find state.moves (List.hd state.path);; 
 
 let newGame vsPlayer = 
   let config = { pitchX = 8;
@@ -78,7 +99,7 @@ let newGame vsPlayer =
   for x = 0 to config.pitchX do
     for y = 0 to config.pitchY do
       let point = x - config.pitchX / 2, y - config.pitchY / 2 in
-      let moves = getMoves config point in
+      let moves = getInitialMoves config point in
       Hashtbl.add allMoves point moves
     done
   done;
@@ -110,7 +131,7 @@ let canBounce state = function x,y as point ->
         (fun acc move -> if not move then acc + 1 else acc) 
         0 
         (Hashtbl.find state.moves point) in
-    usedEdgesCount > 1;;
+    usedEdgesCount > 1 && usedEdgesCount < 8;;
 
 
 let makeMove state nextPoint =
@@ -148,6 +169,21 @@ let makeMove state nextPoint =
   else 
     failwith "Can't make this move!";;
 
+let makeMoveById state id = 
+  let delta = List.nth possibleMoves id 
+  and currentPoint = List.hd state.path in
+  let nextPoint = fst currentPoint + fst delta, snd currentPoint + snd delta in
+  makeMove state nextPoint;;
+
+let makeMoveCopy state =
+  makeMove (copyState state);;
+
+let makeMoveByIdCopy state id = 
+  let delta = List.nth possibleMoves id 
+  and currentPoint = List.hd state.path in
+  let nextPoint = fst currentPoint + fst delta, snd currentPoint + snd delta in
+  makeMoveCopy state nextPoint;;
+
 let changeOpponent state op = 
   {
     path = state.path;
@@ -164,3 +200,73 @@ let changeOpponent state op =
     moves = state.moves;
     terminal = state.terminal;
   };;
+
+let dist p1 p2 = 
+  let p = p1 -- p2 in
+  let x,y = abs (fst p), abs (snd p) in
+  x + y - min x y;;
+
+let distanceToEnemyGoal state moveId =
+  let curPoint = List.hd state.path
+  and delta = List.nth possibleMoves moveId in
+  let nextPoint = curPoint ++ delta
+  and goalX, goalY = 0, 
+                     if state.turn 
+                     then state.config.pitchY / 2 + 1 
+                     else -state.config.pitchY / 2 - 1 in
+  dist nextPoint (goalX, goalY);;
+
+let getAllReachableStates state = 
+  let rec aux = function pathFromStart, st ->
+    if st.turn = state.turn then
+      let availableMoves = snd @@ Array.fold_left 
+          (function i,acc -> fun elem -> i+1 ,if elem then i::acc else acc)
+          (0,[]) 
+          (getMoves st) in
+      let reachableStates = List.map (fun i -> i::pathFromStart, makeMoveByIdCopy st i) availableMoves in
+      let nextLevels = List.concat @@ List.map (fun p -> aux p) reachableStates in
+      reachableStates @ nextLevels
+    else [] in
+  aux ([], state);;
+
+let getAllReachableStates2 state =
+  let st = copyState state in
+  let visited = Hashtbl.create 8 in
+  let currentPoint = List.hd st.path in
+  let () = Hashtbl.add visited currentPoint currentPoint in
+
+  let getNotVisitedNeighbours point = 
+    let moveArray = Hashtbl.find st.moves point in
+    let result = snd @@ Array.fold_left 
+        (function pos,acc -> fun elem -> 
+            let neighbour = point ++ (List.nth possibleMoves pos) in
+            pos+1, if elem && not (Hashtbl.mem visited neighbour) 
+            then
+              let () = Hashtbl.add visited neighbour point in 
+              (neighbour,pos)::acc 
+            else acc ) 
+        (0,[]) 
+        moveArray in
+    List.map (function neighbour, i -> 
+        Array.set moveArray i false;
+        (if Hashtbl.mem st.moves neighbour then
+           let neighbourMoveArray = Hashtbl.find st.moves neighbour
+           and reverseMoveId = findIndex possibleMoves (point -- neighbour) in
+           Array.set neighbourMoveArray reverseMoveId false);
+        neighbour ) result in
+
+  let rec getNotVisited xs acc = match xs with
+      point::xs' -> getNotVisited xs' ((getNotVisitedNeighbours point) @ acc)  
+    | [] -> acc in
+
+  let rec aux layer = 
+    if layer = [] then [] else
+      let canContinue = List.filter (fun p -> p = currentPoint || (getTerminality st p = None && canBounce st p)) layer in
+      let nextLayer = getNotVisited canContinue [] in
+      layer @ (aux nextLayer) in
+
+  List.filter (fun p -> p != currentPoint) @@ aux [currentPoint], visited;;
+
+
+
+

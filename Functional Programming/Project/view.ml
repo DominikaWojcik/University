@@ -267,26 +267,3 @@ let render phase =
   Graphics.auto_synchronize true;
   Graphics.synchronize ();;
 
-(*)
-  init_window ();;
-  let state = ref (newGame Player);;
-  while !state.terminal = None do
-  Unix.sleepf 0.1;
-  clear ();
-  drawPitch !state;
-  drawGameState !state;
-
-  if Graphics.button_down () then
-    let closestPoint = getClosestMousePoint !state in
-    if canMoveTo !state closestPoint then
-      state := makeMove !state closestPoint
-    else ();
-
-  done;;
-  clear();
-  drawPitch !state;
-  drawGameState !state;
-
-  Unix.sleepf 5.0;;
-  close_window ();;
-*)
