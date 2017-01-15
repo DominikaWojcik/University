@@ -4,28 +4,29 @@ open Model;;
 Leaf: nigdy nie przeanalizowany wezel
 Node: wezel
     Ile razy zagrano w tym wezle
-    Ile razy wygrano
     Stan w wezle
-    Dzieci - None jeśli takiego dziecka być nie moze, 
+    Dzieci - None jeśli takiego dziecka być nie moze,
+    Tablica mówiąca ile razy każde dziecko zostało wybrane
+    Tablica mówiąca jaka jest sumaryczna nagroda każdego dziecka
  *)
 type mctsNode = 
     Leaf 
-  | Node of int ref * int ref * Model.gameState * mctsNode option array;;
+  | Node of int ref * Model.gameState * mctsNode option array * int array * float array;;
 
 let getInitialMctsChildren moveArray =
-  (* Printf.printf "get Init mcts children\n";
-     Array.iteri (fun i av -> Printf.printf "\t%d %B\n" i av) moveArray; *)
   Array.map (fun available -> if available then Some Leaf else None) moveArray;;
 
 let newTree state = 
-  Node(ref 0, ref 0, state, getInitialMctsChildren @@ Model.getMoves state);;
+  Node(ref 0, state, getInitialMctsChildren @@ Model.getMoves state, Array.make 8 0, Array.make 8 0.0);;
 
 let computationalBudget = 0.095;;
 
+let foldi f initAcc arr = 
+  snd @@ Array.fold_left (function i,acc -> fun elem -> i+1, f i acc elem) (0,initAcc) arr;; 
 
 
 let isFullyExpanded node = match node with
-    Node (_,_,_,children) ->
+    Node (_,_,children,_,_) ->
     fst @@ Array.fold_left (fun acc child -> match child with
         | Some Leaf -> Some (snd acc), (snd acc) + 1
         | _ -> fst acc, (snd acc) + 1)
@@ -33,34 +34,29 @@ let isFullyExpanded node = match node with
       children
   | Leaf -> failwith "Fully expanded on leaf";;
 
-let computeUCB played childPlayed childWon = 
-  let mean = float_of_int childWon /. float_of_int childPlayed in
-  let expCoef = 1. in
+let computeUCB played childPlayed childReward = 
+  let mean = childReward /. float_of_int childPlayed in
+  let expCoef = 0.5 in
   let exploration = sqrt((2. *. (log (float_of_int played))) /. float_of_int childPlayed) in
-  Printf.printf "mean = %f, expCoef * exploration = %f\n%!" mean (expCoef*.exploration);
   mean +. expCoef *. exploration;;
 
-let computeBest played childPlayed childWon =
-  let mean = float_of_int childWon /. float_of_int childPlayed in
+let computeBest played childPlayed childReward =
+  let mean = childReward /. float_of_int childPlayed in
   mean;;
 
 let getBestChildByF node f = match node with
-    Node(played,_,parentSt,children) -> 
-    let _,best,_ =  Array.fold_left 
-        (fun acc childNode ->
-           match childNode with
-             Some (Node (childPlayed, childWon, childSt, _)) ->
-             let pos,maxPos,maxVal = acc in 
-             let realWon = if parentSt.turn = childSt.turn then !childWon else !childPlayed - !childWon in
-             let curVal = f !played !childPlayed realWon in
-             (* Printf.printf "getBCBF %d %d %f %f \n" pos maxPos maxVal curVal; *)
-             if curVal >= maxVal 
-             then pos+1,pos,curVal
-             else pos+1,maxPos,maxVal
-           | None -> let pos,max,maxVal = acc in (* Printf.printf "%d ruch None\n" pos ; *) pos+1,max,maxVal
-           | Some Leaf -> failwith "Child of root cannot be leaf" )
-        (0,0,0.)
-        children in best
+    Node(played,_,children,childPlayed,childReward) -> 
+    let bestChildren = fst @@ foldi (fun i -> function best,bestVal -> fun childNode ->
+        match childNode with
+          Some (Node _) ->
+          let curVal = f !played (Array.get childPlayed i) (Array.get childReward i) in
+          if curVal > bestVal
+          then [i],curVal
+          else if curVal = bestVal then i::best,bestVal else best,bestVal
+        | None -> best,bestVal
+        | Some Leaf -> failwith "Child of fully expanded node can't be a leaf!" ) 
+        ([],0.0) children in
+    List.nth bestChildren (Random.int @@ List.length bestChildren)
   | Leaf -> failwith "Leaf as root";;
 
 let randomPolicy state =
@@ -87,21 +83,6 @@ let longTermClosestToGoalPolicy state =
     let prev = Hashtbl.find visited target in
     if prev = start then Model.findIndex Model.possibleMoves (target -- start)
     else getMoveTo visited start prev in
-  (*  
-    let moveStates = List.map 
-      (function path, st -> List.hd @@ List.rev path, st)
-      (Model.getAllReachableStates state) in
-    Printf.printf "Movestates length in state (%d,%d) = %d\n" (fst @@ List.hd state.path) (snd @@ List.hd state.path) (List.length moveStates);
-    let enemyGoal = 
-    if state.turn 
-    then (0, state.config.pitchY/2 + 1)
-    else (0, -state.config.pitchY/2 - 1) in
-    let sorted = List.sort (function _, st1 -> function _, st2 -> 
-      let dist1 = Model.dist (List.hd st1.path) enemyGoal and
-      dist2 = Model.dist (List.hd st2.path) enemyGoal in
-      if dist1 < dist2 then -1 else if dist1 = dist2 then 0 else 1)
-      moveStates in
-    fst @@ List.hd sorted;;*)
   let reachable, visited = Model.getAllReachableStates2 state in
   let enemyGoal = 
     if state.turn 
@@ -115,7 +96,6 @@ let longTermClosestToGoalPolicy state =
   let bestDist = dist (List.hd sorted) enemyGoal in
   let closest = List.fold_left (fun acc p -> if bestDist = dist p enemyGoal then acc+1 else acc) 0 sorted in
   let chosenMove = getMoveTo visited (List.hd state.path) (List.nth sorted (Random.int closest)) in
-  (*Printf.printf "\tOpt move - %d\n" chosenMove;*)
   chosenMove;;
 
 let rec simulate state policy = match state.terminal with
@@ -127,25 +107,21 @@ let rec simulate state policy = match state.terminal with
 
 
 let rollout policy node = match node with
-    Node (played, won, state, _) ->
-    (*Printf.printf "Rollout w (%d,%d) - turn %B " (fst @@ List.hd state.path)(snd @@ List.hd state.path) state.turn;*) 
+    Node (played, state, _, _, _) ->
     let whoWon = match state.terminal with
         None ->
         let workingCopyState = Model.copyState state in
         simulate workingCopyState policy 
       | Some who -> who in
-    if whoWon = state.turn then won := !won + 1 else ();
     played := !played + 1;
-    (*Printf.printf "won: %d\n" (if whoWon then 2 else 1);*)
     whoWon
-
   | Leaf -> failwith "You can't rollout a Leaf";;
 
+let terminalNodeReward = float_of_int (1000 * 1000 * 1000);;
 
 let rec treeExpansion treePolicy rolloutPolicy node = match node with
-    Node(played, won, state, children) ->
-    (*Printf.printf "Tree exp Point %d %d\n" (fst @@ List.hd state.path)(snd @@ List.hd state.path);*) 
-    let whoWon = match state.terminal with
+    Node(played, state, children, childPlayed, childReward) ->
+    let whoWon, reward, whichChild = match state.terminal with
         None -> (match isFullyExpanded node with
             Some id -> 
             let newNode = 
@@ -154,20 +130,24 @@ let rec treeExpansion treePolicy rolloutPolicy node = match node with
                 if newState.terminal = None 
                 then getInitialMctsChildren @@ Model.getMoves newState
                 else Array.make 8 None in
-              Node(ref 0, ref 0, newState, newChildren) in
+              Node(ref 0, newState, newChildren, Array.make 8 0, Array.make 8 0.0) in
             Array.set children id (Some newNode);
-            rollout rolloutPolicy newNode
+            rollout rolloutPolicy newNode, 1.0, id
 
           | None -> 
-            (*Printf.printf "Point %d %d - best child is %d\n" (fst @@ List.hd state.path)(snd @@ List.hd state.path) (getBestChildByF node treePolicy);*) 
-            match Array.get children (getBestChildByF node treePolicy) with
-              Some childNode -> treeExpansion treePolicy rolloutPolicy childNode
+            let childId = getBestChildByF node treePolicy in
+            match Array.get children childId with
+              Some childNode -> 
+              let who, rew = treeExpansion treePolicy rolloutPolicy childNode in
+              who, rew, childId
             | None -> failwith "Best child in nonterminal fullyExpanded node cannot be None")
-      | Some who -> who in
-    let () = if whoWon = state.turn then won := !won + 1 else ();
+      | Some who -> who, terminalNodeReward, -1 in
+    let () = (if whichChild != -1 
+              then (Array.set childPlayed whichChild ((Array.get childPlayed whichChild) + 1);
+                    if whoWon = state.turn 
+                    then Array.set childReward whichChild ((Array.get childReward whichChild) +. reward)));
       played := !played + 1 in
-    whoWon
-
+    whoWon, if reward = terminalNodeReward then 1.0 else reward
   | Leaf -> failwith "Tree policy on Leaf!";;
 
 let mcts state = 
@@ -179,28 +159,27 @@ let mcts state =
   let () = while !elapsedTime +. !estIterTime < computationalBudget do
       let () = iterations := !iterations + 1 in
       let start = Sys.time () in
-      (* let () = Printf.printf "Kolejna iteracja\n" in *)
-      let _ = treeExpansion computeUCB longTermClosestToGoalPolicy root in
+      let _ = treeExpansion computeUCB randomPolicy root in
       let stop = Sys.time () in
       let elapsed = stop -. start in
       elapsedTime := !elapsedTime +. elapsed;
       estIterTime := max !estIterTime elapsed 
     done in
+  (*
   Printf.printf "Iterations: %d\n%!" !iterations;
   Printf.
     (match root with 
-       Node (_,_,_,children) -> Array.iteri (fun i -> function None -> Printf.printf "\t%d blok\n%!" i
-                                                             | Some (Node(pl,wo,_,_)) -> Printf.printf "\t%d %d/%d\n%!" i !wo !pl
-                                                             | _ -> Printf.printf "%d przypal\n%!" i) children
+       Node (_,_,children,childPl,childRew) -> Array.iteri (fun i -> function None -> Printf.printf "\t%d blok\n%!" i
+                                                                            | Some (Node _) -> Printf.printf "\t%d %f/%d\n%!" i (Array.get childRew i) (Array.get childPl i)
+                                                                            | _ -> Printf.printf "%d przypal\n%!" i) children
      | Leaf -> failwith "");
-  (*failwith "Koniec";*)
+  *)
   getBestChildByF root computeBest;;
 
 
 let play state = 
-  let optimalMoveId = mcts state in
+  let optimalMoveId = mcts state in 
   (*let optimalMoveId = longTermClosestToGoalPolicy state in*)
-  (* Printf.printf "optimal moveid %d\n" optimalMoveId;*)
   let newState = Model.makeMoveById state optimalMoveId  in
   if newState.terminal = None 
   then Model.Game newState

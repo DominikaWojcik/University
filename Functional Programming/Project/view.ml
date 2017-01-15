@@ -3,7 +3,7 @@
 open Model;;
 
 let windowTitle = "Paper soccer";;
-let windowX = 800;;
+let windowX = 830;;
 let windowY = 630;;
 
 
@@ -165,7 +165,7 @@ let drawGameState state =
   Graphics.set_color Graphics.red;
   Graphics.set_font smallFont;
   Graphics.moveto 0 0;
-  let str = Printf.sprintf "Wskazywany punkt: (%d,%d)\n" (fst @@ getClosestMousePoint state) (snd @@ getClosestMousePoint state) in
+  let str = Printf.sprintf "Wskazywany punkt: (%d,%d)" (fst @@ getClosestMousePoint state) (snd @@ getClosestMousePoint state) in
   Graphics.draw_string str;;
 
 let mouseInRectangle x y w h = 
@@ -193,7 +193,6 @@ let drawWelcomeState state =
 
   Graphics.set_color Graphics.black;
   Graphics.set_font bigFont;
-  (*Graphics.set_text_size 200;*)
 
   let opX, opY = (alignTextCenter opponentString), mainTextY in
   Graphics.moveto opX opY;

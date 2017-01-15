@@ -38,8 +38,6 @@ let (--) = function x,y -> function a,b -> x-a,y-b;;
 let copyState state = 
   let copiedMoves = Hashtbl.copy state.moves in
   Hashtbl.iter (fun key moves -> Hashtbl.replace copiedMoves key (Array.copy moves)) state.moves;
-  (* Printf.printf "copied state in point (%d,%d)\n" (fst @@ List.hd state.path)(snd @@ List.hd state.path);
-     Array.iteri (fun i av -> Printf.printf "\t%d %B\n" i av) (Hashtbl.find copiedMoves (List.hd state.path)); *)
   {
     path = state.path;
     lastMove = state.lastMove;
