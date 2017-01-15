@@ -98,11 +98,11 @@ let longTermClosestToGoalPolicy state =
   let chosenMove = getMoveTo visited (List.hd state.path) (List.nth sorted (Random.int closest)) in
   chosenMove;;
 
-let rec simulate state policy = match state.terminal with
+let rec simulate state policy depth = match state.terminal with
     None ->
     let nextMove = policy state in
     let nextState = Model.makeMoveById state nextMove in
-    simulate nextState policy
+    simulate nextState policy (depth+1)
   | Some who -> who;;
 
 
@@ -111,7 +111,7 @@ let rollout policy node = match node with
     let whoWon = match state.terminal with
         None ->
         let workingCopyState = Model.copyState state in
-        simulate workingCopyState policy 
+        simulate workingCopyState policy 1 
       | Some who -> who in
     played := !played + 1;
     whoWon
@@ -151,6 +151,8 @@ let rec treeExpansion treePolicy rolloutPolicy node = match node with
   | Leaf -> failwith "Tree policy on Leaf!";;
 
 let mcts state = 
+  let rolloutPolicy = randomPolicy
+  and treePolicy = computeUCB in
   let stateCopy = Model.copyState state in
   let root = newTree stateCopy
   and elapsedTime = ref 0.0
@@ -159,7 +161,7 @@ let mcts state =
   let () = while !elapsedTime +. !estIterTime < computationalBudget do
       let () = iterations := !iterations + 1 in
       let start = Sys.time () in
-      let _ = treeExpansion computeUCB randomPolicy root in
+      let _ = treeExpansion treePolicy rolloutPolicy root in
       let stop = Sys.time () in
       let elapsed = stop -. start in
       elapsedTime := !elapsedTime +. elapsed;
